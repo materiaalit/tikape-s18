@@ -11,6 +11,7 @@ GEM
     autoprefixer-rails (7.1.0)
       execjs
     backports (3.8.0)
+    byebug (9.0.6)
     coderay (1.1.1)
     coffee-script (2.4.1)
       coffee-script-source
@@ -119,6 +120,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  byebug
   middleman (>= 4.0.0)
   middleman-autoprefixer
   middleman-livereload
@@ -127,4 +129,4 @@ DEPENDENCIES
   wdm (~> 0.1.0)
 
 BUNDLED WITH
-   1.14.6
+   1.15.3

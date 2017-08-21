@@ -11,7 +11,6 @@ page '/*.json', layout: false
 page '/*.txt', layout: false
 page '/paste.html', layout: false
 
-
 # With alternative layout
 # page "/path/to/file.html", layout: :otherlayout
 
@@ -58,4 +57,10 @@ configure :build do
 
   # Minify Javascript on build
   # activate :minify_javascript
+
+  ready do
+    sitemap.resources.select { |resource| resource.data.title && resource.data.published == false }.each do |resource|
+      ignore resource.path
+    end
+  end
 end
