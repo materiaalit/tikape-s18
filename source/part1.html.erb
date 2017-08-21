@@ -1,0 +1,68 @@
+---
+  title: Osa 1
+  exercise_page: true
+  quiz_page: true
+---
+
+
+<% partial 'partials/hint', locals: { name: 'Aloituskysely' } do %>
+
+  <p>
+    Kurssiin kuuluu muutama kysely, joiden tavoitteena on parantaa kurssia. Vastaa ensimmäiseen kyselyyn osoitteessa <a href="https://elomake.helsinki.fi/lomakkeet/76573/lomake.html"  target="_blank">https://elomake.helsinki.fi/lomakkeet/76573/lomake.html</a>.
+  </p>
+
+  <p>
+    Käy vastaamassa ensin kyselyyn ja ruksaa sen jälkeen allaoleva tekstikenttä. Jos allaolevan tekstikentän ruksaaminen ei onnistu, varmista että olet kirjautunut tälle sivulle. Kirjautuminen onnistuu sivun oikeasta ylälaidasta.
+  </p>
+
+  <%= partial 'partials/quiz', locals: { id: '587a95326b66090004e96c06' } %>
+
+<% end %>
+
+
+
+
+<% partial 'partials/material_heading' do %>
+  Otsikko
+<% end %>
+
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Aliotsikko
+<% end %>
+
+
+<% partial 'partials/code_highlight' do %>
+Koodiesimerkki
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Alialiotsikko
+<% end %>
+
+<% partial 'partials/exercise', locals: { name: 'Tehtävä' } do %>
+
+  <p>
+    Jeejeetehtävä
+  </p>
+
+  <p>
+    Vuosi on karkausvuosi, jos se on jaollinen 4:llä. Kuitenkin jos vuosi on jaollinen 100:lla, se on karkausvuosi vain silloin, kun se on jaollinen myös 400:lla.
+  </p>
+
+  <p>
+    Tee ohjelma, joka lukee käyttäjältä vuosiluvun, ja tarkistaa, onko vuosi karkausvuosi.
+  </p>
+
+  <% partial 'partials/sample_output' do %>
+Esimerkkitulostus
+  <% end %>
+
+<% end %>
+
+
+<%= partial 'partials/quiz', locals: { id: '587a99b46b66090004e96c08' } %>
