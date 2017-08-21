@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+.DS_Store
+source/javascripts
+source/stylesheets
+vendor
+*~
+.bundle
