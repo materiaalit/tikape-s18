@@ -7,7 +7,7 @@
 <% end %>
 
 <p>
-  Tämä materiaali on tarkoitettu Helsingin yliopiston tietojenkäsittelytieteen laitoksen kurssille tietokantojen perusteet (5 op). Kurssilla oletetaan, että osallistuja tuntee Helsingin yliopiston kurssien Ohjelmoinnin perusteet (5 op) ja Ohjelmoinnin jatkokurssi (5 op) sisällön.
+  Tämä materiaali on tarkoitettu Helsingin yliopiston tietojenkäsittelytieteen laitoksen kurssille Tietokantojen perusteet (5 op). Kurssilla oletetaan, että osallistuja tuntee Helsingin yliopiston kurssien Ohjelmoinnin perusteet (5 op) ja Ohjelmoinnin jatkokurssi (5 op) sisällön. Kurssilla käytetään ohjelmointikielenä em. kursseilla opittua Java-kieltä.
 </p>
 
 
@@ -16,48 +16,110 @@
 <% end %>
 
 <p>
-  TODO
+  Tietokantojen perusteet -kurssilla tutustutaan tietokantojen suunnitteluun. Tämä kattaa ongelma-alueen (tai järjestelmän) tietosisällön mallintamisen (käsiteanalyysi, luokkakaaviot), tiedon esittämisen (luokkakaaviot, relaatiokaaviot), tiedon tallentamisen ja tiedon hakemisen (SQL-kieli). Kurssilla tutustutaan lisäksi tiedon tallentamiseen liittyvään lainsäädäntöön sekä henkilötietolakiin, tietokantojen historiaan, tietokantaa käyttävien sovellusten luomiseen sekä tietokannan toiminnan kannalta oleellisiin käsitteisiin kuten indeksit, transaktiot ja eheys. Kurssin pääpaino on relaatiotietokannoissa, mutta kurssilla tutustutaan pintapuolisesti myös muihin tietokantajärjestelmiin. Kurssiin kuuluu luentojen ja harjoitustehtävien lisäksi pienryhmissä tehtävä laajempi harjoitustyö, jossa suunnitellaan ja toteutetaan tietokantaa käyttävä web-sovellus.
 </p>
 
+
+<table class="table">
+  <tr>
+    <th>
+      Viikko
+    </th>
+    <th>
+      Osaamistavoitteet
+    </th>
+  </tr>
+  <tr>
+    <td>
+      Esitiedot
+    </td>
+    <td>
+      Tuntee olio-ohjelmoinnin peruskäsitteet kurssien Ohjelmoinnin perusteet (TKT-10002) ja Ohjelmoinnin jatkokurssi (TKT-10003) laaajuudessa.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Tuntee käsitteet digitalisaatio, tietokannanhallintajärjestelmä ja tietokanta. Ymmärtää tietokantojen roolin digitalisaatiossa. Tuntee ongelmia, joita tietokannanhallintajärjestelmät pyrkivät ratkaisemaan. Osaa luoda luokkakaavion annetun ohjelman lähdekoodista ja osaa luoda annetussa luokkakaaviossa kuvatut luokat. Ymmärtää luokkien, olioiden ja reaalimaailman käsitteiden suhteen. 
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Tuntee data access object (DAO) -suunnittelumallin. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Tuntee käsitteet pääavain ja viiteavain. Tuntee luokkakaavioissa esiintyvät assosiaatiot yhden suhde yhteen, yhden suhde moneen ja monen suhde moneen. Osaa luoda annetusta luokkakaaviosta relaatiokaavion, ja osaa muuntaa luokkakaavion assosiaatiot tarvittaessa tietokannalle sopivampaan muotoon. Osaa luoda SQL-kielellä useampia tietokantatauluja sisältävän tietokannan, lisätä tietokantaan tietoa, ja tehdä tietokantaan kyselyitä. Osaa hakea useammasta tietokantataulusta tietoa JOIN-kyselyiden avulla. Osaa luoda ohjelman, joka hyödyntää useamman tietokantataulun sisältävää tietokantaa.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      4
+    </td>
+    <td>
+      Tuntee käsiteanalyysin askeleet. Osaa luoda ongelma-alueen kuvauksesta luokkakaavion sekä johtaa siitä relaatiokaavion. Tietää käsitteet tietokannan normalisointi ja tietokannan denormalisointi. Tuntee tietokannan normalisointiin liittyvät ensimmäisen, toisen ja kolmannen normaalimuodon. Osaa perustella noudattaako annettu tietokanta em. normaalimuotoja. Osaa esittää tietoa HTML-kielellä.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      5
+    </td>
+    <td>
+      Osaa luoda yhtä tietokantataulua käyttävän ja muokkaavan web-sovelluksen, jota voi käyttää selaimella. Osaa kuvata tietokantaa käyttävän web-sovelluksen toimintaa sekvenssikaavion avulla. Osaa tehdä SQL-kielellä yhteenvetokyselyitä. 
+    </td>
+  </tr>
+  <tr>
+    <td>
+      6
+    </td>
+    <td>
+      Tuntee käsitteet indeksi, transaktio ja tietokannan eheys. Osaa luoda useampaa tietokantataulua käyttävän ja muokkaavan web-sovelluksen. Osaa siirtää web-sovelluksen verkkoon, missä se on kaikkien nähtävillä. 
+    </td>
+  </tr>
+  <tr>
+    <td>
+      7
+    </td>
+    <td>
+      Tuntee skaalautuvuuteen liittyvän CAP-teoreeman. Tuntee pinnallisesti muutamia NoSQL- ja NewSQL-tietokantoja. Tuntee uuden GDPR-lainsäädännön oleellisimmat vaikutukset tietokantojen suunnitteluun ja henkilötietojen tallennukseen.
+    </td>
+  </tr>
+</table>
 
 <% partial 'partials/material_sub_heading' do %>
   Työskentelytavat ja aikataulu
 <% end %>
 
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tietojenkäsittelytieteen laitos, syksy 2017
-<% end %>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Avoin yliopisto, syksy 2017
-<% end %>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Kurssimateriaalin lukeminen
-<% end %>
-
 <p>
-  Sulje pois häiriötekijät kun opiskelet. Häiriötekijöitä ovat esimerkiksi puhelinsovellukset, sosiaalisen median sivun, sähköpostiohjelmistot ym. Eräs hyvä tapa työskentelyn ajoittamiseen on <a href="https://en.wikipedia.org/wiki/Pomodoro_Technique" target="_blank">Pomodoro-tekniikka</a>, missä (1) päätät seuraavan tavoitteesi tai tehtävän, (2) asetat kellon soimaan 25 minuutin kuluttua, (3) keskityt tavoitteeseesi kunnes kello soi. Jos saat hyvän ajatuksen tai idean, kirjoita se ylös, mutta älä lähde tekemään mitään siihen liittyvää. (4) Kun kello soi, lisää ruksi paperille. Jos rukseja on neljä, pidä pidempi tauko (esim. 30 minuuttia), vedä ne yli, ja aloita kohdasta 1. Jos rukseja on alle neljä, pidä lyhyempi tauko (n. 5 minuuttia). Voit käyttää esimerkiksi osoitteessa <a href="https://tomato-timer.com/" target="_blank">https://tomato-timer.com/</a> olevaa kelloa työsi ajastukseen.
+  Kurssin suorittaminen perustuu vahvasti itse- ja ryhmäopiskeluun. Opiskelun tueksi kurssilla on viikoittaiset harjoitusryhmät, joihin ilmoittaudutaan WebOodin kautta. Harjoitusryhmissä käydään sekä viikon tehtäviä läpi että harjoitellaan oleellisimpia kurssin asioita. Kurssilla on viikoittaiset luennot perjantaisin klo 12:15-14:00 Exactumin salissa B123 (ei luentoja 6.10. ja 13.10.).
 </p>
 
 <p>
-  Kurssimateriaalia ei ole tarkoitettu vain kertaalleen luettavaksi. Joudut varmasti myöhemmin palaamaan jo aiemmin lukemiisi kohtiin tai aiemmin tekemiisi tehtäviin. Kurssimateriaali teksti ei sisällä kaikkea oleellista tietokantoihin liittyvää. Itse asiassa ei ole olemassa kirjaa josta löytyisi kaikki oleellinen. Joudut joka tapauksessa urallasi etsimään tietoa myös omatoimisesti. Kurssin harjoitukset sisältävät jo jonkun verran ohjeita, mistä suunnista ja miten hyödyllistä tietoa on mahdollista löytää.
+  Ensimmäisen viikon harjoitusryhmien tehtävät tehdään paikan päällä. Seuraavien viikkojen harjoitusryhmiä varten tulee myös kotona tehtäviä tehtäviä. Kurssilla on lisäksi ryhmätyö, ryhmät muodostetaan kurssin kolmannella viikolla harjoitustilaisuuksissa.
 </p>
-
 
 
 <% partial 'partials/material_sub_sub_heading' do %>
-  Tehtävien tekeminen ja harjoitusryhmät
+  Tukiväylät
 <% end %>
 
 <p>
-  Kurssilla on käytössä ohjelmointiympäristö Test My Code (asennusohjeet alempana), joka lataa tehtävät sekä antaa niistä automaattista palautetta. Normaalien ohjelmointitehtävien lisäksi kurssilla on myös pariohjelmointitehtäviä, joita tehdään Kumpulassa. Parit muodostetaan aina pariohjelmointitilaisuuksien alussa.
+  Kurssin tehtäviin voi tulla kysymään apua Pajasta. Pajan aikataulu ilmoitetaan myöhemmin.
 </p>
+
+<p>
+  Verkon yli nopein tapa avun kysymiseen on kurssin keskustelukanava <code>#tikape</code>, johon pääsee helpointen kanavan Matrix-huoneen kautta: <a href="https://riot.im/app/#/room/#tikape:matrix.org"  target="_blank" rel="noopener">https://riot.im/app/#/room/#tikape:matrix.org</a>. Jos et pidä modernista teknologiasta, voit myös liityä huoneeseen Ircnetin kautta seuraamalla näitä ohjeita: <a href="http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/" target="_blank" rel="noopener">http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/</a> (valitse kanavaksi #tikape).
+</p>
+
 
 
 <% partial 'partials/material_sub_sub_heading' do %>
@@ -96,85 +158,144 @@
   Todettu opintovilppi johtaa kurssisuorituksen hylkäämiseen ja toistuva opintovilppi voi johtaa opinto-oikeuden määräaikaiseen menettämiseen.  Lue lisää osoitteesta <a href="http://blogs.helsinki.fi/alakopsaa/opiskelijalle/"  target="_blank" >http://blogs.helsinki.fi/alakopsaa/opiskelijalle/</a>.
 </p>
 
-<%= partial 'partials/quiz', locals: { id: '587bc5f11b527d0004a7971c' } %>
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tukiväylät
-<% end %>
-
-<p>
-  Kurssien ensisijainen tukiväylä on Kumpulan kampuksella Exactumissa tapahtuva läsnäohjaus, johon myös MOOC-suorittajat ovat tervetulleita kysymään kurssiin liittyviä kysymyksiä.
-</p>
-
-<p>
-  Verkon yli nopein tapa avun kysymiseen on kurssin keskustelukanava <code>#mooc.fi</code>, johon pääsee helpointen kanavan Matrix-huoneen kautta: <a href="https://riot.im/app/#/room/#mooc.fi:matrix.org"  target="_blank" rel="noopener">https://riot.im/app/#/room/#mooc.fi:matrix.org</a>. Jos et pidä modernista teknologiasta, voit myös liityä huoneeseen Ircnetin kautta seuraamalla näitä ohjeita: <a href="http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/" target="_blank" rel="noopener">http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/</a>.
-</p>
-
 <% partial 'partials/material_sub_heading' do %>
   Arvostelu
 <% end %>
 
+
 <p>
-  TODO
+  Kurssin arvostelu perustuu kurssikokeeseen, ennalta harjoitustilaisuuksia varten tehtäviin harjoitustehtäviin, läsnä tehtäviin harjoitustehtäviin, harjoitustyöhön, sekä läsnäoloon harjoitustilaisuuksissa. Kurssin aktiviteeteista voi saada yhteensä 100 pistettä.
 </p>
+
+<p>
+  Kurssin aktiviteeteista saatavat pisteet jakautuvat seuraavasti:
+</p>
+
+<table class="table">
+  <tr>
+    <th>
+      Osa
+    </th>
+    <th>
+      Pistemäärä (korkeintaan)
+    </th>
+  </tr>
+  <tr>
+    <td>
+      Kurssikoe
+    </td>
+    <td>
+      36 pistettä
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Ennalta tehtävät harjoitustehtävät
+    </td>
+    <td>
+      7 pistettä / viikko, 6 viikkoa, yht 42 pistettä
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Läsnäolo harjoitustilaisuuksissa
+    </td>
+    <td>
+      1 piste / viikko, 7 viikkoa, yht 7 pistettä
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Harjoitustyö
+    </td>
+    <td>
+      15 pistettä
+    </td>
+  </tr>
+</table>
+
+
+<p>
+  Aktiivisesta läsnäolosta luennoilla saa lisäksi puolikkaan pisteen luentokertaa kohden (korkeintaan 2,5 pistettä).
+</p>
+
+<p>
+  Kurssin arvosana muodostuu perusteella seuraavasti.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th>
+      Pisteet
+    </th>
+    <th>
+      Arvosana
+    </th>
+  </tr>
+  <tr>
+    <td>
+      < 51
+    </td>
+    <td>
+      Hylätty
+    </td>
+  </tr>
+  <tr>
+    <td>
+      51-60
+    </td>
+    <td>
+      1
+    </td>
+  </tr>
+  <tr>
+    <td>
+      61-70
+    </td>
+    <td>
+      2
+    </td>
+  </tr>
+  <tr>
+    <td>
+      71-80
+    </td>
+    <td>
+      3
+    </td>
+  </tr>
+  <tr>
+    <td>
+      81-90
+    </td>
+    <td>
+      4
+    </td>
+  </tr>
+  <tr>
+    <td>
+      91-100
+    </td>
+    <td>
+      5
+    </td>
+  </tr>
+</table>
+
+
 
 <% partial 'partials/material_heading' do %>
-  Tunnukset ja työvälineet
+  Kurssin työvälineet ja tunnukset
 <% end %>
 
 
-
-<% partial 'partials/material_sub_heading' do %>
-  Käyttäjätunnuksen luominen
-<% end %>
-
-<p>
-  Kurssilla tarvitaan käyttäjätunnus Test My Code (TMC) -järjestelmään, jota käytetään tehtävien automaattiseen arviointiin. Käyttäjätunnuksella voit myös kirjautua tähän materiaaliin, jolloin pääset vastaamaan materiaalissa oleviin kyselyihin.
-</p>
-
-<p>
-  <strong>Huom!</strong> Jos olet Helsingin yliopiston opiskelija, aseta käyttäjätunnukseksesi opiskelijanumerosi. Näin opintopisteiden liittäminen kurssisuoritukseen helpottuu merkittävästi. Jos taas et ole Helsingin yliopiston opiskelija, keksi itsellesi sopiva käyttäjätunnus. Kun jatkossa kysymme TMC-tunnustasi, tarkoitamme sillä tätä käyttäjätunnusta.
-</p>
-
-<p>
-  Käyttäjätunnuksen luominen onnistuu sivulla <a href="https://tmc.mooc.fi/user/new" target="_blank">https://tmc.mooc.fi/user/new</a>.
-</p>
-
-<p>
-  Kun olet luonut käyttäjätunnuksen, voit kirjautua tähän materiaaliin materiaalin oikeassa ylälaidassa olevan "Kirjaudu sisään"-napin kautta.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Ohjelmointiympäristön asentaminen
-<% end %>
-
-<o>
-  TODO: linkki ohjelmoinnin perusteiden ohjeisiin
-</p>
-
-<p>
-  TODO: kurssin oma TMC-ympäristö
-</p>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Analytiikkadatan kerääminen ja arvostelu
-<% end %>
-
-<p>
-  Varmista että TMC:n asetuksissa (Valikko TMC -> Settings) kohdassa "Send snapshots of your progress for study" on ruksi.  Jos olet opiskelijana Helsingin yliopistolla ja et halua että työstämistäsi tehtävistä kerätään ajoittaista dataa kurssiarvostelua varten, voit suorittaa kurssin Kumpulassa järjestettävällä erilliskokeella. Analytiikkadataa kerätään vain kurssiin liittyvistä harjoitustehtävistä, ei muista projekteistasi tai muualta koneeltasi.
-</p>
-
-
-<%= partial 'partials/quiz', locals: { id: '587bc4a71b527d0004a7971b' } %>
+(julkaistaan myöhemmin)
 
 
 
 
-<% partial 'partials/material_sub_heading' do %>
+<% partial 'partials/material_heading' do %>
   Kurssimateriaalin tekijät ja lisenssi
 <% end %>
 
@@ -187,30 +308,6 @@
 </p>
 
 
-<% partial 'partials/material_sub_heading' do %>
-  Kurssilla tehtävästä tutkimuksesta
-<% end %>
-
-
 <p>
-  Kurssilla tehdään oppimiseen liittyvää tutkimusta. Tällä tutkimuksella on useampia tavoitteita: (1) lähestyä tilannetta, missä oppimateriaali ja tehtävät osaavat ottaa oppijoiden yksilölliset erot paremmin huomioon ja reagoida niihin tarjoten kohdennetumpaa opetusta, (2) kehittää digitaalisissa ympäristöissä tapahtuvaan oppimiseen liittyvää ymmärrystä ja tietoa, sekä (3) tukea tutkimustiedon kautta muita oppimaterialien kehittäjiä ja oppimisen tutkijoita.
+  <em>Kurssimateriaalia julkaistaan kurssin edetessä.</em>
 </p>
-
-<p>
-  Tutkimusdatan hallinnasta vastaa Helsingin yliopiston tietojenkäsittelytieteen laitoksen Agile Education Research -ryhmän Arto Hellas. Anonymisoimattomaan tutkimusdataan eivät pääse käsiksi muut tutkijat.
-</p>
-
-
-<%= partial 'partials/quiz', locals: { id: '5877e97fd095c40004e4b1a9' } %>
-
-
-
-
-
-<% partial 'partials/hint', locals: { name: 'Sitten materiaaliin...' } do %>
-
-  <p>
-    Löydät tämän sivun ylälaidasta linkin "Osa 1", jolla pääset ensimmäiseen osaan käsiksi. Siirtyminen onnistuu myös <a href="/part1/">tästä</a> painamalla.
-  </p>
-
-<% end %>
