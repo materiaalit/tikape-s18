@@ -2,68 +2,493 @@
   title: Osa 1
   exercise_page: true
   quiz_page: true
-  published: false
+  published: true
 ---
 
 
-<% partial 'partials/hint', locals: { name: 'Aloituskysely' } do %>
+<% partial 'partials/hint', locals: { name: 'Ensimmäisen osan oppimistavoitteet' } do %>
 
   <p>
-    Kurssiin kuuluu muutama kysely, joiden tavoitteena on parantaa kurssia. Vastaa ensimmäiseen kyselyyn osoitteessa <a href="https://elomake.helsinki.fi/lomakkeet/76573/lomake.html"  target="_blank">https://elomake.helsinki.fi/lomakkeet/76573/lomake.html</a>.
+    
+    Tuntee käsitteet digitalisaatio, tietokannanhallintajärjestelmä ja tietokanta. Ymmärtää tietokantojen roolin digitalisaatiossa. Tuntee ongelmia, joita tietokannanhallintajärjestelmät pyrkivät ratkaisemaan. Osaa luoda luokkakaavion annetun ohjelman lähdekoodista ja osaa luoda annetussa luokkakaaviossa kuvatut luokat. Ymmärtää luokkien, olioiden ja reaalimaailman käsitteiden suhteen. Osaa käsitellä tietoa ohjelmallisesti.
+    
   </p>
-
-  <p>
-    Käy vastaamassa ensin kyselyyn ja ruksaa sen jälkeen allaoleva tekstikenttä. Jos allaolevan tekstikentän ruksaaminen ei onnistu, varmista että olet kirjautunut tälle sivulle. Kirjautuminen onnistuu sivun oikeasta ylälaidasta.
-  </p>
-
-  <%= partial 'partials/quiz', locals: { id: '587a95326b66090004e96c06' } %>
-
+  
 <% end %>
 
+<% partial 'partials/hint', locals: { name: 'Kurssin alkukysely' } do %>
+
+
+  <p>
+    Kurssiin kuuluu alkukysely. Käy vastaamassa kyselyyn alla olevassa osoitteessa.
+  </p>
+
+  <div id="osoite1" style="display:none">
+    <a href="https://goo.gl/forms/h6NAy3JCGVImjlTG3" target="_blank" norel>https://goo.gl/forms/h6NAy3JCGVImjlTG3</a>
+  </div>
+
+  <div id="osoite2" style="display:none">
+    <a href="https://goo.gl/forms/V96ZCf5SFa2At1dt2" target="_blank" norel>https://goo.gl/forms/V96ZCf5SFa2At1dt2</a>
+  </div>
+  
+  <%= partial 'partials/quiz', locals: { id: '59b13f2f714bcf0004c2847f' } %>
+  
+<% end %>
 
 
 
 <% partial 'partials/material_heading' do %>
-  Otsikko
+  Johdanto
 <% end %>
 
+<p>
+  Olemme tietoisesti ja tiedostamattomasti kytköksissä lukemattomiin järjestelmiin. Kodin sähkön- ja vedenkulutusta seurataan elektronisesti, lehti- ja palvelutilaukset tehdään digitaalisiin järjestelmiin, säätiedot tulevat automaattisesti mobiililaitteeseen, suurin osa perinteisestä kirjeillä tehdystä kommunikaatiosta tapahtuu sähköpostitse tai pikaviestinten kautta, kaupat seuraavat varastosaldojen kehitystä automaattisesti ostosten perusteella, sairaaloilla on sähköiset potilasrekisterit, yritykset tarjoavat räätälöityjä palveluita digitaalisen käyttäytymisen perusteella, ja niin edelleen. Toisaalta, vain muutamia vuosikymmeniä sitten, internet oli vain harvojen hupi, digitaaliset palvelut olivat harvinaisia, ja lähes kenelläkään ei esimerkiksi ollut henkilökohtaista kännykkää. Pankkikortit, joita kännyköillä tai muilla laitteilla tapahtuvat maksut ovat hiljalleen korvaamassa, ovat nekin olleet käytössä vain muutamia vuosikymmeniä.  
+</p>
+
+<p>
+  Lähes jokainen edellämainituista palveluista perustuu tavalla tai toisella tiedon keräämiseen. Sähkön- ja vedenkulutuksesta jää historia, jota käytetään laskutuksessa sekä kulutuksen ennustamisessa. Lehti- ja palvelitilaukset tallennetaan järjestelmiin, joiden kautta voidaan suositella vastaavia sopivia tuotteita. Sähköpostit ja pikaviestinviestit säilyvät tyypillisesti ainakin lähettäjällä ja vastaanottajalla, jonka lisäksi esimerkiksi pikaviestinpalveluita tarjoava operaattori voi tallentaa viestit omalle palvelimelleen mahdollista tulevaa käyttöä varten. Kauppojen varastosaldojen kehityksen perusteella voidaan optimoida sisäänostoa ja tätä kautta pienentää hävikkiä sekä toisaalta vähentää tavaroiden varastointiin menevää tilaa. Potilasrekisterit sisältävät mm. hoito- ja rokotehistorian, jolloin lääkärin on helpompi toimia yllättävissä tilanteissa.
+</p>
+
+<p>
+  Uusia palveluita kehitetään myös jatkuvasti. Allä olevalla videolla on kuvattuna yhdysvaltalaisen ruokajätin Tescon toimintaa Etelä-Koreassa. Tesco muutti ruokatoimijoiden pelikenttää luomalla digitaalisia ostosmahdollisuuksia mm. kaupunkien metroasemille. Tuotteiden tilaaminen ja maksaminen tapahtuu kännykällä, ja tuotteet toimitetaan tilaajan kotiin. 
+</p>
+
+<p>
+  &nbsp;
+</p>
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/fGaVFRzTTP4?rel=0" frameborder="0" allowfullscreen></iframe>
+
+<p>
+  &nbsp;
+</p>
+
+<p>
+  Tässä palveluiden siirtymisessä ja kehittymisessä sähköiseen muotoon on kyse <strong>digitalisaatiosta</strong>.  Digitalisaatio on tietoteknisten menetelmien ja sähköisessä muodossa olevan tiedon hyödyntämistä ja kehittämistä yksilöiden, yhteisöjen, yritysten ja yhteiskunnan toiminnan edesauttamiseksi. Tämä sisältää mm. tiedon perusteella tapahtuvaa liiketoimintamallien ja asiakaspalvelukokemusten kehittämistä, työn automatisointia ja virtaviivaistamista sekä uusien innovaatioiden luomista ja yrityksen toiminnan parantamista. Digitalisaation ytimessä on kyky hallinnoida ja käsitellä suuria tietomääriä.
+</p>
+
+<p>
+  Vaikka moni palvelu kerää tietoa palveluiden käyttäjistä ja siirtää palveluitaan sähköiseen muotoon, ei käyttäjien tietojen kerääminen ole itseisarvo. Arvoa voi tuottaa käyttäjille sekä yritykselle myös muilla tavoilla. Alla olevalla videolla on esimerkki eräästä IKEAn tuotteesta: IKEA on digitoinut (eli siirtänyt sähköiseen muotoon) tuotteiden tietoja sekä tehnyt tuotteistaan kolmiulotteisia malleja, jolloin niiden tuonti osaksi sovelluksia on suoraviivaisat. Alla kuvattu tuote tarjoaa käyttäjille mahdollisuuden tarkastella miltä IKEAn tuote näyttäisi kotona.
+</p>
+
+
+<p>
+  &nbsp;
+</p>
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/vDNzTasuYEw?rel=0" frameborder="0" allowfullscreen></iframe>
+
+<p>
+  &nbsp;
+</p>
+
+<p>
+  Tällä kurssilla keskitytään suurien tietomäärien tallentamiseen keskittyneisiin palveluihin, joilla on paljon yhtäaikaisia käyttäjiä. Keskiössä ovat erityisesti relaatiotietokannat. Puhekielessä termillä <strong>tietokanta</strong> tarkoitetaan yleisesti ottaen tiedon tallentamiseen tarkoitettua paikkaa, josta tietoa voi myös hakea. Esimerkiksi kirkonkirjat voidaan nähdä eräänlaisena sukujen historiaa dokumentoivana tietokantana, jonka kautta sukututkija pääsee käsiksi sukunsa historiaan. Vaikka tietokannat ovat digitalisaation myötä siirtymässä paperisesta muodosta sähköiseen muotoon, on niiden tavoite pysynyt pitkälti samana: <em>haluamme säilöä tietoa ja haluamme päästä tähän tietoon käsiksi</em>.
+</p>
+
+<p>
+  Tietokannat ovat kaikkialla oleva (<em>ubiikki</em>) ilmiö. Tämä kurssimateriaali sijaitsee tietokannassa, kurssitehtäviin liittyvät pisteet kirjataan tietokantaan ja kurssin suoritusmerkintä kirjataan tietokantaan. Kännykässäsi on todennäköisesti kymmeniä erilaisia tietokantoja; yhteystiedot, kalenteri, herätyskello, aikavyöhykkeet, karttapalvelut, suosikkiverkkosivut, ym, joiden lisäksi moni kännykkäsovellus hyödyntää yhtä tai useampaa tietokantaa. Tietokannat voivat olla paikallisia, eli ne voivat sijaita samalla koneella tietokantaa käyttävän ohjelmiston kautta, esimerkiksi kännykässä, tai ne voivat sijaita erillisellä palvelimella, johon otetaan tarvittaessa yhteyttä. Loppukäyttäjän näkökulmasta tietokannan konkreettisella sijainnilla ei ole juurikaan merkitystä, sillä haetun tiedon näkee tyypillisesti käytössä olevan sovelluksen käyttöliittymän kautta.
+</p>
+
+
+
+<% partial 'partials/hint', locals: { name: 'Tutustu tietokantaan!' } do %>
+  
+  <p>
+    Tässä kohtaa on hyvä hetki käydä tutustumassa muutamaan tietokantapalveluun. Osoitteessa <a href="http://hiski.genealogia.fi/hiski/" target="_blank" norel>http://hiski.genealogia.fi/hiski/</a> on Suomen Sukututkimusseuran ylläpitämä Historiakirjojen hakupalvelu. Käy sivulle, valitse kieli, etsi "Kaikista", ja valitse "Kastetut".
+  </p>
+  
+  <p>
+    Minkälaisia tuloksia löydät omalla etunimelläsi? Entä, minkälaisia tuloksia löydät nimillä Matti ja Maija? Palvelu pyrkii muunmuassa sisällyttämään läheiset nimien muunnokset hakutuloksiin, sillä nimet muuttuvat ajan myötä.
+  </p>
+
+<% end %>
 
 
 
 <% partial 'partials/material_sub_heading' do %>
-  Aliotsikko
+  Tiedon tallentamiseen ja hakemiseen liittyviä haasteita
+<% end %>
+
+<p>
+  Tiedon tallentamisessa sekä tiedon hakemisessa on muutamia ydinkysymyksiä ja ongelmakohtia. Nämä ovat seuraavia. 
+</p>
+
+<ul>
+  <li>
+    <strong>Tietoturva</strong>. Keillä on pääsy tietoon? Onko käyttäjillä erilaisia oikeuksia ja onko tiedon kirjoittaminen rajattu vain tietyille käyttäjäryhmille? Minne tieto tallennetaan fyysisesti -- onko sijainti Suomessa vai jossain muualla? Miten yhteys tietokantaan suojataan? ...
+  </li>
+  <li>
+    <strong>Suorituskyky</strong>. Miten tiedon hakeminen toteutetaan tehokkaasti? Entä jos käyttäjiä on samanaikaisesti satoja tai tuhansia? 
+  </li>
+  <li>
+    <strong>Eheys</strong>. Miten säilyttää tiedon eheys, eli miten varmistaa, että tallennettu tietoa noudattaa (joitakin) annettuja sääntöjä? Miten varmistetaan, että tietyllä arvoalueella olevat arvot (esim. syntymävuosi) tallennetaan ja luetaan numerona? Miten kytköksissä olevaa tietoa tulee käsitellä -- jos henkilön äiti poistetaan tietokannasta, tuleeko myös henkilö poistaa? Miten varmistaa, että käyttäjä ei saa koskaan "vaillinaista" tietoa (esim. tiedon hakeminen kesken tiedon poistamisen)?
+  </li>
+  <li>
+    <strong>Pysyvyys</strong>. Miten tiedon tallentaminen toteutetaan siten, että järjestelmän toimintavirheet (esim. sähkökatkos) eivät johda tiedon katoamiseen?
+  </li>
+</ul>
+
+<p>
+  Nykyaikaiset tietokannanhallintajärjestelmät tarjoavat ratkaisuja edellisiin ongelmiin.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannanhallintajärjestelmä
+<% end %>
+
+<p>
+  <strong>Tietokannahallintajärjestelmä</strong> on sovellus, jonka kautta käyttäjä voi luoda ja ylläpitää tietokantoja. Tietokannanhallintajärjestelmän vastuulla on tietokantaan kohdistuvien haku-, muokkaus- ja lisäystoimintojen lisäksi käyttöoikeuksien valvominen. Tietokannanhallintajärjestelmän vastuulla on myös tiedon eheyteen liittyvien sääntöjen noudattamisen valvonta. Tietokannassa voi olla esimerkiksi sääntö "Opiskelijan syntymävuoden tulee sisältää neljä numeroa", jolloin uusien opiskelijoiden lisääminen ilman oikein määriteltyä syntymävuotta ei onnistu. Vastaavia sääntöjä voidaan lisätä muunmuassa varausjärjestelmiin, esimerkiksi lentokoneiden paikkavarausjärjestelmissä halutaan varmistaa, että jokaisella istuimella on korkeintaan yksi varaus. Tietokannanhallintajärjestelmän vastuulla on myös varmistaa, ettei tietoa tuhoudu, vaikka tietokantaa käyttävä järjestelmä hajoaisi -- erilaiset varmuuskopiotoiminnallisuudet ovat tyypillisiä.
+</p>
+
+<p>
+  Edellisten lisäksi tietokannanhallintajärjestelmät tarjoavat välineitä tiedon hakemiseen liittyvien toimintojen tehokkuuden tarkastelemiseen. Vaikka esimerkiksi opintojen seurantaan liittyvä järjestelmä sisältäisi tiedot kaikista Helsingin yliopiston opiskelijoista (n. 35000) sekä kaikista kurssisuorituksista (rutkasti), tulisi tietokantaan tehtävien kyselyjen toimia nopeasti. Edellä mainittu tietomäärä on esimerkiksi Amazon-verkkokaupan mittakaavassa hyvin pieni.
+</p>
+
+<p>
+  Yksittäinen sovellus voi myös käyttää useampaa tietokantaa, jotka sijaitsevat eri tietokannanhallintajärjestelmissä. Tyypillinen esimerkki tällaisesta sovelluksesta on analytiikkapalvelu, joka yhdistää eri palveluiden tallentamaa tietoa yhteenvetoraporttien luomiseksi. Yksittäisessä tietokannanhallintajärjestelmässä voi toisaalta sijaita useampia erilaisiin sovelluksiin ja käyttötarkoituksiin liittyviä tietokantoja, joita jokaista käyttää eri käyttäjät tai eri yritys.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokanta
+<% end %>
+
+<p>
+  <strong>Tietokanta</strong> on kokoelma tiettyyn aihepiiriin liittyviä säilytettäviä tietoja. Tietokannan luominen liittyy jonkinlaisen organisaation, yrityksen tai muun yhteisön tarpeeseen säilöä ja hakea tietoa. Esimerkiksi, yliopisto haluaa pitää kirjaa opiskelijoistaan ja heidän opintomenestystään, hotelli haluaa pitää kirjaa hotellin huoneiden varauksista ja kauppaketju haluaa pitää kirjaa asiakkaistaan ja asiakkaiden ostoksista.
+</p>
+
+<p>
+  Tallennettava tieto liittyy tyypillisesti johonkin tavoitteeseen. Yliopisto haluaa seurata opintojen etenemistä muunmuassa valtionhallinnolle raportointia varten, huoneiden varaustilannetta seuraava hotelli haluaa tietää milloin huoneita on paljon tarjolla ja milloin huoneet ovat lopussa. Kauppaketjun ensisijaisena tavoitteena lienee asiakkaiden ostosten seuranta myynnin optimoimiseksi.
+</p>
+
+<p>
+  Tietokantojen rakennetta ja jäsentelyä suunniteltaessa ongelmaa lähestytään tunnistamalla ongelma-alueen oleelliset <strong>käsitteet</strong>. Käsitteitä tarkastelemalla tunnistetaan mikä osa tiedosta on epäoleellista ja mikä osa tulee säilöä. Käsitteiden tunnistamisen yhteydessä selvitetään käsitteiden ominaisuuksia sekä niiden <strong>yhteyksiä</strong>. Esimerkiksi opiskelijan opintomenestyksen seurannassa oleellisia ovat ainakin käsitteet <em>Opiskelija</em> ja <em>Kurssisuoritus</em>, joilla on yhteys: opiskelijalla on kurssisuorituksia.
+</p>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon kuvaamisesta
+<% end %>
+
+<p>
+  Tällä kurssilla tiedon kuvaamiseen käytetään <a href="http://www.uml.org/" target="_blank" norel>UML</a>-kieltä. Käytämme <a href="https://fi.wikipedia.org/wiki/Luokkakaavio" target="_blank" norel>luokkakaavioita</a> käsitteiden ominaisuuksien ja yhteyksien mallintamiseen ja <a href="https://fi.wikipedia.org/wiki/Sekvenssikaavio" target="_blank" norel>sekvenssikaavioita</a> järjestelmien välisen kommunikoinnin mallintamiseen. Koko UML-spesifikaatio ei kuitenkaan ole tässä oleellinen -- luokkakaavioistakin esimerkiksi kooste- ja kompositiomerkintä ei ole tällä kurssilla tarpeen.
+</p>
+
+
+
+<figure>
+  <img src="/img/opiskelija-ja-kurssisuoritus-luokkakaavio.png" />
+  <figcaption>Luokkakaavio, jossa on luokat Opiskelija ja Kurssisuoritus. Opiskelijalla on monta (nollasta äärettömään kurssisuoritusta). Jokaiseen kurssisuoritukseen liittyy yksi opiskelija.</figcaption>
+</figure>
+
+<p>
+  
+
+<% partial 'partials/material_heading' do %>
+  Johdatus tiedon käsittelyyn Java-ohjelmoijalle
+<% end %>
+
+<p>
+  Java-ohjelmoijalle tietokantaan tallennetuilla käsitteillä ja niiden yhteyksillä on suorat vertauskuvat. Käsitteet ovat luokkia -- käsitteisiin liittyy ominaisuuksia eli attribuutteja (tai oliomuuttujia) -- ja käsitteiden yhteydet ovat viitteitä luokkien välillä. Edellä kuvatussa luokkakaaviossa olleet käsitteet <em>Opiskelija</em> ja <em>Kurssisuoritus</em> sekä yhteys <em>opiskelijalla on kurssisuorituksia</em> (ja <em>kurssisuoritukseen liittyy yksi opiskelija</em>) voidaan mallintaa Java-luokkina seuraavalla tavalla.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+import java.util.ArrayList;
+import java.util.List;
+
+public class Opiskelija {
+    List&lt;Kurssisuoritus&gt; kurssisuoritukset;
+    String opiskelijanumero;
+    String nimi;
+  
+    // muut attribuutit
+
+    public Opiskelija(String opiskelijanumero, String nimi) {
+        this.opiskelijanumero = opiskelijanumero;
+        this.nimi = nimi;
+        this.kurssisuoritukset = new ArrayList&lt;&gt;();
+    }
+
+    @Override
+    public String toString() {
+        return this.opiskelijanumero + "\t" + this.nimi;
+    }
+}
 <% end %>
 
 
 <% partial 'partials/code_highlight' do %>
-Koodiesimerkki
+import java.util.Date;
+  
+public class Kurssisuoritus {
+    Opiskelija opiskelija;
+    String kurssi;
+
+    // muut attribuutit
+}
+<% end %>
+
+<p>
+  Edellisissä esimerkeissä oliomuuttujien näkyvyysmääreet sekä metodit ja konstruktorit on jätetty merkitsemättä. Huomaa, että luokkien väliset yhteydet eivät näy luokkakaaviossa, mutta luokat sisältävät niitä kuvaavat oliomuuttujat. Esimerkiksi yllä olevassa lähdekoodissa Kurssisuoritus sisältää tiedon opiskelijasta, mutta luokkakaaviossa opiskelija ei ole kurssisuorituksen oliomuuttuja.
+</p>
+
+
+<% partial 'partials/exercise', locals: { name: 'Luokkakaaviosta luokiksi' } do %>
+
+  <p>
+    Alla on kuvattuna erään kirjojen lainausjärjestelmän luokkakaavio. Luo tehtäväpohjaan luokkakaavion esittämät luokat ja lisää luokkiin tarvittavat oliomuuttujat. 
+  </p>
+
+  <figure>
+    <img src="/img/kirjastojarjestelma.png" alt="[Kirja|nimi:String;kirjoittaja:String;julkaisuvuosi:Integer]
+								       [Hylly|sijainti:String]
+								       [Nide|tunnus:Integer]
+								       [Henkilo|nimi:String]
+								       [Laina|alku:Date;loppu:Date;palautettu:Boolean]
+								       [Nide]*-1[Hylly]
+								       [Kirja]1-*[Nide]
+								       [Laina]*-1[Henkilo]
+								       [Nide]1-*[Laina]"/>
+  </figure>
+
+
 <% end %>
 
 
 
-<% partial 'partials/material_sub_sub_heading' do %>
-  Alialiotsikko
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon tallentaminen ja lataaminen
 <% end %>
 
-<% partial 'partials/exercise', locals: { name: 'Tehtävä' } do %>
+<p>
+  Tiedon tallentaminen pysyväismuistiin tarkoittaa käytännössä tiedon tallentamista kiintolevylle tai vastaavalle medialle. Tietokoneen käyttöjärjestelmä tarjoaa kiintolevyn käsittelylle abstraktion tiedosto -- tiedosto on käytännössä yksi tai useampi rajattu alue, johon tietoa on kirjoitettu. Tiedon tallennusmuoto määräytyy tallennettavan tiedon perusteella ja vaikuttaa sekä tallennusoperaatioiden että lukuoperaatioiden toteuttamiseen. Suoraviivainen tapa tallentaa tietoa on säilöä jokaisen käsitteen (luokan) ilmentymät (oliot) käsitekohtaisiin tiedostoihin, missä rivi kuvaa aina yksittäistä käsitettä.
+</p>
+
+<p>
+  Opiskelija- ja Kurssisuoritusoliot voidaan tallentaa tiedostoihin. Käytetään tiedostoja <code>opiskelija.data</code> ja <code>kurssisuoritus.data</code> -- tässä .data on itse keksimämme pääte. 
+</p>
+
+<p>
+  Opiskelijalistan tallentaminen tiedostoon onnistuu nyt esimerkiksi seuraavasti. 
+</p>
+
+<% partial 'partials/code_highlight' do %>
+// oletetaan, että käytössä on lista opiskelijoita
+// List&lt;Opiskelija&gt; opiskelijat
+
+PrintWriter pw = new PrintWriter("opiskelija.data");
+opiskelijat.forEach(o -&gt; pw.println(o.toString()));
+pw.flush();
+pw.close();
+<% end %>
+
+<p>
+  Vastaavasti opiskelijoiden lataaminen onnistuu seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+// oletetaan, että käytössä on tyhjä opiskelijalista
+// List&lt;Opiskelija&gt; opiskelijat
+
+Files.lines(Paths.get("opiskelija.data")).forEach(rivi -&gt; {
+    String[] palat = rivi.split("\t");
+    opiskelijat.add(new Opiskelija(palat[0], palat[1]));
+});
+<% end %>
+
+
+<p>
+  Opiskelijan kurssisuoritukset eivät tässä tallennu opiskelijaa kuvaavaan tiedostooon. Koska kurssisuoritus on erillinen -- vaikkakin opiskelijaan liittyvä -- käsite, tallennetaan kurssisuoritukset erilliseen tiedostoon. Miten sitten saamme selville jokaiseen opiskelijaan kuuluvat kurssisuoritukset? Kun tallennamme kurssisuorituksia, tallennamme jokaiseen kurssisuoritukseen tiedon opiskelijasta, johon kurssisuoritus kuuluu. Joudumme tekemään oletuksen, että opiskelijanumero yksilöi opiskelijan.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+// oletetaan, että käytössä on lista kurssisuorituksia
+// List&lt;Kurssisuoritus&gt; kurssisuoritukset
+
+PrintWriter pw = new PrintWriter("kurssisuoritus.data");
+kurssisuoritukset.forEach(k -&gt; pw.println(k.opiskelija.opiskelijanumero + "\t" + k.kurssi));
+pw.flush();
+pw.close();
+<% end %>
+
+<p>
+  Entä sitten kurssisuoritusten lataaminen? Kurssisuoritus-olio ei sisällä opiskelijanumeroa merkkijonona, joten kurssisuoritusten lataamisen yhteydessä tulee aiemmin ladatuista opiskelijoista aina etsiä opiskelijanumeroa vastaava olio.
+</p>
+
+<% partial 'partials/exercise', locals: { name: 'Opiskelijat kurssisuorituksiin' } do %>
 
   <p>
-    Jeejeetehtävä
+    Tehtäväpohjassa on ohjelmakoodi opiskelijoiden lukemiseen ja tallentamiseen sekä kurssisuoritusten tallentamiseen. Täydennä ohjelmaa siten, että myös kurssisuoritusten lukeminen onnistuu -- kurssisuoritusten tulee sisältää viitteet opiskelijoihin.
+  </p>
+
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Rajattu tiedon käsittely
+<% end %>
+
+<p>
+  Edellinen esimerkki on tyypillinen ohjelmoinnin perusteiden ja jatkokurssin tiedon käsittelyesimerkki. Siinä on kuitenkin muutamia haasteita, sillä esimerkiksi pienten tietomäärien hakeminen isoista tiedostoista ei ole kovin tehokasta. Suurten tietomäärien ohjelmallisessa käsittelyssä hyödynnetään käyttöjärjestelmän tarjoamaa mahdollisuutta tiedoston osien lukemiseen. Ohjelmointikielet kuten Java tarjoavat tähän myös abstraktion -- Javalla luokka <a href="https://docs.oracle.com/javase/8/docs/api/java/io/RandomAccessFile.html" target="_blank" norel">RandomAccessFile</a> tarjoaa lukumahdollisuuden vain osaan tiedoston sisällöistä.
+</p>
+
+<p>
+  Edellä mainitun työvälineen avulla tiedostojen käsittely tapahtuu tavumuodossa. Jos tiedämme, että opiskelijan opiskelijanumeron pituus on 10 merkkiä, ja opiskelijanumero on tiedoston alussa, onnistuu lukeminen seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+// Avataan tiedosto 'opiskelija.data' lukemista varten
+RandomAccessFile tiedosto = new RandomAccessFile("opiskelija.data", "r");
+
+// Varataan 10 tavua tilaa muistista opiskelijanumeroa varten
+byte[] opnro = new byte[10];
+
+// luetaan opnro-taulukkoon tiedoston alusta ensimmäiset 10 tavua
+tiedosto.read(opnro, 0, 10);
+
+// luodaan opiskelijanumerosta merkkijono
+String opiskelijanumero = new String(opnro);
+<% end %>
+
+<p>
+  Vastaavasti, opiskelijanumeron vaihtaminen tiedoston tietyssä kohdassa onnistuu seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+// Avataan tiedosto 'opiskelija.data' lukemista ja kirjoittamista varten
+RandomAccessFile tiedosto = new RandomAccessFile("opiskelija.data", "rwd");
+
+// Oletetaan, että käytössämme on opiskelijanumero "0123456789"
+String opiskelijanumero = "0123456789";
+
+// Kirjoitetaan opiskelijanumero tiedostoon tietyn opiskelijan kohdalle.
+tiedosto.write(opiskelijanumero.getBytes(), 0, 10);
+
+// Nyt opiskelijanumero tiedostossa on muuttunut.
+<% end %>
+
+
+<p>
+  Mitä hyötyä tästä on? Jos sovimme ennalta, että kunkin tiedostossa olevan kentän -- eli esimerkiksi opiskelijanumeron tai nimen -- pituus on määrätty, tiedämme ennalta opiskelijaolioiden sijainnit tiedostossa. Oletetaan, että opiskelijanumero on aina 10 merkkiä ja nimi 40 merkkiä. Tällöin uuden opiskelijan tiedot alkavat aina 50 merkin välein. Hyötynä tästä on muunmuassa se, että tällöin tietyn opiskelijan tietojen etsimisessä tiedostosta muistissa tulee olla korkeintaan vain 50 merkkiä -- alla esimerkki opiskelijan nimen etsimisestä tietyn opiskelijanumeron perusteella.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+// Avataan tiedosto 'opiskelija.data' lukemista ja kirjoittamista varten
+RandomAccessFile tiedosto = new RandomAccessFile("opiskelija.data", "r");
+
+// Oletetaan, että haemme opiskelijanumeroa "0123456789"
+String haettava = "0123456789";
+
+byte[] opiskelijanumero = new byte[10];
+
+int indeksi = 0; 
+for (int indeksi = 0; indeksi &lt; tiedosto.length(); indeksi += 50) {
+    tiedosto.read(opiskelijanumero, indeksi, 10);
+
+    // tehokkuusnäkökulmasta tässäkin todennäköisesti oikeasti verrattaisiin
+    // yksittäisiä merkkejä
+    if(!haettava.equals(new String(opiskelijanumero)) {
+        continue;
+    }
+
+    byte[] nimi = new byte[40];
+    tiedosto.read(nimi, indeksi + 10, 40);
+    System.out.println("Haetun opiskelijan nimi on " + new String(nimi).trim());
+
+    break;
+}
+<% end %>
+
+<p>
+  Toisaalta, jos haluaisimme pitää kirjaa opiskelijoiden sijainneista, ja hyväksyä ajatus siitä, että opiskelijanumerot ovat jatkuvasti muistissa, voi opiskelijoiden sijainnit tallentaa hajautustaulukkoon. 
+</p>
+
+<% partial 'partials/code_highlight' do %>
+// Avataan tiedosto 'opiskelija.data' lukemista ja kirjoittamista varten
+RandomAccessFile tiedosto = new RandomAccessFile("opiskelija.data", "r");
+
+// Oletetaan, että käytössä on hajautustaulukko, jossa
+// on tieto opiskelijanumerosta tiedoston indeksiin
+Map&lt;String, Integer&gt; opiskelijoidenSijainnit = new HashMap&lt;&gt;();
+
+// Oletetaan, että haemme opiskelijanumeroa "0123456789"
+String haettava = "0123456789";
+
+// nyt opiskelijan nimen saa helpohkosti -- olettaen, että opiskelija on olemassa
+byte[] nimi = new byte[40];
+tiedosto.read(nimi, opiskelijoidenSijainnit.get(haettava) + 10, 40);
+System.out.println("Haetun opiskelijan nimi on " + new String(nimi).trim());
+<% end %>
+
+<% partial 'partials/exercise', locals: { name: 'Tiedon lukeminen ja tallentaminen' } do %>
+
+  <p>
+    Alla on kuvattuna erään viestijärjestelmän luokkakaavio. Jokaisella viestillä on sekä vastaanottaja että lähettäjä, jonka lisäksi viestiin kuuluu viestin sisältö. Käyttäjästä tallennetaan järjestelmään käyttäjätunnus, salasana, nimi, osoite ja puhelinnumero.
+  </p>
+
+
+  <figure>
+    <img src="/img/viestijarjestelma.png" alt="[Henkilo|kayttajatunnus:String;nimi:String;osoite:String;puhelinnumero:String]
+					       [Viesti|sisalto:String]
+					       [Henkilo]2-*[Viesti]"/>
+  </figure>
+
+
+  <p>
+    Oleta, että käyttäjätunnus on korkeintaan 8 merkkiä, nimi korkeintaan 30 merkkiä, osoite korkeintaan 30 merkkiä ja puhelinnumero korkeintaan 15 merkkiä. Oleta lisäksi, että viesti sisältää korkeintaan 255 merkkiä.
   </p>
 
   <p>
-    Vuosi on karkausvuosi, jos se on jaollinen 4:llä. Kuitenkin jos vuosi on jaollinen 100:lla, se on karkausvuosi vain silloin, kun se on jaollinen myös 400:lla.
+    Kirjoita ohjelma, joka mahdollistaa henkilöiden lisäämisen ja muokkaamisen. Käytä tallennustoiminnallisuun toteuttamiseen luokkaa <code>RandomAccessFile</code>. Ohjelman suorituksen tulee olla seuraavanlainen -- alla olevassa esimerkissä punaisella merkityt kohdat ovat käyttäjän syöttämiä.
   </p>
 
+
+  <% partial 'partials/sample_output' do %>
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">1</font>
+    kayttajatunnus: <font color="red">arto</font>
+    nimi: <font color="red">Arto</font>
+    osoite: <font color="red">Kantakuja 4B</font>
+    puhelinnumero: <font color="red">012-3456789</font>
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">1</font>
+    kayttajatunnus: <font color="red">leena</font>
+    nimi: <font color="red">Leena</font>
+    osoite: <font color="red">Venetie 82</font>
+    puhelinnumero: <font color="red">123-4567890</font>
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
+    arto, Arto, Kantakuja 4B, 012-3456789
+    leena, Leena, Venetie 82, 123-4567890
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">4</font>
+  <% end %>
+
   <p>
-    Tee ohjelma, joka lukee käyttäjältä vuosiluvun, ja tarkistaa, onko vuosi karkausvuosi.
+    Kun ohjelmaan on tallennettu tiedot, tulee niiden löytyä ohjelmasta myös seuraavan suorituskerran yhteydessä. Tietojen muokkaustoiminnallisuus toimii siten, että ensin kysytään muokattavan käyttäjän käyttäjätunnusta. Tämän jälkeen ohjelma kysyy muokattavia tietoja yksi kerrallaan ja päivittää tiedot tiedostoon.
   </p>
 
   <% partial 'partials/sample_output' do %>
-Esimerkkitulostus
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
+    arto, Arto, Kantakuja 4B, 012-3456789
+    leena, Leena, Venetie 82, 123-4567890
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">2</font>
+    tunnus: <font color="red">arto</font>
+    nimi (Arto): <font color="red">Arto</font>
+    osoite (Kantakuja 4B): <font color="red">Kantakuja 4B123</font>
+    puhelinnumero (012-3456789): <font color="red">022-3456789</font>
+    
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
+    arto, Arto, Kantakuja 4B123, 022-3456789
+    leena, Leena, Venetie 82, 123-4567890
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">4</font>
   <% end %>
 
 <% end %>
 
 
-<%= partial 'partials/quiz', locals: { id: '587a99b46b66090004e96c08' } %>
+<%= partial 'partials/quiz', locals: { id: '59b131b5714bcf0004c2844d' } %>

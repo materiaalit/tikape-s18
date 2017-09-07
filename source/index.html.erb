@@ -10,6 +10,10 @@
   Tämä materiaali on tarkoitettu Helsingin yliopiston tietojenkäsittelytieteen laitoksen kurssille Tietokantojen perusteet (5 op). Kurssilla oletetaan, että osallistuja tuntee Helsingin yliopiston kurssien Ohjelmoinnin perusteet (5 op) ja Ohjelmoinnin jatkokurssi (5 op) sisällön. Kurssilla käytetään ohjelmointikielenä em. kursseilla opittua Java-kieltä.
 </p>
 
+<p>
+  Materiaalissa näkyvät aikataulut liittyvät luentomuotoiseen kurssiin. Helsingin yliopiston avoimen yliopiston verkkokurssin määräajat kerrotaan kurssin MOODLE-alustalla.
+</p>
+
 
 <% partial 'partials/material_sub_heading' do %>
   Osaamistavoitteet ja kurssin sisältö
@@ -42,7 +46,7 @@
       1
     </td>
     <td>
-      Tuntee käsitteet digitalisaatio, tietokannanhallintajärjestelmä ja tietokanta. Ymmärtää tietokantojen roolin digitalisaatiossa. Tuntee ongelmia, joita tietokannanhallintajärjestelmät pyrkivät ratkaisemaan. Osaa luoda luokkakaavion annetun ohjelman lähdekoodista ja osaa luoda annetussa luokkakaaviossa kuvatut luokat. Ymmärtää luokkien, olioiden ja reaalimaailman käsitteiden suhteen. 
+      Tuntee käsitteet digitalisaatio, tietokannanhallintajärjestelmä ja tietokanta. Ymmärtää tietokantojen roolin digitalisaatiossa. Tuntee ongelmia, joita tietokannanhallintajärjestelmät pyrkivät ratkaisemaan. Osaa luoda luokkakaavion annetun ohjelman lähdekoodista ja osaa luoda annetussa luokkakaaviossa kuvatut luokat. Ymmärtää luokkien, olioiden ja reaalimaailman käsitteiden suhteen. Osaa käsitellä tietoa ohjelmallisesti.
     </td>
   </tr>
   <tr>
@@ -110,6 +114,23 @@
 <p>
   Ensimmäisen viikon harjoitusryhmien tehtävät tehdään paikan päällä. Seuraavien viikkojen harjoitusryhmiä varten tulee myös kotona tehtäviä tehtäviä. Kurssilla on lisäksi ryhmätyö, ryhmät muodostetaan kurssin kolmannella viikolla harjoitustilaisuuksissa.
 </p>
+
+<p>
+  Kurssilla on sekä itsenäisesti tehtäviä ohjelmointitehtäviä että harjoitustilaisuuksiin tuotavia tehtäviä. Aikataulu tehtävien palauttamiseen on seuraava.
+</p>
+
+<ul>
+  <li>
+    <strong>Itsenäisesti tehtävät ohjelmointitehtävät</strong>. Tehtävät palautetaan TMC:n kautta aina osaa seuraavan viikon luentoon mennessä. Ensimmäisen osan ohjelmointitehtävät tulee olla palautettuna 15.9. klo 12:00 mennessä, toisen osan ohjelmointitehtävät tulee olla palautettuna 22.9. klo 12:00 mennessä jne.
+  </li>
+  <li>
+    <strong>Harjoitusryhmiin tuotavat ja harjoitusryhmissä tehtävät tehtävät</strong>. Harjoitusryhmiin tuotavat tehtävät tulee tehdä ennen oman ryhmä kokoontumista. Harjoitusryhmissä tehtävät tehtävät tehdään harjoitusryhmissä.
+  </li>
+  <li>
+    <strong>Kurssiin liittyvä harjoitustyö</strong> palautetaan kahdessa osassa. Ensimmäinen osa sisältää työn suunnitelman (palautetaan kurssin viidennen viikon luentoon mennessä) ja toinen osa konkreettisen työn (palautetaan koeviikon loppuun mennessä).
+  </li>
+</ul>
+
 
 
 <% partial 'partials/material_sub_sub_heading' do %>
@@ -293,10 +314,60 @@
   Kurssin työvälineet ja tunnukset
 <% end %>
 
+<p>
+  Kurssille tarvitset TMC-tunnukset sekä NetBeans with TMC:n. Jos näitä ei ole vielä käytössäsi, ohjeet löytyvät ohjelmoinnin perusteiden johdannosta osoitteesta <a href="https://materiaalit.github.io/ohjelmointi-s17/" target="_blank" norel>materiaalit.github.io/ohjelmointi-s17</a> kohdasta "Tunnukset ja työvälineet". Käytä TMC-tunnuksenasi opiskelijanumeroasi.
+</p>
 
-(julkaistaan myöhemmin)
+<p>
+  Valitse palvelin ja kurssi TMC:stä seuraavasti.
+</p>
+
+<ul>
+  <li>Jos suoritat ensimmäisessä periodissa olevaa luentomuotoista kurssia, valitse palvelimeksi <code>https://tmc.mooc.fi/org/hy/courses/245</code> ja kurssiksi <code>hy-tikape-s17</code></li>
+  <li>Jos suoritat koko syksyn mittaista verkkokurssia Helsingin yliopiston avoimen yliopiston kautta, valitse palvelimeksi <code>https://tmc.mooc.fi/org/hy/courses/246</code> ja kurssiksi <code>hy-tikape-s17-avoin</code></li>
+</ul>
+
+<p>
+  Tässä materiaalissa näkyvät aikataulut liittyvät luentomuotoiseen kurssiin. Helsingin yliopiston avoimen yliopiston verkkokurssin määräajat kerrotaan kurssin MOODLE-alustalla.
+</p> 
 
 
+
+<% partial 'partials/material_heading' do %>
+  Analytiikkadatan keräämisestä ja kurssilla tehtävästä tutkimuksesta
+<% end %>
+
+<% partial 'partials/material_sub_heading' do %>
+  Analytiikkadatan kerääminen ja arvostelu
+<% end %>
+
+<p>
+  Kurssin aikana tehdyistä tehtävistä kerätään tietoa. Kerätty tieto sisältää materiaalissa olevia kyselyitä, ohjelmointitehtävien vastauksia, sekä kurssimateriaalin käyttöä. Jos et hyväksy tiedon keräämistä, kurssin pisteytyksessä ei voida ottaa näitä suorituksia huomioon. Tallennettu tieto sisältää henkilökohtaisen tunnisteen, jonka perusteella ei voida suoraan päätellä henkilöllisyyttäsi. Tieto ei esimerkiksi siis sisällä nimeäsi tai sähköpostiosoitettasi. 
+</p>
+
+<p>
+  Varmista että TMC:n asetuksissa (Valikko TMC -> Settings) kohdassa "Send snapshots of your progress for study" on ruksi. Jos et halua että työstämistäsi tehtävistä kerätään ajoittaista dataa kurssiarvostelua varten, kurssin tentissä on ylimääräinen ohjelmointiaiheinen tehtävä. Analytiikkadataa kerätään vain kurssiin liittyvistä asioista, ei muista tekemisistäsi.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Kurssilla tehtävästä tutkimuksesta
+<% end %>
+
+<p>
+  Kurssilla tehdään oppimiseen liittyvää tutkimusta. Tällä tutkimuksella on useampia tavoitteita: (1) lähestyä tilannetta, missä oppimateriaali ja tehtävät osaavat ottaa oppijoiden yksilölliset erot paremmin huomioon ja reagoida niihin tarjoten kohdennetumpaa opetusta, (2) kehittää digitaalisissa ympäristöissä tapahtuvaan oppimiseen liittyvää ymmärrystä ja tietoa, sekä (3) tukea tutkimustiedon kautta muita oppimaterialien kehittäjiä ja oppimisen tutkijoita. Tutkimusdatan hallinnasta vastaa Helsingin yliopiston tietojenkäsittelytieteen laitoksen Agile Education Research -ryhmän Arto Hellas. Anonymisoimattomaan tutkimusdataan eivät pääse käsiksi muut tutkijat. Voit myös pyytää milloin tahansa sinusta kerätyn datan poistamista lähettämällä sähköpostin osoitteeseen arto.hellas@cs.helsinki.fi
+</p>
+
+<p>
+  Työskentelystä kerättyä tietoa käytetään tutkimuksessa jos sallit. Tutkimuksemme päätavoitteena on osaamisen kehittymisen arviointi tekemisen arvioinnin sijaan, mikä mahdollistaisi yksilöllistä osaamista parhaiten kehittävien vinkkien ja tehtävien tarjoamisen. Tutkimustuloksista ei pystytä tunnistamaan yksittäisiä opiskelijoita. Jos et salli kurssin aikana kerättyjen tietojen käyttämistä tutkimuksessa, siitä ei tule minkäänlaisia seuraamuksia.
+</p>
+
+<p>
+  Kurssilla saatetaan tehdä lisäksi tutkimusta, joka voi vaikuttaa kurssikokemukseen (esim. kurssisisältö). Jos osallistut tutkimukseen, saatat saada esimerkiksi uusia ominaisuuksia materiaaliin. Jos et halua osallistua tutkimukseen, saat kurssin sisällöstä perusversion. Tutkimukseen osallistuminen ei vaikuta loppuarvosanaan.
+</p>
+
+
+<%= partial 'partials/quiz', locals: { id: '59b13f92714bcf0004c28481' } %>
 
 
 <% partial 'partials/material_heading' do %>
@@ -313,5 +384,5 @@
 
 
 <p>
-  <em>Kurssimateriaalia julkaistaan kurssin edetessä.</em>
+  <em>Linkit kurssin sisältöön löytyvät tämän materiaalin ylälaidasta. Kurssimateriaalia julkaistaan kurssin edetessä.</em>
 </p>
