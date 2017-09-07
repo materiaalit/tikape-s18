@@ -31,7 +31,7 @@ class LoginModal {
 
   afterLogin() {
     initQuiznator();
-    initStudentDashboard();
+    // initStudentDashboard();
 
     this.initPheromones();
     this.initLogger();
@@ -40,6 +40,10 @@ class LoginModal {
   }
 
   getUserGroup() {
+    if(document.getElementById("osoite1") == null) {
+      return;
+    }
+	
     const user = client.getUser();
 
     fetch(`https://ab-studio.testmycode.io/api/v0/ab_studies/affirmation_s17_tikape/group?oauth_token=${user.accessToken}`).then(function(response) {
