@@ -108,7 +108,7 @@ class LoginModal {
       client.unauthenticate();
 
       try {
-        window.StudentDashboard.destroy();
+        // window.StudentDashboard.destroy();
         window.Quiznator.removeUser();
       } catch(e) {}
     } else {
