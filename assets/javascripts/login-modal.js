@@ -2,7 +2,7 @@ import TmcClient from 'tmc-client-js';
 import * as store from 'store';
 
 import initQuiznator from './quiznator';
-import initStudentDashboard from './student-dashboard';
+// import initStudentDashboard from './student-dashboard';
 import pheromones from './pheromones';
 import jsLogger from './js-logger';
 
