@@ -396,13 +396,12 @@ String haettava = "0123456789";
 
 byte[] opiskelijanumero = new byte[10];
 
-int indeksi = 0; 
 for (int indeksi = 0; indeksi &lt; tiedosto.length(); indeksi += 50) {
     tiedosto.read(opiskelijanumero, indeksi, 10);
 
     // tehokkuusnäkökulmasta tässäkin todennäköisesti oikeasti verrattaisiin
     // yksittäisiä merkkejä
-    if(!haettava.equals(new String(opiskelijanumero)) {
+    if(!haettava.equals(new String(opiskelijanumero))) {
         continue;
     }
 

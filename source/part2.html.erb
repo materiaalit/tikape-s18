@@ -1,0 +1,140 @@
+---
+  title: Osa 2
+  exercise_page: true
+  quiz_page: true
+  published: false
+---
+
+
+<% partial 'partials/hint', locals: { name: 'Toisen osan oppimistavoitteet' } do %>
+
+  <p>
+
+    Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Tuntee data access object (DAO) -suunnittelumallin. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.    
+  </p>
+  
+<% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Tietokanta ja tietokantataulu
+<% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Structured Query Language (SQL)
+<% end %>
+
+- yhden taulun käsittely
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokantataulun luominen
+<% end %>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon lisääminen
+<% end %>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon kysyminen
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Tietokannan käsittely ohjelmallisesti
+<% end %>
+
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  SQL-injektio
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Data Access Object
+<% end %>
+
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Tiedon lukeminen ja tallentaminen' } do %>
+
+  <p>
+    <em>
+      Tehtävässä ei ole automaattisia testejä. Palauta tehtävä kun se täyttää tehtävän vaatimukset.
+    </em>
+  </p>
+  
+  <p>
+    Alla on kuvattuna erään viestijärjestelmän luokkakaavio. Jokaisella viestillä on sekä vastaanottaja että lähettäjä, jonka lisäksi viestiin kuuluu viestin sisältö. Käyttäjästä tallennetaan järjestelmään käyttäjätunnus, salasana, nimi, osoite ja puhelinnumero.
+  </p>
+
+
+  <figure>
+    <img src="/img/viestijarjestelma.png" alt="[Henkilo|kayttajatunnus:String;nimi:String;osoite:String;puhelinnumero:String]
+					       [Viesti|sisalto:String]
+					       [Henkilo]2-*[Viesti]"/>
+  </figure>
+
+
+  <p>
+    Oleta, että käyttäjätunnus on korkeintaan 8 merkkiä, nimi korkeintaan 30 merkkiä, osoite korkeintaan 30 merkkiä ja puhelinnumero korkeintaan 15 merkkiä. Oleta lisäksi, että viesti sisältää korkeintaan 255 merkkiä.
+  </p>
+
+  <p>
+    Kirjoita ohjelma, joka mahdollistaa henkilöiden lisäämisen ja muokkaamisen. Käytä tallennustoiminnallisuun toteuttamiseen luokkaa <code>RandomAccessFile</code>. Ohjelman suorituksen tulee olla seuraavanlainen -- alla olevassa esimerkissä punaisella merkityt kohdat ovat käyttäjän syöttämiä.
+  </p>
+
+
+  <% partial 'partials/sample_output' do %>
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">1</font>
+    kayttajatunnus: <font color="red">arto</font>
+    nimi: <font color="red">Arto</font>
+    osoite: <font color="red">Kantakuja 4B</font>
+    puhelinnumero: <font color="red">012-3456789</font>
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">1</font>
+    kayttajatunnus: <font color="red">leena</font>
+    nimi: <font color="red">Leena</font>
+    osoite: <font color="red">Venetie 82</font>
+    puhelinnumero: <font color="red">123-4567890</font>
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
+    arto, Arto, Kantakuja 4B, 012-3456789
+    leena, Leena, Venetie 82, 123-4567890
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">4</font>
+  <% end %>
+
+  <p>
+    Kun ohjelmaan on tallennettu tiedot, tulee niiden löytyä ohjelmasta myös seuraavan suorituskerran yhteydessä. Tietojen muokkaustoiminnallisuus toimii siten, että ensin kysytään muokattavan käyttäjän käyttäjätunnusta. Tämän jälkeen ohjelma kysyy muokattavia tietoja yksi kerrallaan ja päivittää tiedot tiedostoon.
+  </p>
+
+  <% partial 'partials/sample_output' do %>
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
+    arto, Arto, Kantakuja 4B, 012-3456789
+    leena, Leena, Venetie 82, 123-4567890
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">2</font>
+    tunnus: <font color="red">arto</font>
+    nimi (Arto): <font color="red">Arto</font>
+    osoite (Kantakuja 4B): <font color="red">Kantakuja 4B123</font>
+    puhelinnumero (012-3456789): <font color="red">022-3456789</font>
+    
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
+    arto, Arto, Kantakuja 4B123, 022-3456789
+    leena, Leena, Venetie 82, 123-4567890
+
+    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">4</font>
+  <% end %>
+
+<% end %>
+
+
+<%= partial 'partials/quiz', locals: { id: '59b131b5714bcf0004c2844d' } %>
