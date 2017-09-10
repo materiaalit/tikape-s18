@@ -2,15 +2,14 @@
   title: Osa 2
   exercise_page: true
   quiz_page: true
-  published: false
+  published: true
 ---
 
 
 <% partial 'partials/hint', locals: { name: 'Toisen osan oppimistavoitteet' } do %>
 
   <p>
-
-    Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Tuntee data access object (DAO) -suunnittelumallin. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.    
+    Ymmärtää että tietoa voidaan käsitellä erilaisilla abstraktiotasoilla. Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.    
   </p>
   
 <% end %>
@@ -18,123 +17,1302 @@
 
 
 <% partial 'partials/material_heading' do %>
-  Tietokanta ja tietokantataulu
+  Erilaiset näkymät tietoon 
 <% end %>
 
+<p>
+  Edellisessä osassa tietoa tarkasteltiin sen tallennustavan kautta. Käsittelimme menetelmiä tallentaa ja lukea tietoa tiedostosta. Tietokannanhallintajärjestelmän toteutuksen ja tarjoaman käsittelyn näkökulmasta esimerkkimme liittyivät fyysiseen toteutukseen, eli miten ja missä muodossa tieto lopulta tallennetaan.
+</p>
 
+<p>
+  Tietokannanhallintajärjestelmistä ja tallennettavasta tiedosta puhuttaessa tietoa käsitellään tyypillisesti kolmella eri abstraktiotasolla: käsitteellisellä abstraktiotasolla, rakenteellisella abstraktiotasolla ja fyysisellä abstraktiotasolla.
+</p>
+
+<p>
+  <strong>Käsitteellinen abstraktiotaso</strong> (conceptual level) on kuvaus tietokantaan tallennettavista käsitteistä ja niiden yhteyksistä. Käsitteellisellä abstraktiotasolla kuvaus esiintyy esimerkiksi tekstidokumenteissa, puheissa, tai vaikkapa multimediaesityksissä. 
+</p>
+
+<p>
+  Pankin tallennustoiminnallisuudesta kertova asiakas saattaa kertoa tileistä ja niiden omistajista seuraavaa: <em>Tileillä on omistajia, joista jokainen yksilöidään henkilöturvatunnuksen avulla</em>. Em. kuvaus sisältää käsitteet <em>tili</em>, <em>omistaja</em> ja <em>henkilöturvatunnus</em>. Tämän lisäksi käsitteisiin liittyy suhteita, jotka osittain ilmenevät kuvaksesta ja osittain vaativat aihealueen ymmärrystä. Esimerkiksi tili ja omistaja ovat erillisiä käsitteitä ja niiden välinen yhteys kuvaa omistajuutta. Omistajan ja henkilöturvatunnuksen välinen yhteys on taas riippuvainen olemassaolosta -- Omistajan henkilöturvatunnusta ei ole olemassa ilman omistajaa. Omistajalla on henkilöturvatunnus.
+</p>
+
+<p>
+  Käsitteiden nimeäminen kuvaavammiksi on myös mahdollista. Edeltävässä kuvauksessa ollut käsite <em>omistaja</em> kannattaisi todennäköisesti nimetä uudelleen henkilöksi.
+</p>
+
+
+<p>
+  <strong>Rakenteellinen abstraktiotaso</strong> (logical level, structural level) on kuvaus tietokantaan tallennettavan tiedon rakenteesta. Se voi olla esimerkiksi luokkakaavio, tietokantakaavio (palaamme näihin myöhemmin kurssilla) tai SQL-kielellä tehdyt tietokantataulujen luomislauseet.
+</p>
+
+<p>
+  Edeltävän esimerkin perusteella voisi puhua kahdesta taulusta: <code>Taulu Tili</code> ja <code>Taulu Henkilo</code>. Henkilöä kuvaavaan tauluun kuuluisi myös henkilöturvatunnus, jolloin taulu merkittäisiin esimerkiksi muodossa <code>Taulu Henkilo(henkiloturvatunnus)</code>. Tämän lisäksi henkilön ja tilin suhdetta kuvattaisiin jollain tavalla -- esimerkiksi "Henkilöllä on yksi tai useampi tili".
+</p>
+
+<p>
+  <strong>Fyysinen abstraktiotaso</strong> (physical level, internal level) kuvaa konkreettista tiedon tallentamistapaa kiintolevylle. Tämä sisältää tiedon tietokantaa kuvaavan tai kuvaavien tiedostojen sijainnista, käytettävistä tietorakenteista, ymym. Fyysinen abstraktiotaso on tyypillisesti järjestelmäkohtainen ja riippuu myös ainakin osittain tallennettavan tiedon muodosta. 
+<p>
+  
 
 <% partial 'partials/material_heading' do %>
   Structured Query Language (SQL)
 <% end %>
 
-- yhden taulun käsittely
+<p>
+  Materiaalin ensimmäisen osan esimerkeissä tarkasteltiin tietokoneen kiintolevyllä sijaitsevan tiedon käsittelyä ohjelmallisesti -- käytännössä esimerkki käsitteli <strong>fyysistä näkymää tiedon tallennukseen</strong>. Esimerkeissä määritettiin tiedon rakenne sekä muuttujien maksimipituus: jos muuttujan todellinen arvo ei vastaa maksimipituutta, tyhjä tila täytetään välilyönneillä. Tällä tavoin ohjelmoija voi olettaa, että tiettyyn muuttujaan liittyvä arvo alkaa aina samasta kohtaa. Laajemmin ajatellen, ohjelmoija tietää myös, että samaisen muuttujan arvo on samassa kohdassa jokaiselle tallennetulle tietueelle (tai oliolle).
+</p>
+
+<p>
+  Ensimmäisen viikon esimerkeissä tiedon käsittelijän tai tiedon hakijan tulee tuntea käsite indeksi sekä osata hyödyntää indeksiä tiedon hakemisessa. Samalla, jos tiedon hakija haluaa vaikkapa useamman muuttujan arvon, tulee ohjelmaa sekä siinä käytettyjä indeksejä päivittää sopivasti.
+</p>
+
+<p>
+  Kun tietokantoja käytetään osana jokapäiväistä työtä, edellä kuvattu tiedon käsittely ei ole kovin mielekästä. Se vaatii käytännössä ohjelmointiosaamista sekä ymmärrystä tallennetusta tiedosta ja tiedon fyysisestä esitysmuodosta. Tiedon fyysinen esitysmuoto vaihtelee tallennettavan tiedon mukaan, joten tiedon käsittelyyn tarvitaan parempi ratkaisu. Tätä ongelmaa ja työläyttä ratkaisemaan on luotu useampia korkeamman abstraktiotason esitystapoja, joita käytetään tietokannassa olevan tiedon hakemiseen ja tiedon muokkaamiseen.
+</p>
+
+<p>
+  Tällä kurssilla keskitytään Structured Query Language (<strong>SQL</strong>) -kieleen. Structured Query Language (jatkossa SQL) on 1980-luvulla standardoitu kieli tietokantakyselyiden tekemiseen. SQL-kielen avulla voidaan määritellä tallennettavan tiedon muoto, luoda ja muokata tietokantatauluja, lisätä tietoa tietokantatauluihin, muokata tietokantatauluissa olevaa tietoa sekä hakea tietoa tietokannoista. Merkittävä osa tällä hetkellä käytössä olevista tietokannanhallintajärjestelmistä mahdollistaa SQL-kielellä tehtyjen kyselyiden käyttämisen tietokannanhallintajärjestelmässä olevien tietokantojen ja tietokantataulujen käsittelyyn. Voidaan ajatella, että SQL-kielellä tehdyt kyselyt ovat kuvattu <em>käsitteellisellä abstraktiotasolla</em>, eli SQL-kieltä käytettäessä tiedon lopulliseen esitysmuotoon kiintolevyllä ei oteta kantaa.
+</p>
+
+<p>
+  Vuosien mittaan standardista on julkaistu useita versioita, joista viimeisin on vuodelta <a href="https://en.wikipedia.org/wiki/SQL:2016" target="_blank" norel>2016</a>. Tietokannanhallintajärjestelmät ja niiden eri versiot noudattavat SQL-kielen standardeja vaihtelevasti. Yhtä tietokannanhallintajärjestelmää varten luodut kyselyt eivät ole aina suoraan siirrettävissä toiseen tietokannanhallintajärjestelmään. On siis syytä huomioida että tietokannanhallintajärjestelmästä toiseen siirryttäessä joudutaan usein myös tekemään SQL-kyselyihin (pieniä) muutoksia. Tyypillisimpiä tietotyyppejä, joiden käsittelytapa vaihtelee eri tietokannanhallintajärjestelmien välillä ovat päivämäärät. 
+</p>
+
+<p>
+  Kurssin toisessa osassa tutustutaan yhden tietokantataulun käsittelyyn SQL-kielellä. Opettelemme luomaan tietokantataulun, lisäämään tietokantatauluun tietoa, hakemaan tietokantataulusta tietoa sekä päivittämään ja poistamaan tietokantataulussa olevaa tietoa.
+</p>
+
+<p>
+  Käytämme tässä osassa SQLite-nimistä tietokannanhallintajärjestelmää.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'SQLiten lataaminen ja käyttöönotto' } do %>
+
+  <p>
+    SQLiten saa ladattua osoitteesta <a href="https://www.sqlite.org/download.html" target="_blank" norel>https://www.sqlite.org/download.html</a>. Kun olet tallentanut (ja asentanut) SQLiten, käynnistä käyttöjärjestelmässä terminaali, ja kirjoita komento <code>sqlite3 tietokanta.db</code>.
+  </p>
+  
+  <p>
+    Kyseinen komento luo tietokanta.db-nimisen tiedoston, joka sisältää käsittelemäsi tietokannan, ja avaa yhteyden kyseiseen tietokantaan.
+  </p>
+
+  <p>
+    Suorittamalla kyselyn "SELECT 1" sqlite tulostaa arvon 1.
+  </p>
+
+  <% partial 'partials/sample_output' do %>
+    kayttaja@kone:~/kansio/$ sqlite3 tietokanta.db
+    SQLite version 3.11.0 2016-02-15 17:29:24
+    Enter ".help" for usage hints.
+    sqlite> SELECT 1;
+    1
+    sqlite>
+  <% end %>
+
+  <p>
+    Voit käyttää kyseistä tietokantaa esimerkkien testaamiseen.
+  </p>
+  
+<% end %>
+
+
+
+<% partial 'partials/hint', locals: { name: 'SQL-kyselyiden muodosta'} do %>
+
+  <p>
+    SQL-kieli on "case insensitive", eli sillä, että onko kysely kirjoitettu isoilla vai pienillä kirjaimilla kei ole kyselyn suorituksen kannalta merkitystä. Voimme kirjoittaa komennon <code>SELECT</code> yhtä hyvin muodossa <code>select</code> tai <code>Select</code> -- sama pätee myös taulujen ja sarakkeiden nimille.
+  </p>
+  
+  <p>
+    Noudatamme tällä kurssilla seuraavaa käytäntöä:
+  </p>
+  
+  <ol>
+    <li>Kaikki SQL-kielen komennot, kuten <code>SELECT</code>, <code>FROM</code> ja <code>WHERE</code>, kirjoitetaan isolla.</li>
+    <li>Taulujen nimet kirjoitetaan isolla alkukirjaimella. Esimerkiksi <code>Henkilo</code> ja <code>Opiskelija</code>.</li>
+    <li>Taulujen sarakkeet eli attribuutit kirjoitetaan pienellä. Esimerkiksi <code>nimi</code> ja <code>syntymavuosi</code>.</li>
+  </ol>
+
+<% end %>
+
+
 
 
 <% partial 'partials/material_sub_heading' do %>
   Tietokantataulun luominen
 <% end %>
 
-<% partial 'partials/material_sub_heading' do %>
-  Tiedon lisääminen
+<p>
+  Tietokantataulu luodaan SQL-kielen <strong>CREATE TABLE</strong> lauseella, jota seuraa luotavan taulun nimi, ja suluissa tietokantataulun sarakkeiden tiedot pilkulla eroteltuna. 
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+  CREATE TABLE <em>TAULUN_NIMI</em> (
+      <em>sarakkeen 1 tiedot</em>,
+      <em>sarakkeen 2 tiedot</em>,
+      <em>sarakkeen 3 tiedot</em>
+  )
 <% end %>
 
-<% partial 'partials/material_sub_heading' do %>
-  Tiedon kysyminen
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tietotyypit
 <% end %>
+
+<p>
+  Tietokantaan säilöttävä tieto voi olla montaa eri muotoa, esimerkiksi merkkijonoja, numeroita, binäärimuodossa olevia tiedostoja sekä päivämääriä. Tietokannan suunnittelijan tehtävänä on päättää kunkin sarakkeen tiedon tyyppi.
+</p>
+
+<p>
+  Sarakkeen tiedon tyyppi määrää minkämuotoista tietoa sarakkeen arvoksi voi tallentaa. Käytännössä tietokantataulua luotaessa sarakkeen määrittelyssä annettavat tiedot kertovat tietokannanhallintajärjestelmälle siitä, että minkälaista tietoa sarakkeeseen voidaan lisätä, ja toisaalta samalla minkälaista tietoa sarakkeeseen ei voida lisätä. Sarakkeen tyyppi vaikuttaa myös asioihin, joita sarakkeen arvoilla voi tehdä -- esimerkiksi keskiarvon laskeminen merkkijonotyyppisiä arvoja sisältävästä sarakkeesta ei ole kovin järkevää.
+</p>
+
+<p>
+  Tyypillisesti käytetyn tietotyypit ovat seuraavat:
+</p>
+
+<ul>
+  <li><strong>varchar(n)</strong> korkeintaan <em>n</em> merkin pituinen merkkijono.</li>
+  <li><strong>integer</strong> kokonaisluku</li>
+  <li><strong>float</strong> liukuluku eli desimaaliluku</li>
+  <li><strong>date</strong> päivämäärä, tallentaa vuoden, kuukauden ja päivän</li>
+  <li><strong>timestamp</strong> aikaleima, tallentaa vuoden, kuukauden, päivän, tunnit, minuutit ja sekunnit -- mahdollisesti myös tarkempia arvoja</li>
+</ul>
+
+<% partial 'partials/hint', locals: { name: 'Lisää tietotyyppejä' } do %>
+
+  <p>
+    Eri tietokannanhallintajärjestelmät kuten <code>SQLite</code>, <code>MySQL</code> ja <code>PostgreSQL</code> tarjoavat hieman erilaisia tietotyyppejä ohjelmoijan käyttöön. Seuraavissa dokumenteissa kerrotaan näistä enemmän.
+  </p>
+
+  <ul>
+    <li><a href="https://www.sqlite.org/datatype3.html" target="_blank" norel>https://www.sqlite.org/datatype3.html</a></li>
+    <li><a href="http://www.postgresql.org/docs/9.4/static/datatype.html" target="_blank" norel>http://www.postgresql.org/docs/9.4/static/datatype.html</a></li>
+    <li><a href="http://www.w3schools.com/sql/sql_datatypes.asp" target="_blank" norel>http://www.w3schools.com/sql/sql_datatypes.asp</a></li>
+  </ul>
+  
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Sarakkeen tietojen määrittely
+<% end %>
+
+<p>
+  Jokaisesta sarakkeesta kerrotaan sarakkeen nimi, sarakkeeseen tulevan tiedon tyyppi sekä tarvittaessa tietotyypille varattavan tilan koko -- esimerkiksi merkkijonoja tallennettaessa kerrotaan tallennettavan merkkijonon maksimipituus. Jokaisella sarakkeella tulee olla nimi sekä tyyppi. Jos sarakkeen tyyppiä ei määritellä tietokantataulua luotaessa, jotkut tietokannanhallintajärjestelmät määrittelevät sen automaattisesti, toiset taas näyttävät virheilmoituksen. 
+</p>
+
+<p>
+  Sarakkeen tiedot ovat muotoa <em>sarakkeen_nimi sarakkeen_tietotyyppi</em>. Esimerkiksi syntymävuosi määritellään seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  syntymavuosi integer
+<% end %>
+
+<p>
+  Korkeintaan 200 merkkiä pitkä nimi määriteltäisiin taas seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  nimi varchar(200)
+<% end %>
+
+<p>
+  Henkilön syntymävuoden ja nimen tallentamiseen tarkoitettu taulu määriteltäisiin seuraavasti. Alla on oletettu, että nimi ei ole koskaan yli 200 merkkiä pitkä.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  CREATE TABLE Henkilo (
+      syntymavuosi integer,
+      nimi varchar(200)
+  )
+<% end %>
+
+<p>
+  Yllä luodun esimerkkitaulun sisältö voisi olla esimerkiksi seuraavanlainen.
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>syntymävuosi</th>
+      <th>nimi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1997</td>
+      <td>Pihla</td>
+    </tr>
+    <tr>
+      <td>1993</td>
+      <td>Joni</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tietokantataulun poistaminen
+<% end %>
+
+<p>
+  Tietokantataulun poistaminen onnistuu <strong>DROP TABLE</strong> <em>TAULUN_NIMI</em> -lauseella, missä taulun nimi on poistettavan taulun nimi. Esimerkiksi edellä luodun Henkilo-taulun poistaminen onnistuisi seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+DROP TABLE Henkilo
+<% end %>
+
+<p>
+  Huomaathan, että tietokantataulun poistaminen poistaa myös kaiken tietokantataulussa olevan datan.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Olemassaolevien tietokantataulujen listaaminen' } do %>
+
+  <p>
+    Olemassaolevien tietokantataulujen listaamiseen ei ole yhtä kaikissa tietokannanhallintajärjestelmissä toimivaa tapaa. Osoitteessa <a href="http://onewebsql.com/blog/list-all-tables" target="_blank" norel>http://onewebsql.com/blog/list-all-tables</a> oleva sivu listaa muutamien tietokannanhallintajärjestelmien syntaksit tietokantataulujen listaamiseen.
+  </p>
+
+  <p>
+    SQLiten tietokantataulut saadaan selville komennolla <code>SELECT * FROM sqlite_master</code>.
+  </p>
+
+  <% partial 'partials/code_highlight' do %>
+    SELECT * FROM sqlite_master
+  <% end %>
+  
+<% end %>
+
+<% partial 'partials/hint', locals: { name: 'Sarakkeiden tietotyypin selvittäminen' } do %>
+
+  <p>
+    Attribuutin -- tai sarakkeen -- tietotyypin kysymiseen <a href="http://stackoverflow.com/questions/13405572/sql-statement-to-get-column-type" target="_blank">ei myöskään ole yhtä tapaa</a>, vaan tapa liittyy käytettävään tietokannanhallintajärjestelmään. Käyttämässämme SQLite-versiossa sarakkeen tyypin saa selville kyselyllä <code>PRAGMA TABLE_INFO(<em>TAULUN_NIMI</em>)</code>, missä <em>TAULUN_NIMI</em> on tarkasteltavan taulun nimi.
+  </p>
+
+  <p>
+    Esimerkiksi
+  </p>
+
+  <% partial 'partials/code_highlight' do %>
+    PRAGMA TABLE_INFO(Henkilo)
+  <% end %>
+  
+  
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon lisääminen tietokantatauluun
+<% end %>
+
+<p>
+  Tiedon lisääminen tietokantatauluun tapahtuu <strong>INSERT INTO</strong> -lauseella. Lausetta <code>INSERT INTO</code> seuraa kohdetaulun nimi, jonka jälkeen määritellään sarakkeet, joihin arvot asetetaan. Näitä seuraa vielä konreettiset arvot.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+INSERT INTO <em>TAULUN_NIMI</em> (<em>sarake1</em>, <em>sarake2</em>, <em>sarake3</em>)
+    VALUES (<em>'merkkijono hipsuissa'</em>,<em>'numero ei'</em>, 123)
+<% end %>
+
+
+<p>
+  Oletetaan, että käytössämme on edellisessä aliluvussa luotu taulu Henkilo, jossa on sarakkeet syntymavuosi ja nimi. Uuden henkilon lisääminen tapahtuu seuraavasti.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+INSERT INTO Henkilo (syntymavuosi, nimi)
+    VALUES (1923, 'Edgar Frank Codd')
+<% end %>
+
+<p>
+  Yllä olevassa esimerkissä tietokantatauluun Henkilo lisätään uusi rivi. Sarakkeeseen syntymävuosi tulee arvo 1923 ja sarakkeeseen nimi tulee merkkijono 'Edgar Frank Codd'.
+</p>
+
+<p>
+  Vastaavasti vuonna 1947 syntyneen Raymond Boycen lisääminen tietokantatauluun Henkilo onnistuu seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+INSERT INTO Henkilo (syntymavuosi, nimi)
+    VALUES (1947, 'Raymond Boyce')
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon hakeminen tietokantataulusta
+<% end %>
+
+<p>
+  Tiedon hakeminen tietokantataulusta onnistuu <strong>SELECT</strong>-lauseella. Avainsanaa <code>SELECT</code> seuraa haettavat sarakkeet, tietokantataulun nimi sekä mahdollisesti rajausehto tai rajausehtoja.
+</p>
+
+<p>
+  Ilman rajausehtoa kyselyn rakenne on seuraava.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
+<% end %>
+
+<p>
+  Rajausehdon kanssa kyselyn rakenne on seuraava.
+
+<% partial 'partials/code_highlight' do %>
+  SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
+      WHERE <em>rajausehto</em>
+<% end %>
+
+
+<p>
+  Oletetaan, että käytössämme on seuraava taulu, jonka nimi on Henkilo.
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>syntymavuosi</th>
+      <th>nimi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1997</td>
+      <td>Pihla</td>
+    </tr>
+    <tr>
+      <td>1993</td>
+      <td>Joni</td>
+    </tr>
+    <tr>
+      <td>1947</td>
+      <td>Raymond</td>
+    </tr>
+    <tr>
+      <td>1923</td>
+      <td>Edgar</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<p>
+  Jos haluamme listata kaikki taulun henkilöt, kysely olisi muotoa.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+  SELECT syntymavuosi, nimi FROM Henkilo
+<% end %>
+
+<p>
+  Valinta henkilöihin, jotka ovat syntyneet ennen vuotta 1950 onnistuu seuraavasti. 
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  SELECT syntymavuosi, nimi FROM Henkilo WHERE syntymavuosi &lt; 1950
+<% end %>
+
+
+<% partial 'partials/hint', locals: { name: 'Kaikki sarakkeet'} do %>
+
+  <p>
+    Hakukyselyn <code>SELECT</code>-komentoa seuraava sarakelistaus voidaan korvata tähtimerkillä * jos halutaan hakea kaikki tietokantataulun sarakkeet. Olettaen, että taulussa Henkilo on vain sarakkeet syntymavuosi ja nimi, kysely:
+  </p>
+  
+  <% partial 'partials/code_highlight' do %>
+    SELECT syntymavuosi, nimi FROM Henkilo WHERE syntymavuosi &lt; 1950
+  <% end %>
+
+  <p>
+    Voidaan korvata kyselyllä
+  </p>
+  
+  <% partial 'partials/code_highlight' do %>
+    SELECT * FROM Henkilo WHERE syntymavuosi &lt; 1950
+  <% end %>
+
+<% end %>
+
+
+
+<p>
+  Jos sarakkeen arvot ovat merkkijonoja, kuten nimi, voi hakuehdossa käyttää <code>LIKE</code>-operaatiota. Tämän avulla hakutuloksia voi rajata osittaisen merkkijonon avulla. Esimerkiksi kysely <code>SELECT * FROM Henkilo WHERE nimi LIKE '%a%'</code> hakee kaikki henkilöt, joiden nimessä esiintyy a-kirjain.
+</p>
+
+
+
+<% partial 'partials/hint', locals: { name: 'Loogiset operaatiot'} do %>
+
+  <p>
+    Rajausehtoihin voi lisätä loogisia operaatioita kyselyjen tulosten rajaamiseksi. Operaatio 'ja', eli kahden rajausehdon yhdistäminen, toimii avainsanalla <code>AND</code>. Esimerkiksi kysely <code>SELECT * FROM Henkilo WHERE nimi = 'Ted' AND syntymavuosi = 1920</code> listaa vain ne henkilöt, joiden nimi on 'Ted' ja joiden syntymävuosi on 1920.
+  </p>
+  
+  <p>
+    Operaation 'tai' lisääminen on myös mahdollista. Esimerkiksi kysely <code>SELECT * FROM Henkilo WHERE nimi = 'Matti' OR nimi = 'Maija'</code> listaisi kaikki ne henkilöt, joiden nimi on Matti tai Maija.
+  </p>
+
+  
+  <p>
+    Kyselyissä toimivat myös suurempi kuin <code>&gt;</code> ja pienempi kuin <code>&lt;</code> -operaatiot.
+  </p>
+
+  
+  <p>
+    Ehtoja voi myös yhdistää, jonka lisäksi suluilla voi rajata suoritusjärjestystä. Tutki kyselyä  <code>SELECT * FROM Kurssisuoritus WHERE (kurssi = 'Ohjelmoinnin perusteet' OR kurssi = 'Ohjelmoinnin jatkokurssi') AND arvosana = 3</code> ja mieti mitä se tekee.
+  </p>
+  
+  
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon päivittäminen
+<% end %>
+
+
+<p>
+  Tietokantataulussa olevan tiedon päivittäminen onnistuu <strong>UPDATE</strong>-lauseella. Komentoa <cude>UPDATE</cude> seuraa tietokantataulun nimi, avainsana <code>SET</code>, jota seuraa sarakekohtaiset uudet arvot. Lopuksi kyselyyn lisätään rajausehto, jonka perusteella rajataan muutettavia rivejä.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+  UPDATE <em>TAULUN_NIMI</em>
+      SET <em>sarake1='uusiarvo'</em>, <em>sarake2=1234</em>
+      WHERE <em>sarake3='rajausarvo'</em>
+<% end %>
+
+<p>
+  Esimerkiksi 'Joni'-nimisen henkilön nimen päivittäminen muotoon 'Joni S' onnistuu seuraavasti.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+  UPDATE Henkilo
+      SET nimi='Joni S'
+      WHERE nimi='Joni'
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon poistaminen tietokantataulusta
+<% end %>
+
+<p>
+  Tiedon poistaminen tietokantataulusta onnistuu <strong>DELETE FROM</strong> -lauseella. Lauseeseen määritellään lisäksi tietokantataulu, mistä tietoa poistetaan, ja mahdollisesti ehtoja, jotka rajaavat poistettavia rivejä. Yksinkertaisimmillaan komennolla poistetaan kaikki rivit annetusta taulusta seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  DELETE FROM <em>TAULUN_NIMI</em>
+<% end %>
+
+<p>
+  Poistettavien rivien rajaaminen tapahtuu WHERE-ehdolla, jota seuraa poistettavien arvojen rajaus. Esimerkiksi kaikki vuonna 1920 syntyneet henkilöt poistettaisiin tietokantataulusta Henkilo seuraavalla komennolla.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+  DELETE FROM Henkilo WHERE syntymavuosi = 1920
+<% end %>
+
+<p>
+  Poistoehtoon voi rakentaa loogisen lauseen, joka sisältää <code>AND</code> ja <code>OR</code> -määreitä. Näiden avulla poistorajausta voi tehdä laajemmin. Alla olevassa esimerkissä poistetaan henkilö (tai henkilöt), joiden syntymävuosi on 1947 ja joiden nimi on 'Raymond Boyce'.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  DELETE FROM Henkilo WHERE syntymavuosi = 1947 AND nimi = 'Raymond Boyce'
+<% end %>
+
+<p>
+  Pienempi kuin ja suurempi kuin -vertailuoperaatiot sekä erisuuri kuin vertailuoperaatiot ovat myös mahdollisia. Alla olevassa esimerkissä poistetaan kaikki henkilöt, joiden syntymävuosi on pienempi kuin 2000 ja joiden nimi ei ole 'Boyce-Codd'.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  DELETE FROM Henkilo WHERE syntymavuosi &lt; 2000 AND nimi != 'Boyce-Codd'
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Yhteenveto
+<% end %>
+
+<table class="table">
+  <tr>
+    <th>
+      Operaatio
+    </th>
+    <th>
+      Avainsana
+    </th>
+    <th>
+      Esimerkki
+    </th>
+  </tr>
+  <tr>
+    <td>
+      Tietokantataulun luominen
+    </td>
+    <td>
+      CREATE
+    </td>
+    <td>
+      <% partial 'partials/code_highlight' do %>
+CREATE TABLE Opiskelija (
+    opiskelijanumero integer,
+    nimi varchar(60),
+    sahkopostiosoite varchar(40)
+)
+      <% end %>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Tietokantataulun poistaminen
+    </td>
+    <td>
+      DROP
+    </td>
+    <td>
+      <% partial 'partials/code_highlight' do %>
+DROP TABLE Opiskelija
+      <% end %>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Tiedon lisääminen
+    </td>
+    <td>
+      INSERT
+    </td>
+    <td>
+      <% partial 'partials/code_highlight' do %>
+INSERT INTO
+    Opiskelija (opiskelijanumero, nimi, sahkopostiosoite)
+    VALUES (1008286, 'Ari', 'posti@osoite.net');
+      <% end %>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Tiedon hakeminen
+    </td>
+    <td>
+      SELECT
+    </td>
+    <td>
+      <% partial 'partials/code_highlight' do %>
+SELECT nimi FROM Opiskelija
+      <% end %>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Tiedon päivittäminen
+    </td>
+    <td>
+      UPDATE
+    </td>
+    <td>
+      <% partial 'partials/code_highlight' do %>
+UPDATE Opiskelija
+    SET nimi='Ari V'
+    WHERE opiskelijanumero=1008286
+      <% end %>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Tiedon (rivien) poistaminen
+    </td>
+    <td>
+      DELETE
+    </td>
+    <td>
+      <% partial 'partials/code_highlight' do %>
+DELETE FROM Opiskelija
+    WHERE opiskelijanumero=1008286
+      <% end %>
+    </td>
+  </tr>
+  
+</table>
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Kappaleet' } do %>
+
+  <p>
+    Huom! <em>Suurin osa tästä tehtävästä tulee tehdä SQLite-ohjelmalla.</em> Materiaalista löytyy aiemmin ohjeet kyseisen ohjelman asentamiseen.
+  </p>
+
+  <p>
+    Etsi tehtäväpohjan sisältävä kansio ja mene sen alikansioon <code>db</code>. Kyseisessä kansiossa on valmiina tiedosto <code>esimerkki.db</code>.
+  </p>
+
+  <p>
+    Luo kansioon <code>db</code> tietokanta <code>levy.db</code>. Avaa tietokanta sqliten avulla, ja luo tietokantaan tietokantataulu nimeltä <code>Kappale</code>, joka sisältää seuraavat sarakkeet:
+  </p>
+
+  <ul>
+    <li>nimi (merkkijono, maksimipituus 100 merkkiä)</li>
+    <li>artisti (merkkijono, maksimipituus 80 merkkiä)</li>
+    <li>levytysvuosi (kokonaisluku)</li>
+    <li>pituus (kokonaisluku)</li>
+  </ul>
+
+  <p>
+    Lisää tämän jälkeen tietokantatauluun <code>Kappale</code> seuraavat kappaleet.
+  </p>
+
+  <table class="table">
+    <tr>
+      <th>Nimi</th>
+      <th>Artisti</th>
+      <th>Levytysvuosi</th>
+      <th>Pituus</th>
+    </tr>
+    <tr>
+      <td>Capito Tutto</td>
+      <td>Kummeli</td>
+      <td>1994</td>
+      <td>124</td>
+    </tr>
+    <tr>
+      <td>Kanada</td>
+      <td>Kummeli</td>
+      <td>1994</td>
+      <td>119</td>
+    </tr>
+    <tr>
+      <td>Tango Vibrato</td>
+      <td>Kummeli</td>
+      <td>1994</td>
+      <td>117</td>
+    </tr>
+  </table>
+
+<% end %>
+
+<% partial 'partials/exercise', locals: { name: 'Tilastot' } do %>
+
+
+  <p>
+    Huom! <em>Suurin osa tästä tehtävästä tulee tehdä SQLite-ohjelmalla.</em> Materiaalista löytyy aiemmin ohjeet kyseisen ohjelman asentamiseen.
+  </p>
+
+  <p>
+    Etsi tehtäväpohjan sisältävä kansio ja mene sen alikansioon <code>db</code>. Kyseisessä kansiossa on valmiina tiedosto <code>palkkatilastot.db</code>. Kyseisessä tiedostossa on yksityisen sektorin mediaanipalkat. Palkkatilastot on noudettu tilastokeskuksen sivuilta osoitteesta <a href="http://www.stat.fi/til/yskp/2014/yskp_2014_2015-08-20_tie_001_fi.html" target="_blank" norel">http://www.stat.fi/til/yskp/2014/yskp_2014_2015-08-20_tie_001_fi.html</a>.
+  </p>
+
+  <p>
+    Selvitä tiedostosta seuraavat tiedot:
+  </p>
+
+  <ul>
+    <li>Mikä on ohutlevyseppien kuukausittainen mediaaniansio?</li>
+    <li>Kuinka monen työtehtävän mediaaniansio on alle 1900 euroa kuussa?</li>
+    <li>Kuinka monen työtehtävän mediaaniansio on yli 7000 euroa kuussa?</li>
+    <li>Minkä työtehtävän mediaaniansio on tasan 3300 euroa kuussa?</li>
+  </ul>
+
+  <p>
+    TMC:n tehtäväpohjassa on valmiit kohdat vastauksille. Kun tiedoston Tilastoja.java käynnistää nyt, ohjelma tulostaa.
+  </p>
+
+  <% partial 'partials/sample_output' do %>
+    Ohutlevyseppien mediaaniansio: 0
+    Työtehtäviä, joiden mediaaniansio on alle 1900 euroa: 0
+    Työtehtäviä, joiden mediaaniansio on yli 7000 euroa: 0
+    Työtehtävä, jonka mediaaniansio on tasan 3300 euroa kuussa: ???
+  <% end %>
+
+  <p>
+    Kun olet selvittänyt tilastot, muokkaa ohjelmaa niin, että ohjelma tulostaa edellä toivotut lukumäärät (ja työtehtävän) oikein.
+  </p>
+
+  <p>
+    <em>
+      Tehtäväpohjassa on myös tiedosto <em>palkkatilastot_varalla.db</em> siltä varalta, että muokkaat vahingossa käsiteltävää tietokantatiedostoa.
+    </em>
+  </p>
+
+<% end %>
+
 
 
 <% partial 'partials/material_heading' do %>
   Tietokannan käsittely ohjelmallisesti
 <% end %>
 
+<p>
+  Lähes jokainen ohjelmointikieli tarjoaa jonkinlaisen rajapinnan tietokantakyselyiden tekemiseen. Nämä rajapinnat suoraviivaistavat kyselyiden tekemistä tietokantoihin ja tietokannanhallintajärjestelmien käyttöönoottoa, sillä rajapintaa noudattamalla yhteydenotto tietokannantallintajärjestelmään on lähes samankaltaista käytetystä tietokannanhallintajärjestelmästä riippumatta.
+</p>
+
+<p>
+  Java-kielessä tähän tehtävään on <a href="https://en.wikipedia.org/wiki/Java_Database_Connectivity" target="_blank" nodel>Java Database Connectivity</a> (JDBC) -rajapinta. JDBC tarjoaa tuen tietokantayhteyden luomiseen sekä kyselyiden suorittamiseen tietokantayhteyden yli. Jotta JDBCn avulla voidaan ottaa yhteys tietokantaan, tulee käytössä olla tietokannanhallintajärjestelmäkohtainen ajuri, jonka vastuulla on tietokantayhteyden luomiseen liittyvät yksityiskohdat sekä tietokannanhallintajärjestelmän sisäisten kyselytulosten muuntaminen JDBC-rajapinnan mukaiseen muotoon.
+</p>
 
 
+<% partial 'partials/hint', locals: { name: 'JDBC-ajurin noutaminen' } do %>
+  
+  <p>
+    JDBC-ajurit ovat käytännössä Java-kielellä kirjoitettuja ohjelmia, joita tietokannanhallintajärjestelmän toteuttajat tarjoavat ohjelmoijien käyttöön. Kurssin toisessa osassa ajurit on lisätty valmiiksi tehtäväpohjien <code>lib</code>-kansioon, jonka lisäksi niiden käyttö on valmiiksi määritelty tehtäväpohjissa.
+  </p>
 
-<% partial 'partials/material_sub_heading' do %>
-  SQL-injektio
+  <p>
+    Myöhemmissä osissa tutustumme kirjastojen käyttöönottoon ja hakemiseen <a href="https://maven.apache.org/" target="_blank" norel">Maven</a>-apuvälineen avulla.
+  </p>
+  
 <% end %>
 
 
 
 <% partial 'partials/material_sub_heading' do %>
-  Data Access Object
+  Ohjelmallinen tietokantakysely kokonaisuudessaan 
+<% end %>
+
+
+<p>
+  Oletetaan, että käytössämme on seuraava tietokantataulu Opiskelija:
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>opiskelijanumero (integer)</th>
+      <th>nimi (varchar)</th>
+      <th>syntymävuosi (integer)</th>
+      <th>pääaine (varchar)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>9999999</td>
+      <td>Pihla</td>
+      <td>1997</td>
+      <td>Tietojenkäsittelytiede</td>
+    </tr>
+    <tr>
+      <td>9999998</td>
+      <td>Joni</td>
+      <td>1993</td>
+      <td>Tietojenkäsittelytiede</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<p>
+  JDBCn avulla kyselyn tekeminen tietokantatauluun tapahtuu seuraavasti -- olettaen, että käytössämme on sekä tietokanta, että tietokannan ajuri.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // luodaan yhteys jdbc:n yli sqlite-tietokantaan nimeltä "tietokanta.db"
+        Connection connection = DriverManager.getConnection("jdbc:sqlite:tietokanta.db");
+
+        // luodaan kyely "SELECT * FROM Opiskelija", jolla haetaan
+        // kaikki tiedot Opiskelija-taulusta
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM Opiskelija");
+
+        // suoritetaan kysely -- tuloksena resultSet-olio
+        ResultSet resultSet = statement.executeQuery();
+
+        // käydään tuloksena saadussa oliossa olevat rivit läpi -- next-komento hakee
+        // aina seuraavan rivin, ja palauttaa true jos rivi löytyi
+        while(resultSet.next()) {
+            // haetaan nykyiseltä riviltä opiskelijanumero int-muodossa
+            Integer opNro = resultSet.getInt("opiskelijanumero");
+            // haetaan nykyiseltä riviltä nimi String-muodossa
+            String nimi = resultSet.getString("nimi");
+            // haetaan nykyiseltä riviltä syntymävuosi int-muodossa
+            Integer syntVuosi = resultSet.getInt("syntymävuosi");
+            // haetaan nykyiseltä riviltä pääaine String-muodossa
+            String paaAine = resultSet.getString("pääaine");
+
+            // tulostetaan tiedot
+            System.out.println(opNro + "\t" + nimi + "\t" + syntVuosi + "\t" + paaAine);
+        }
+
+        // suljetaan lopulta yhteys tietokantaan
+        connection.close();
+    }
+}
+<% end %>
+
+<p>
+Ohjelman suoritus tuottaa (esimerkiksi) seuraavanlaisen tulostuksen:
+</p>
+
+<% partial 'partials/sample_output' do %>
+999999	Pihla	1997	Tietojenkäsittelytiede
+999998	Joni	1993	Tietojenkäsittelytiede
+999997	Anna	1991	Matematiikka
+999996	Krista	1990	Tietojenkäsittelytiede
+...
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Ohjelman rakentaminen osissa 
+<% end %>
+
+<p>
+  <em>Tässä oletetaan, että projektiin on lisätty tarvittava JDBC-ajuri.</em>
+</p>
+
+<p>
+  Avaa projektiin liittyvä <em>Source Packages</em> ja valitse (tai tarvittaessa luo) sopiva pakkaus. Oletetaan tässä, että käytössä on pakkaus <code>tikape</code>. Valitse tämän jälkeen <em>New</em> -> <em>Java Class</em>, jonka jälkeen avautuu valikko, missä voit antaa luokalle nimen. Anna luokan nimeksi <code>Main</code>.
+</p>
+
+<p>
+  Avaa tiedosto tuplaklikkaamalla sitä. Muokkaa tiedostoa vielä siten, että se on seuraavan näköinen:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+    }
+}
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tietokantayhteyden luominen
+<% end %>
+
+<p>
+  Lisää projektiin <em>import</em>-komento <code>import java.sql.*;</code>, joka hakee kaikki SQL-kyselyihin liittyvät Javan kirjastot.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.sql.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+    }
+}
+<% end %>
+
+<p>
+  Avataan seuraavaksi tietokantayhteys tietokantatiedostoon nimeltä <em>testi.db</em> ja tehdään kysely "SELECT 1", jolla pyydetään tietokantaa palauttamaan luku 1 -- käytämme tätä yhteyden testaamiseksi. Jos yhteyden luominen onnistuu, tulostetaan "Hei tietokantamaailma!", muulloin "Yhteyden muodostaminen epäonnistui".
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.sql.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        Connection connection = DriverManager.getConnection("jdbc:sqlite:testi.db");
+
+        PreparedStatement statement = connection.prepareStatement("SELECT 1");
+
+        ResultSet resultSet = statement.executeQuery();
+
+        if(resultSet.next()) {
+            System.out.println("Hei tietokantamaailma!");
+        } else {
+            System.out.println("Yhteyden muodostaminen epäonnistui.");
+        }
+    }
+}
+<% end %>
+
+<% partial 'partials/sample_output' do %>
+Hei tietokantamaailma!
+<% end %>
+
+<p>
+  Kun suoritamme ohjelman ensimmäistä kertaa valitsemalla <em>Run</em> -> <em>Run Project</em>, puuttuvan tietokannan paikalle luodaan tietokanta (ainakin SQLiteä käyttäessä). Projektin kansiossa on nyt tiedosto <code>testi.db</code>, joka on tietokantamme.
+</p>
+
+
+<figure>
+  <img src="img/viikko3/nb-testidb.png" alt="Kun ohjelma on suoritettu ensimmäistä kertaa, tiedosto testi.db luodaan projektiin."/>
+  <figcaption>Tietokantatiedosto <em>testi.db</em> löytyy projektin kansiosta. Tiedostot löytyvät <em>Files</em>-välilehdeltä.</figcaption>
+</figure>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tietokantakyselyiden tekeminen
+<% end %>
+
+<p>
+  Osoitteessa <a href="dbs/vuokraamo.db">vuokraamo.db</a> löytyy kuvitteellisen moottoripyörävuokraamon tietokanta. Lataa se edellä tehdyn projektin juureen ja kokeile kyselyn tekemistä kyseiseen tietokantaan.
+</p>
+
+<p>
+  Tietokannassa on tietokantataulu <code>Pyora</code>, jolla on sarakkeet <code>rekisterinumero</code> ja <code>merkki</code>. Jokaisen pyörän rekisterinumeron ja merkin tulostaminen tapahtuu seuraavasti -- huomaa myös, että olemme vaihtaneet käytössä olevaa tietokantaa.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
+
+PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Pyora");
+ResultSet rs = stmt.executeQuery();
+
+while (rs.next()) {
+    String rekisterinumero = rs.getString("rekisterinumero");
+    String merkki = rs.getString("merkki");
+
+    System.out.println(rekisterinumero + " " + merkki);
+}
+
+stmt.close();
+rs.close();
+
+connection.close();
+<% end %>
+
+<p>
+Käydään ylläoleva ohjelmakoodi läpi askeleittain.
+</p>
+
+<ol>
+  <li>
+    <p>Luomme ensin JDBC-yhteyden tietokantaan <em>vuokraamo.db</em>.
+    <% partial 'partials/code_highlight' do %>
+Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
+    <% end %>
+    </p>
+  </li>
+  
+  <li>
+    <p>Kysely luodaan antamalla yhteydelle merkkijono, jossa on kysely. Yhteys palauttaa <em>PreparedStatement</em>-olion, jota käytetään kyselyn suorittamiseen ja tulosten pyytämiseen. Metodi <em>executeQuery</em> suorittaa SQL-kyselyn ja palauttaa tulokset sisältävän <em>ResultSet</em>-olion.
+      
+      <% partial 'partials/code_highlight' do %>
+PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora");
+ResultSet resultSet = statement.executeQuery();
+      <% end %>
+    </p>
+  </li>
+  
+  <li>
+    <p>Tämän jälkeen ResultSet-oliossa olevat tulokset käydään läpi. Metodia next() kutsumalla siirrytään kyselyn palauttamissa tulosriveissä eteenpäin. Kultakin riviltä voi kysyä sarakeotsikon perusteella solun arvoa. Esimerkiksi kutsu getString("rekisterinumero") palauttaa kyseisellä rivillä olevan sarakkeen "rekisterinumero" arvon String-tyyppisenä.
+
+      <% partial 'partials/code_highlight' do %>
+while(resultSet.next()) {
+    String rekisterinumero = rs.getString("rekisterinumero");
+    String merkki = rs.getString("merkki");
+
+    System.out.println(rekisterinumero + " " + merkki);
+}
+      <% end %>
+    </p>
+  </li>
+  
+  <li>
+    <p>Kun kyselyn vastauksena saadut rivit on käyty läpi, eikä niitä enää tarvita, vapautetaan niihin liittyvät resurssit.
+    
+    <% partial 'partials/code_highlight' do %>
+stmt.close();
+rs.close();
+    <% end %>
+    </p>
+  </li>
+
+
+  <li>
+    <p>Lopulta tietokantayhteys suljetaan.
+
+      <% partial 'partials/code_highlight' do %>
+connection.close();
+<% end %>
+    </p>
+  </li>
+</ol>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Parametrien lisääminen kyselyyn
+<% end %>
+
+<p>
+  Kyselyihin halutaan usein antaa rajausehtoja. Ohjelmallisesti tämä tapahtuu lisäämällä kyselyä muodostaessa rajausehtoihin kohtia, joihin asetetaan arvot. Alla olevassa esimerkissä kyselyyn lisätään merkkijono.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = '?'");
+statement.setString(1, "Royal Enfield");
+
+ResultSet resultSet = statement.executeQuery();
+<% end %>
+
+<p>
+  Kyselyiden paikat indeksoidaan kohdasta 1 alkaen. Jos arvo on merkkijono, tulee kysymysmerkki lisätä hipujen sisään. Numeerisilla arvoilla hipsuja taas ei tarvita. Alla olevassa esimerkissä haetaan Henkilo-taulusta henkilöitä, joiden syntymävuosi on 1952.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Henkilo WHERE syntymavuosi  = ?");
+  statement.setInt(1, 1952);
+
+  ResultSet resultSet = statement.executeQuery();
+<% end %>
+
+<p>
+  Ohjelma voi toimia myös siten, että rajausehdot kysytään ohjelman käyttäjältä.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+  Scanner lukija = new Scanner(System.in);
+  System.out.println("Minkä vuoden opiskelijat tulostetaan?");
+  int vuosi = Integer.parseInt(lukija.nextLine());
+
+  // ...
+
+  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Henkilo WHERE syntymavuosi  = ?");
+  statement.setInt(1, vuosi);
+
+  ResultSet resultSet = statement.executeQuery();
+
+  // ...
+<% end %>
+
+
+<% partial 'partials/hint', locals: { name: 'PreparedStatement ja set<em>Arvo</em>-metodit' } do %>
+
+  <p>
+    Kun kyselyt luodaan tietokantayhteyteen liittyvän olion prepareStatement oliolla, kyselyihin merkitään kysymysmerkeillä ne kohdat, joihin käyttäjän syöttämiä arvoja voidaan lisätä. Kun metodilla setArvo -- esim setInt -- asetetaan parametrin arvo kyselyyn, Java tarkastaa (1) että arvo on varmasti halutun kaltainen ja (2) että arvossa ei ole esimerkiksi hipsuja, joiden kautta parametri voisi vaikuttaa kyselyn tavoitteisiin.
+  </p>
+
+  <p>
+    Palaamme tähän kohta kun SQL-injektioihin liittyvässä aliluvussa.
+  </p>
+  
 <% end %>
 
 
 
 
-<% partial 'partials/exercise', locals: { name: 'Tiedon lukeminen ja tallentaminen' } do %>
+<% partial 'partials/material_sub_sub_heading' do %>
+  Päivityskyselyiden tekeminen
+<% end %>
+ 
+<p>
+  Myös päivityskyselyiden kuten rivien lisäämisten ja rivien poistamisten tekeminen onnistuu ohjelmallisesti. Tällöin tuloksessa ei ole erillistä ResultSet-oliota, vaan luku, joka kertoo muuttuneiden rivien määrän. Allaoleva ohjelmakoodi lisää pyöriä sisältävään tietokantaan uuden pyörän.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
+
+PreparedStatement stmt = connection.prepareStatement("INSERT INTO Pyora (rekisterinumero, merkki) VALUES ('?', '?')");
+stmt.setString(1, "RIP-34");
+stmt.setString(2, "Jopo");
+
+int changes = stmt.executeUpdate();
+
+System.out.println("Kyselyn vaikuttamia rivejä: " + changes);
+stmt.close();
+
+connection.close();
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  SQL-injektiot
+<% end %>
+
+<p>
+  Suurin osa olemassaolevista sovelluksista käyttää tietokannanhallintajärjestelmiä jollain tavalla: tietoa haetaan tietokannasta, tietokannassa olevaa tietoa muokataan, ja tietokantaan tallennetaan tietoa. Tyypillisesti sovelluksiin on myös käyttöliittymä, minkä kautta sovelluksen käyttäjät pääsevät vaikuttamaan kyselyiden sisältöön.
+</p>
+
+<p>
+  SQL-injektioiden tekeminen onnistuu jos ohjelmoija jättää tietokantaa käsitteleviin kyselyihin ns. käyttäjän mentävän aukon. Tämä onnistuu Javalla siten, että kyselyt luodaan niin, että kyselyihin lisättävät parametrit syötetään kyselyyn suoraan merkkijonona.
+</p>
+
+<p>
+  Alla on esimerkki, missä käyttäjältä kysytään haettavan pyörän merkkiä.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Scanner lukija = new Scanner(System.in);
+  System.out.println("Minkä merkkiset pyörät tulostetaan?");
+  String merkki = lukija.nextLine();
+
+  // ...
+
+  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = '?'");
+  statement.setString(1, merkki);
+
+  // ...
+
+  ResultSet resultSet = statement.executeQuery();
+<% end %>
+
+<p>
+  Kysely on turvallinen, sillä merkki asetetaan metodin setString avulla. Metodi tarkastaa myös, ettei kyselyssä ole ylimääräistä sisältöä. 
+</p>
+
+<p>
+  Kyselystä saa helposti erittäin turvattoman. Seuraavassa esimerkissä on mahdollisuus SQL-injektioon.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Scanner lukija = new Scanner(System.in);
+  System.out.println("Minkä merkkiset pyörät tulostetaan?");
+  String merkki = lukija.nextLine();
+
+  // ...
+
+  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = '" + merkki + "'");
+
+  // ...
+
+  ResultSet resultSet = statement.executeQuery();
+<% end %>
+
+<p>
+  Kun käyttäjän syöttämä merkkijono lisätään suoraan osaksi kyselyä, voi käyttäjä syöttää SQL-lauseita komentoonsa. Jos käyttäjä syöttää ohjelmaan esimerkiksi merkkijono <code>a' OR 1=1</code>, on suoritettava SQL-lause lopulta muotoa:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+SELECT * FROM Pyora WHERE merkki = 'a' OR 1=1
+<% end %>
+
+<p>
+  Edellinen lause on aina totta, sillä tarkastus 1=1 on aina totta.
+</p>
+
+<p>
+  Myös muunlaisten SQL-lauseiden suoritus olisi em. tapauksessa mahdollista. Web-sarjakuva <a href="http://xkcd.com/" target="_blank">xkcd</a> kuvastaa tätä ilmiötä hyvin <em>Exploits of a Mom</em>-sarjakuvallaan.
+</p>
+
+<figure>
+  
+  <img src="http://imgs.xkcd.com/comics/exploits_of_a_mom.png" alt="School: Hi, this is your son's school. We're having some computer trouble.
+								    
+									Mom: Oh, dear -- Did he break something?
+								    
+								    School: In a way. Did you really name your son Robert'); DROP TABLE Students;--?
+								    
+								    Mom: Oh. Yes. Little Bobby Tables we call him.
+								    
+								    School: Well, we've lost this year's student records. I hope you're happy.
+								    
+								    Mom: And I hope you've learned to sanitize your database inputs."/>
+  
+  <figcaption>http://xkcd.com/327/ -- Exploits of a Mom. </figcaption>
+  
+</figure>
+
+
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Listaaminen ja lisääminen' } do %>
+
+  <p>
+    Luo tekstikäyttöliittymää käyttävä interaktiivinen sovellus, jossa voi listata ja lisätä kappaleita. Käytä tässä ensimmäisessä tehtävässä luomaasi tietokantaa (tai ainakin sen rakennetta). Ohjelman tulee käynnistyä kun luokassa ListaaminenJaLisaaminen oleva main-metodi suoritetaan. Ohjelman toiminnan tulee olla seuraavanlainen. Alla punaisella merkityt rivit ovat käyttäjän syöttämiä.
+  </p>
+
+  
+  <% partial 'partials/sample_output' do %>
+    Tervetuloa!
+    Komennot:
+    1: Listaa kappaleet
+    2: Lisää kappale
+    3: Sulje
+    
+    &gt; <font color="red">1</font>
+
+    (ei kappaleita)
+
+    &gt; <font color="red">2</font>
+    Nimi: The Days you Didn't Notice
+    Artisti: Rendezvous Park
+    Levytysvuosi: 2010
+    Pituus: 605
+
+    &gt; <font color="red">2</font>
+    Nimi: Closer To Being Here - Reprise
+    Artisti: Rendezvous Park
+    Levytysvuosi: 2012
+    Pituus: 363
+
+    &gt; <font color="red">1</font>
+    Rendezvous Park, Closer to Being Here - Reprise (363 s), 2012
+    Rendezvous Park, The Days you DIdn't Notice (605 s), 2010
+
+    &gt; <font color="red">3</font>
+  <% end %>
+
+  <p>
+    Sovelluksen tulee käyttää tietokantaa tietojen tallentamiseen ja hakemiseen. Huomaa, että sovelluksen toiminnan tulee jatkua siitä mihin se jäi. Seuraavalla käynnistyskerralla edellisellä kerralla lisättyjen kappaleiden tulee siis olla olemassa tietokannassa.
+  </p>
+
+  <% partial 'partials/sample_output' do %>
+    Tervetuloa!
+    Komennot:
+    1: Listaa kappaleet
+    2: Lisää kappale
+    3: Sulje
+    
+    &gt; <font color="red">1</font>
+    Rendezvous Park, Closer to Being Here - Reprise (363 s), 2012
+    Rendezvous Park, The Days you DIdn't Notice (605 s), 2010
+
+    &gt; <font color="red">3</font>
+  <% end %>
 
   <p>
     <em>
-      Tehtävässä ei ole automaattisia testejä. Palauta tehtävä kun se täyttää tehtävän vaatimukset.
+      Sovelluksessa ei saa olla mahdollisuutta SQL-injektion tekemiseen.
     </em>
   </p>
   
-  <p>
-    Alla on kuvattuna erään viestijärjestelmän luokkakaavio. Jokaisella viestillä on sekä vastaanottaja että lähettäjä, jonka lisäksi viestiin kuuluu viestin sisältö. Käyttäjästä tallennetaan järjestelmään käyttäjätunnus, salasana, nimi, osoite ja puhelinnumero.
-  </p>
+<% end %>
 
 
-  <figure>
-    <img src="/img/viestijarjestelma.png" alt="[Henkilo|kayttajatunnus:String;nimi:String;osoite:String;puhelinnumero:String]
-					       [Viesti|sisalto:String]
-					       [Henkilo]2-*[Viesti]"/>
-  </figure>
-
+<% partial 'partials/exercise', locals: { name: 'Injektio' } do %>
 
   <p>
-    Oleta, että käyttäjätunnus on korkeintaan 8 merkkiä, nimi korkeintaan 30 merkkiä, osoite korkeintaan 30 merkkiä ja puhelinnumero korkeintaan 15 merkkiä. Oleta lisäksi, että viesti sisältää korkeintaan 255 merkkiä.
+    Toteuta sama sovellus kuin edellä, mutta lisää sovellukseen SQL-injektiomahdollisuus. Käyttäjän tulee siis pystyä kirjoittamaan syötteenä -- ainakin jossain kohtaa sovellusta -- SQL-koodia, joka suoritetaan tietokannassa.
   </p>
 
-  <p>
-    Kirjoita ohjelma, joka mahdollistaa henkilöiden lisäämisen ja muokkaamisen. Käytä tallennustoiminnallisuun toteuttamiseen luokkaa <code>RandomAccessFile</code>. Ohjelman suorituksen tulee olla seuraavanlainen -- alla olevassa esimerkissä punaisella merkityt kohdat ovat käyttäjän syöttämiä.
-  </p>
-
-
-  <% partial 'partials/sample_output' do %>
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">1</font>
-    kayttajatunnus: <font color="red">arto</font>
-    nimi: <font color="red">Arto</font>
-    osoite: <font color="red">Kantakuja 4B</font>
-    puhelinnumero: <font color="red">012-3456789</font>
-
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">1</font>
-    kayttajatunnus: <font color="red">leena</font>
-    nimi: <font color="red">Leena</font>
-    osoite: <font color="red">Venetie 82</font>
-    puhelinnumero: <font color="red">123-4567890</font>
-
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
-    arto, Arto, Kantakuja 4B, 012-3456789
-    leena, Leena, Venetie 82, 123-4567890
-
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">4</font>
-  <% end %>
-
-  <p>
-    Kun ohjelmaan on tallennettu tiedot, tulee niiden löytyä ohjelmasta myös seuraavan suorituskerran yhteydessä. Tietojen muokkaustoiminnallisuus toimii siten, että ensin kysytään muokattavan käyttäjän käyttäjätunnusta. Tämän jälkeen ohjelma kysyy muokattavia tietoja yksi kerrallaan ja päivittää tiedot tiedostoon.
-  </p>
-
-  <% partial 'partials/sample_output' do %>
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
-    arto, Arto, Kantakuja 4B, 012-3456789
-    leena, Leena, Venetie 82, 123-4567890
-
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">2</font>
-    tunnus: <font color="red">arto</font>
-    nimi (Arto): <font color="red">Arto</font>
-    osoite (Kantakuja 4B): <font color="red">Kantakuja 4B123</font>
-    puhelinnumero (012-3456789): <font color="red">022-3456789</font>
-    
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">3</font>
-    arto, Arto, Kantakuja 4B123, 022-3456789
-    leena, Leena, Venetie 82, 123-4567890
-
-    Valitse toiminto (1=lisää, 2=muokkaa, 3=listaa, 4=lopeta): <font color="red">4</font>
-  <% end %>
 
 <% end %>
 
 
-<%= partial 'partials/quiz', locals: { id: '59b131b5714bcf0004c2844d' } %>
+<%= partial 'partials/quiz', locals: { id: '59b52f79bd99d10004d5b26c' } %>
