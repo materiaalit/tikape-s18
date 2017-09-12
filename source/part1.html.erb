@@ -300,8 +300,8 @@ public class Kurssisuoritus {
   // List&lt;Opiskelija&gt; opiskelijat
 
   Files.lines(Paths.get("opiskelija.data")).forEach(rivi -&gt; {
-  String[] palat = rivi.split("\t");
-  opiskelijat.add(new Opiskelija(palat[0], palat[1]));
+      String[] palat = rivi.split("\t");
+      opiskelijat.add(new Opiskelija(palat[0], palat[1]));
   });
 <% end %>
 
@@ -344,7 +344,7 @@ public class Kurssisuoritus {
 <% end %>
 
 <p>
-  Edellinen esimerkki on tyypillinen ohjelmoinnin perusteiden ja jatkokurssin tiedon käsittelyesimerkki. Siinä on kuitenkin muutamia haasteita, sillä esimerkiksi pienten tietomäärien hakeminen isoista tiedostoista ei ole kovin tehokasta. Suurten tietomäärien ohjelmallisessa käsittelyssä hyödynnetään käyttöjärjestelmän tarjoamaa mahdollisuutta tiedoston osien lukemiseen. Ohjelmointikielet kuten Java tarjoavat tähän myös abstraktion -- Javalla luokka <a href="https://docs.oracle.com/javase/8/docs/api/java/io/RandomAccessFile.html" target="_blank" norel">RandomAccessFile</a> tarjoaa lukumahdollisuuden vain osaan tiedoston sisällöistä.
+  <em>Huom! Sisältöä päivitetty</em> -- Edellinen esimerkki on tyypillinen ohjelmoinnin perusteiden ja jatkokurssin tiedon käsittelyesimerkki. Siinä on kuitenkin muutamia haasteita, sillä esimerkiksi pienten tietomäärien hakeminen isoista tiedostoista ei ole kovin tehokasta. Suurten tietomäärien ohjelmallisessa käsittelyssä hyödynnetään käyttöjärjestelmän tarjoamaa mahdollisuutta tiedoston osien lukemiseen. Ohjelmointikielet kuten Java tarjoavat tähän myös abstraktion -- Javalla luokka <a href="https://docs.oracle.com/javase/8/docs/api/java/io/RandomAccessFile.html" target="_blank" norel">RandomAccessFile</a> tarjoaa lukumahdollisuuden vain osaan tiedoston sisällöistä.
 </p>
 
 <p>
@@ -358,8 +358,8 @@ RandomAccessFile tiedosto = new RandomAccessFile("opiskelija.data", "r");
 // Varataan 10 tavua tilaa muistista opiskelijanumeroa varten
 byte[] opnro = new byte[10];
 
-// luetaan opnro-taulukkoon tiedoston alusta ensimmäiset 10 tavua
-tiedosto.read(opnro, 0, 10);
+// luetaan opnro-taulukkoon tiedoston alusta taulukon kokoinen määrä sisältöä
+tiedosto.read(opnro);
 
 // luodaan opiskelijanumerosta merkkijono
 String opiskelijanumero = new String(opnro);
@@ -376,8 +376,11 @@ RandomAccessFile tiedosto = new RandomAccessFile("opiskelija.data", "rwd");
 // Oletetaan, että käytössämme on opiskelijanumero "0123456789"
 String opiskelijanumero = "0123456789";
 
+// Etsitään kohta, mihin opiskelijanumero halutaan kirjoittaa -- kirjoitetaan alkuun
+tiedosto.seek(0);
+
 // Kirjoitetaan opiskelijanumero tiedostoon tietyn opiskelijan kohdalle.
-tiedosto.write(opiskelijanumero.getBytes(), 0, 10);
+tiedosto.write(opiskelijanumero.getBytes());
 
 // Nyt opiskelijanumero tiedostossa on muuttunut.
 <% end %>
@@ -397,7 +400,14 @@ String haettava = "0123456789";
 byte[] opiskelijanumero = new byte[10];
 
 for (int indeksi = 0; indeksi &lt; tiedosto.length(); indeksi += 50) {
-    tiedosto.read(opiskelijanumero, indeksi, 10);
+    // tälle ei käytännössä olisi tarvetta, sillä tiedoston kohta päivittyy
+    tiedosto.seek(indeksi);
+
+    // komento tiedosto.read lukee tiedostosta annetun tiedoston mittaisen määrän tietoa
+    // tässä luettu määrä määräytyy opiskelijanumero-taulukon pituuden perusteella 
+    tiedosto.read(opiskelijanumero);
+
+    // lukemisen jälkeen tiedoston käsittelykohta siirtyy eteenpäin 10 merkillä
 
     // tehokkuusnäkökulmasta tässäkin todennäköisesti oikeasti verrattaisiin
     // yksittäisiä merkkejä
@@ -405,8 +415,10 @@ for (int indeksi = 0; indeksi &lt; tiedosto.length(); indeksi += 50) {
         continue;
     }
 
+    // koska tiedoston käsittelykohta on siirtynyt eteenpäin 10 merkillä
+    // on seuraavaksi luettavana nimi
     byte[] nimi = new byte[40];
-    tiedosto.read(nimi, indeksi + 10, 40);
+    tiedosto.read(nimi);
     System.out.println("Haetun opiskelijan nimi on " + new String(nimi).trim());
 
     break;
@@ -428,9 +440,15 @@ Map&lt;String, Integer&gt; opiskelijoidenSijainnit = new HashMap&lt;&gt;();
 // Oletetaan, että haemme opiskelijanumeroa "0123456789"
 String haettava = "0123456789";
 
-// nyt opiskelijan nimen saa helpohkosti -- olettaen, että opiskelija on olemassa
+// nyt opiskelijan nimen saa helpohkosti -- olettaen, että opiskelija on olemassa ja että
+// hajautustaulussa on opiskelijan tiedot aloittava indeksi
+
+// siirrytään tiedostossa sopivaan kohtaan -- opiskelijan nimi tulee opiskelijanumeron jälkeen
+tiedosto.seek(opiskelijoidenSijainnit.get(haettava) + 10);
+
+// luetaan nimi
 byte[] nimi = new byte[40];
-tiedosto.read(nimi, opiskelijoidenSijainnit.get(haettava) + 10, 40);
+tiedosto.read(nimi);
 System.out.println("Haetun opiskelijan nimi on " + new String(nimi).trim());
 <% end %>
 
