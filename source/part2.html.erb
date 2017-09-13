@@ -1204,15 +1204,15 @@ connection.close();
 <% end %>
 
 <p>
-  Kun käyttäjän syöttämä merkkijono lisätään suoraan osaksi kyselyä, voi käyttäjä syöttää SQL-lauseita komentoonsa. Jos käyttäjä syöttää ohjelmaan esimerkiksi merkkijono <code>a' OR 1=1</code>, on suoritettava SQL-lause lopulta muotoa:
+  Kun käyttäjän syöttämä merkkijono lisätään suoraan osaksi kyselyä, voi käyttäjä syöttää SQL-lauseita komentoonsa. Jos käyttäjä syöttää ohjelmaan esimerkiksi merkkijono <code>a' OR 'a'='a</code>, on suoritettava SQL-lause lopulta muotoa:
 </p>
 
 <% partial 'partials/code_highlight' do %>
-SELECT * FROM Pyora WHERE merkki = 'a' OR 1=1
+SELECT * FROM Pyora WHERE merkki = 'a' OR 'a'='a'
 <% end %>
 
 <p>
-  Edellinen lause on aina totta, sillä tarkastus 1=1 on aina totta.
+  Edellinen lause on aina totta, sillä tarkastus 'a'='a' on totta.
 </p>
 
 <p>
