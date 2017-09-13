@@ -1072,14 +1072,14 @@ connection.close();
 </p>
 
 <% partial 'partials/code_highlight' do %>
-PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = '?'");
+PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = ?");
 statement.setString(1, "Royal Enfield");
 
 ResultSet resultSet = statement.executeQuery();
 <% end %>
 
 <p>
-  Kyselyiden paikat indeksoidaan kohdasta 1 alkaen. Jos arvo on merkkijono, tulee kysymysmerkki lisätä hipujen sisään. Numeerisilla arvoilla hipsuja taas ei tarvita. Alla olevassa esimerkissä haetaan Henkilo-taulusta henkilöitä, joiden syntymävuosi on 1952.
+  Kyselyiden paikat indeksoidaan kohdasta 1 alkaen. Jos arvo on merkkijono, tulee kysymysmerkki lisätä hipsujen sisään. Numeerisilla arvoilla hipsuja taas ei tarvita. Alla olevassa esimerkissä haetaan Henkilo-taulusta henkilöitä, joiden syntymävuosi on 1952.
 </p>
 
 <% partial 'partials/code_highlight' do %>
@@ -1136,7 +1136,7 @@ ResultSet resultSet = statement.executeQuery();
 <% partial 'partials/code_highlight' do %>
 Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
 
-PreparedStatement stmt = connection.prepareStatement("INSERT INTO Pyora (rekisterinumero, merkki) VALUES ('?', '?')");
+PreparedStatement stmt = connection.prepareStatement("INSERT INTO Pyora (rekisterinumero, merkki) VALUES (?, ?)");
 stmt.setString(1, "RIP-34");
 stmt.setString(2, "Jopo");
 
@@ -1173,7 +1173,7 @@ connection.close();
 
   // ...
 
-  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = '?'");
+  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = ?");
   statement.setString(1, merkki);
 
   // ...
