@@ -1,0 +1,187 @@
+---
+  title: Osa 3
+  exercise_page: true
+  quiz_page: true
+  published: false
+---
+
+
+<% partial 'partials/hint', locals: { name: 'Kolmannen osan oppimistavoitteet' } do %>
+
+  <p>
+    Tuntee käsitteet pääavain ja viiteavain. Tuntee luokkakaavioissa esiintyvät assosiaatiot yhden suhde yhteen, yhden suhde moneen ja monen suhde moneen. Osaa luoda annetusta luokkakaaviosta relaatiokaavion, ja osaa muuntaa luokkakaavion assosiaatiot tarvittaessa tietokannalle sopivampaan muotoon. Osaa luoda SQL-kielellä useampia tietokantatauluja sisältävän tietokannan, lisätä tietokantaan tietoa, ja tehdä tietokantaan kyselyitä. Osaa hakea useammasta tietokantataulusta tietoa JOIN-kyselyiden avulla. Osaa luoda ohjelman, joka hyödyntää useamman tietokantataulun sisältävää tietokantaa ja tuntee data access object (DAO) -suunnittelumallin.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Luokkakaavio ja olioiden väliset yhteydet
+<% end %>
+
+<p>
+  luokkakaavio datamalli
+</p>
+
+<p>
+  mallinnetaan luokasta tehtyjen olioiden ilmentymien tietosisältöä sekä näiden suhteita 
+</p>
+
+
+<p>
+  esim AAAA 1 - * BBBB -- yhteen AAAA olioon liittyy monta BBBB oliota, ja toisaalta yhteen BBBB -olioon liittyy yksi AAAA -olio
+</p>
+
+<p>
+  tarkastellaan näitä yhteystyyppejä tarkemmin.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Yhden suhde yhteen
+<% end %>
+
+<p>
+  esmi.
+</p>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Yhden suhde moneen
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Monen suhde moneen
+<% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Luokkakaaviosta relaatiokaavioksi
+<% end %>
+
+<p>
+  <strong>Relaatiokaavio</strong> on..
+</p>
+
+<p>
+  Pääavainten tunnistaminen
+</p>
+
+<p>
+  Viiteavainten määrittely tunnistaminen
+</p>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Useamman taulun käsittely SQL-kielellä
+<% end %>
+
+
+<% partial 'partials/hint', locals: { name: 'Vihjee' } do %>
+
+  <p>
+    bla
+  </p>
+<% end %>
+
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>syntymavuosi</th>
+      <th>nimi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1997</td>
+      <td>Pihla</td>
+    </tr>
+    <tr>
+      <td>1993</td>
+      <td>Joni</td>
+    </tr>
+    <tr>
+      <td>1947</td>
+      <td>Raymond</td>
+    </tr>
+    <tr>
+      <td>1923</td>
+      <td>Edgar</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<% partial 'partials/code_highlight' do %>
+  SELECT syntymavuosi, nimi FROM Henkilo
+<% end %>
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Kappaleet' } do %>
+
+  <p>
+    Huom! <em>Suurin osa tästä tehtävästä tulee tehdä SQLite-ohjelmalla.</em> Materiaalista löytyy aiemmin ohjeet kyseisen ohjelman asentamiseen. Jos käytät Linux- tai MacOS-käyttöjärjestelmää, sqlite on todennäköisesti valmiiksi asennettuna koneellesi.
+  </p>
+
+  <p>
+    Etsi tehtäväpohjan sisältävä kansio ja mene sen alikansioon <code>db</code>. Kyseisessä kansiossa on valmiina tiedosto <code>esimerkki.db</code>.
+  </p>
+
+  <p>
+    Luo kansioon <code>db</code> tietokanta <code>levy.db</code>. Avaa tietokanta sqliten avulla, ja luo tietokantaan tietokantataulu nimeltä <code>Kappale</code>, joka sisältää seuraavat sarakkeet:
+  </p>
+
+  <ul>
+    <li>nimi (merkkijono, maksimipituus 100 merkkiä)</li>
+    <li>artisti (merkkijono, maksimipituus 80 merkkiä)</li>
+    <li>levytysvuosi (kokonaisluku)</li>
+    <li>pituus (kokonaisluku)</li>
+  </ul>
+
+  <p>
+    Lisää tämän jälkeen tietokantatauluun <code>Kappale</code> seuraavat kappaleet.
+  </p>
+
+  <table class="table">
+    <tr>
+      <th>Nimi</th>
+      <th>Artisti</th>
+      <th>Levytysvuosi</th>
+      <th>Pituus</th>
+    </tr>
+    <tr>
+      <td>Capito Tutto</td>
+      <td>Kummeli</td>
+      <td>1994</td>
+      <td>124</td>
+    </tr>
+    <tr>
+      <td>Kanada</td>
+      <td>Kummeli</td>
+      <td>1994</td>
+      <td>119</td>
+    </tr>
+    <tr>
+      <td>Tango Vibrato</td>
+      <td>Kummeli</td>
+      <td>1994</td>
+      <td>117</td>
+    </tr>
+  </table>
+
+<% end %>
+
+
+<p>
+  TODO: kolmannen osan oppimistavoitteiden saavuttaminen
+</p>
+
+
+<%= partial 'partials/quiz', locals: { id: '59b52f79bd99d10004d5b26c' } %>
