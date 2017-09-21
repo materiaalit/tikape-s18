@@ -1307,7 +1307,15 @@ SELECT * FROM Pyora WHERE merkki = 'a' OR 'a'='a'
 <% partial 'partials/exercise', locals: { name: 'Injektio' } do %>
 
   <p>
-    Toteuta sama sovellus kuin edellä, mutta lisää sovellukseen SQL-injektiomahdollisuus. Käyttäjän tulee siis pystyä kirjoittamaan syötteenä -- ainakin jossain kohtaa sovellusta -- SQL-koodia, joka suoritetaan tietokannassa.
+    Toteuta sama sovellus kuin edellä, mutta lisää sovellukseen SQL-injektiomahdollisuus. Käyttäjän tulee siis pystyä kirjoittamaan syötteenä -- ainakin jossain kohtaa sovellusta -- SQL-koodia, joka suoritetaan tietokannassa. 
+  </p>
+
+  <p>
+    Luennolla 15.9. huomattiin, että JDBC ei hyväksy useampaa lausetta samassa kyselyssä. Jos haluat sallia useamman kyselyn tekemisen, lisää tietokantayhteyden muodostamiseen parametri <code>allowMultiQueries=true</code>, esim. <code>DriverManager.getConnection("jdbc:sqlite:vuokraamo.db?allowMultiQueries=true")</code>.
+  </p>
+
+  <p>
+    Tähän löytyy muutamia muitakin tapoja, kuten useamman rivin lisääminen "vahingossa" (kts. <a href="https://stackoverflow.com/questions/452859/inserting-multiple-rows-in-a-single-sql-query" target="_blank" norel>https://stackoverflow.com/questions/452859/inserting-multiple-rows-in-a-single-sql-query</a>) sekä -- todennäköisesti -- harmin aiheuttaminen alikyselyn kautta (kts. <a href="https://stackoverflow.com/questions/12467354/nesting-queries-in-sql" target="_blank" norel>https://stackoverflow.com/questions/12467354/nesting-queries-in-sql</a>).
   </p>
 
 
