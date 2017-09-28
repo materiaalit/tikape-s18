@@ -148,7 +148,7 @@
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   CREATE TABLE <em>TAULUN_NIMI</em> (
       <em>sarakkeen 1 tiedot</em>,
       <em>sarakkeen 2 tiedot</em>,
@@ -210,7 +210,7 @@
   Sarakkeen tiedot ovat muotoa <em>sarakkeen_nimi sarakkeen_tietotyyppi</em>. Esimerkiksi syntymävuosi määritellään seuraavasti.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   syntymavuosi integer
 <% end %>
 
@@ -218,7 +218,7 @@
   Korkeintaan 200 merkkiä pitkä nimi määriteltäisiin taas seuraavasti.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   nimi varchar(200)
 <% end %>
 
@@ -226,7 +226,7 @@
   Henkilön syntymävuoden ja nimen tallentamiseen tarkoitettu taulu määriteltäisiin seuraavasti. Alla on oletettu, että nimi ei ole koskaan yli 200 merkkiä pitkä.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   CREATE TABLE Henkilo (
       syntymavuosi integer,
       nimi varchar(200)
@@ -266,7 +266,7 @@
   Tietokantataulun poistaminen onnistuu <strong>DROP TABLE</strong> <em>TAULUN_NIMI</em> -lauseella, missä taulun nimi on poistettavan taulun nimi. Esimerkiksi edellä luodun Henkilo-taulun poistaminen onnistuisi seuraavasti.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 DROP TABLE Henkilo
 <% end %>
 
@@ -285,7 +285,7 @@ DROP TABLE Henkilo
     SQLiten tietokantataulut saadaan selville komennolla <code>SELECT * FROM sqlite_master</code>.
   </p>
 
-  <% partial 'partials/code_highlight' do %>
+  <% partial 'partials/sql_highlight' do %>
     SELECT * FROM sqlite_master
   <% end %>
   
@@ -301,7 +301,7 @@ DROP TABLE Henkilo
     Esimerkiksi
   </p>
 
-  <% partial 'partials/code_highlight' do %>
+  <% partial 'partials/sql_highlight' do %>
     PRAGMA TABLE_INFO(Henkilo)
   <% end %>
   
@@ -319,7 +319,7 @@ DROP TABLE Henkilo
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 INSERT INTO <em>TAULUN_NIMI</em> (<em>sarake1</em>, <em>sarake2</em>, <em>sarake3</em>)
     VALUES (<em>'merkkijono hipsuissa'</em>,<em>'numero ei'</em>, 123)
 <% end %>
@@ -330,7 +330,7 @@ INSERT INTO <em>TAULUN_NIMI</em> (<em>sarake1</em>, <em>sarake2</em>, <em>sarake
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 INSERT INTO Henkilo (syntymavuosi, nimi)
     VALUES (1923, 'Edgar Frank Codd')
 <% end %>
@@ -343,7 +343,7 @@ INSERT INTO Henkilo (syntymavuosi, nimi)
   Vastaavasti vuonna 1947 syntyneen Raymond Boycen lisääminen tietokantatauluun Henkilo onnistuu seuraavasti.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 INSERT INTO Henkilo (syntymavuosi, nimi)
     VALUES (1947, 'Raymond Boyce')
 <% end %>
@@ -362,14 +362,14 @@ INSERT INTO Henkilo (syntymavuosi, nimi)
   Ilman rajausehtoa kyselyn rakenne on seuraava.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 <% end %>
 
 <p>
   Rajausehdon kanssa kyselyn rakenne on seuraava.
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
       WHERE <em>rajausehto</em>
 <% end %>
@@ -412,7 +412,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   SELECT syntymavuosi, nimi FROM Henkilo
 <% end %>
 
@@ -420,7 +420,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
   Valinta henkilöihin, jotka ovat syntyneet ennen vuotta 1950 onnistuu seuraavasti. 
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   SELECT syntymavuosi, nimi FROM Henkilo WHERE syntymavuosi &lt; 1950
 <% end %>
 
@@ -431,7 +431,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
     Hakukyselyn <code>SELECT</code>-komentoa seuraava sarakelistaus voidaan korvata tähtimerkillä * jos halutaan hakea kaikki tietokantataulun sarakkeet. Olettaen, että taulussa Henkilo on vain sarakkeet syntymavuosi ja nimi, kysely:
   </p>
   
-  <% partial 'partials/code_highlight' do %>
+  <% partial 'partials/sql_highlight' do %>
     SELECT syntymavuosi, nimi FROM Henkilo WHERE syntymavuosi &lt; 1950
   <% end %>
 
@@ -439,7 +439,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
     Voidaan korvata kyselyllä
   </p>
   
-  <% partial 'partials/code_highlight' do %>
+  <% partial 'partials/sql_highlight' do %>
     SELECT * FROM Henkilo WHERE syntymavuosi &lt; 1950
   <% end %>
 
@@ -488,7 +488,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   UPDATE <em>TAULUN_NIMI</em>
       SET <em>sarake1='uusiarvo'</em>, <em>sarake2=1234</em>
       WHERE <em>sarake3='rajausarvo'</em>
@@ -499,7 +499,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   UPDATE Henkilo
       SET nimi='Joni S'
       WHERE nimi='Joni'
@@ -514,7 +514,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
   Tiedon poistaminen tietokantataulusta onnistuu <strong>DELETE FROM</strong> -lauseella. Lauseeseen määritellään lisäksi tietokantataulu, mistä tietoa poistetaan, ja mahdollisesti ehtoja, jotka rajaavat poistettavia rivejä. Yksinkertaisimmillaan komennolla poistetaan kaikki rivit annetusta taulusta seuraavasti.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   DELETE FROM <em>TAULUN_NIMI</em>
 <% end %>
 
@@ -523,7 +523,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   DELETE FROM Henkilo WHERE syntymavuosi = 1920
 <% end %>
 
@@ -531,7 +531,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
   Poistoehtoon voi rakentaa loogisen lauseen, joka sisältää <code>AND</code> ja <code>OR</code> -määreitä. Näiden avulla poistorajausta voi tehdä laajemmin. Alla olevassa esimerkissä poistetaan henkilö (tai henkilöt), joiden syntymävuosi on 1947 ja joiden nimi on 'Raymond Boyce'.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   DELETE FROM Henkilo WHERE syntymavuosi = 1947 AND nimi = 'Raymond Boyce'
 <% end %>
 
@@ -539,7 +539,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
   Pienempi kuin ja suurempi kuin -vertailuoperaatiot sekä erisuuri kuin vertailuoperaatiot ovat myös mahdollisia. Alla olevassa esimerkissä poistetaan kaikki henkilöt, joiden syntymävuosi on pienempi kuin 2000 ja joiden nimi ei ole 'Boyce-Codd'.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   DELETE FROM Henkilo WHERE syntymavuosi &lt; 2000 AND nimi != 'Boyce-Codd'
 <% end %>
 
@@ -568,7 +568,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
       CREATE
     </td>
     <td>
-      <% partial 'partials/code_highlight' do %>
+      <% partial 'partials/sql_highlight' do %>
 CREATE TABLE Opiskelija (
     opiskelijanumero integer,
     nimi varchar(60),
@@ -585,7 +585,7 @@ CREATE TABLE Opiskelija (
       DROP
     </td>
     <td>
-      <% partial 'partials/code_highlight' do %>
+      <% partial 'partials/sql_highlight' do %>
 DROP TABLE Opiskelija
       <% end %>
     </td>
@@ -598,7 +598,7 @@ DROP TABLE Opiskelija
       INSERT
     </td>
     <td>
-      <% partial 'partials/code_highlight' do %>
+      <% partial 'partials/sql_highlight' do %>
 INSERT INTO
     Opiskelija (opiskelijanumero, nimi, sahkopostiosoite)
     VALUES (1008286, 'Ari', 'posti@osoite.net');
@@ -613,7 +613,7 @@ INSERT INTO
       SELECT
     </td>
     <td>
-      <% partial 'partials/code_highlight' do %>
+      <% partial 'partials/sql_highlight' do %>
 SELECT nimi FROM Opiskelija
       <% end %>
     </td>
@@ -626,7 +626,7 @@ SELECT nimi FROM Opiskelija
       UPDATE
     </td>
     <td>
-      <% partial 'partials/code_highlight' do %>
+      <% partial 'partials/sql_highlight' do %>
 UPDATE Opiskelija
     SET nimi='Ari V'
     WHERE opiskelijanumero=1008286
@@ -641,7 +641,7 @@ UPDATE Opiskelija
       DELETE
     </td>
     <td>
-      <% partial 'partials/code_highlight' do %>
+      <% partial 'partials/sql_highlight' do %>
 DELETE FROM Opiskelija
     WHERE opiskelijanumero=1008286
       <% end %>
@@ -1207,7 +1207,7 @@ connection.close();
   Kun käyttäjän syöttämä merkkijono lisätään suoraan osaksi kyselyä, voi käyttäjä syöttää SQL-lauseita komentoonsa. Jos käyttäjä syöttää ohjelmaan esimerkiksi merkkijono <code>a' OR 'a'='a</code>, on suoritettava SQL-lause lopulta muotoa:
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 SELECT * FROM Pyora WHERE merkki = 'a' OR 'a'='a'
 <% end %>
 

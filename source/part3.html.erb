@@ -514,7 +514,7 @@
   Pääavain määritellään tietokantataulun luonnin yhteydessä lisäämällä sarakkeen tyypin perään rajoite <code>PRIMARY KEY</code>. Tämä tarkoittaa sitä, että rivin arvon tulee olla on uniikki, ja että se ei saa koskaan olla tyhjä. Luodaan tietokantataulut Asiakas ja RaakaAine siten, että niissä on määriteltynä pääavain.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 CREATE TABLE Asiakas (
     id integer PRIMARY KEY,
     nimi varchar(200),
@@ -525,7 +525,7 @@ CREATE TABLE Asiakas (
 )
 <% end %>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 CREATE TABLE RaakaAine (
     id integer PRIMARY KEY,
     nimi varchar(200)
@@ -541,7 +541,7 @@ CREATE TABLE RaakaAine (
   Automaattista pääavaimen arvojen luomista hyödynnetään SQLitessä automaattisesti, jos INSERT-kyselyissä ei määritellä pääavaimelle arvoa. Seuraavilla lisäyskyselyillä tauluun RaakaAine lisättäviin riveihin lisätään automaattisesti lisättävät rivit yksilöivät pääavaimet.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 INSERT INTO RaakaAine (nimi) VALUES ('Banaani');
 INSERT INTO RaakaAine (nimi) VALUES ('Bataatti');
 INSERT INTO RaakaAine (nimi) VALUES ('Peruna');
@@ -566,7 +566,7 @@ INSERT INTO RaakaAine (nimi) VALUES ('Porkkana');
   Oletetaan, että käytössämme on edellisessä alikuvussa määriteltytietokantataulu Asiakas. Nyt voimme luoda taulun Tilaus, jossa on viittaus tauluun Asiakas.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 CREATE TABLE Tilaus (
     id integer PRIMARY KEY,
     asiakas_id integer,
@@ -586,7 +586,7 @@ CREATE TABLE Tilaus (
   Tiedon lisääminen tauluun Tilaus tapahtuu INSERT INTO -lauseen avulla. Nyt, koska taulussa Tilaus on viiteavain, tulee viitattavan asiakkaan tunnus olla tiedossa ennalta. Jos oletamme, että tilauksen tehnyt asiakkaan pääavaimen arvo on 7, onnistuu tilauksen lisääminen tietokantaan seuraavasti.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 INSERT INTO Tilaus (asiakas_id, aika, kuljetustapa, vastaanotettu, toimitettu) VALUES (7, now(), 'nouto', false, false);
 <% end %>
 
@@ -613,7 +613,7 @@ INSERT INTO Tilaus (asiakas_id, aika, kuljetustapa, vastaanotettu, toimitettu) V
   Jokaisella taululla voi olla vain yksi määritelty pääavain. Joskus haluamme, että pääavain liittyy useampaan sarakkeeseen, jolloin sarakkeiden yhdistelmän tulee olla uniikki. Voimme esimerkiksi haluta rajoittaa annokseen määriteltäviä raaka-aineita siten, että kukin raaka-aine saa esiintyä kussakin annoksessa korkeintaan kerran. Tämä onnistuu määrittelemällä taululle AnnosRaakaAine pääavain, joka sisältää sekä annostunnuksen että raaka-aineen
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
 CREATE TABLE AnnosRaakaAine (
     annos_id integer,
     raaka_aine_id integer,
@@ -630,7 +630,7 @@ CREATE TABLE AnnosRaakaAine (
   Tilausjärjestelmämme tietokannan CREATE TABLE -lauseet kokonaisuudessaan.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   CREATE TABLE Asiakas (
       id integer PRIMARY KEY,
       nimi varchar(200),
@@ -695,7 +695,7 @@ CREATE TABLE AnnosRaakaAine (
     Lisätyn rivin pääavaimen saa selville SQL-kyselyllä. Kun lisäämme uuden rivin, saa lisätyn rivin pääavaimen selville SELECT -lauseella. Alla esimerkki RaakaAine-tauluun liittyen.
   </p>
 
-  <% partial 'partials/code_highlight' do %>
+  <% partial 'partials/sql_highlight' do %>
     INSERT INTO RaakaAine (nimi) VALUES ('Banaani');
     SELECT id FROM RaakaAine WHERE nimi = 'Banaani';
   <% end %>
@@ -788,7 +788,7 @@ CREATE TABLE AnnosRaakaAine (
 </p>
 
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   SELECT Asiakas.nimi AS asiakas, Annos.nimi AS annos
       FROM Asiakas, Tilaus, TilausAnnos, Annos
       WHERE Asiakas.id = Tilaus.asiakas_id
@@ -1101,7 +1101,7 @@ SELECT Asiakas.nimi AS asiakas, Tilaus.aika AS tilausaika
   Ohjelmoijan näkökulmasta on paljon mielekkäämpää jos tietoa pystyy käsittelemään olioiden avulla. Oletetaan, että käytössämme on luokka Asiakas sekä tietokantataulu Asiakas. Tietokantataulu on luotu seuraavalla CREATE TABLE -lauseella.
 </p>
 
-<% partial 'partials/code_highlight' do %>
+<% partial 'partials/sql_highlight' do %>
   CREATE TABLE Asiakas (
       id integer PRIMARY KEY,
       nimi varchar(200),

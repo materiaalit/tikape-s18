@@ -1,0 +1,1437 @@
+---
+  title: Osa 4
+  exercise_page: true
+  quiz_page: true
+  published: false
+---
+
+
+<% partial 'partials/hint', locals: { name: 'Neljännen osan oppimistavoitteet' } do %>
+
+  <p>
+    Tuntee käsiteanalyysin askeleet. Osaa luoda ongelma-alueen kuvauksesta luokkakaavion sekä johtaa siitä relaatiokaavion. Tietää käsitteet tietokannan normalisointi ja tietokannan denormalisointi. Tuntee tietokannan normalisointiin liittyvät ensimmäisen, toisen ja kolmannen normaalimuodon. Osaa perustella noudattaako annettu tietokanta em. normaalimuotoja. Osaa esittää tietoa XML ja HTML-kielellä.
+  </p>
+  
+<% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Käsiteanalyysi
+<% end %>
+
+<p>
+  Käsiteanalyysia (conceptual modeling, domain modeling) käytetään ongelma-alueen käsitteellistämiseen ja kielentämiseen, mikä edesauttaa ongelma-alueeseen liittyvää keskustelua sekä päätöksentekoa. Käsiteanalyysi tehdään iteratiivisesti esimerkiksi ongelma-alueen tekstuaalista kuvausta läpikäyden. 
+</p>
+
+<p>
+  Käsiteanalyysin tuloksena saadaan aikaan ongelma-aluetta kuvaava tietomalli, joka sisältää ongelma-alueen käsitteet ja niiden yhteydet sekä käsitteisiin liittyvät attribuutit selkeästi ja kuvaavasti nimettyinä. Käsiteanalyysin lopputuloksessa ei ole sellaisia käsitteitä tai attribuutteja, jotka ovat ongelma-aluetta varten rakennettavan järjestelmän tai ratkaisun kannalta epäoleellisia.
+</p>
+
+<p>
+  Käsiteanalyysin lopputulos voi olla esimerkiksi luokkakaavio tai <a href="https://fi.wikipedia.org/wiki/ER-kaavio" target="_blank" norel>ER-kaavio</a>. Tällä kurssilla käsiteanalyysin lopputuloksena on luokkia, luokkien attribuutteja, sekä luokkien välisiä yhteyksiä, jotka kuvataan luokkakaaviossa.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Käsite ja käsitteiden väliset yhteydet
+<% end %>
+
+<p>
+  Arkielämässä näkee useita saman tyyppisiä esineitä. Esimerkiksi suurin osa älypuhelimista on karkeasti ottaen saman mallisia -- jokainen puhelin on rakennettu tiettyä mallia noudattaen. Olio-ohjelmoinnin termejä noudattaen voimme sanoa, että omistamasi puhelin on Puhelin-luokasta tehty ilmentymä eli olio. Luokka on rakennuspiirrustus, jonka perusteella yksittäiset oliot luodaan.
+</p>
+
+<p>
+  Käsitteet ovat samalla tavalla abstrakteja kuin luokat, eli käsitteestä voi olla useampia ilmentymiä. Käsitteistä luodut ilmentymät voidaan toisaalta myös erottaa toisistaan jollain tavalla, tai niille tulee olla vähintään mahdollista määritellä jonkinlainen yksilöivä tunnus.
+</p>
+
+<p>
+  Käsitteiden välisillä yhteyksillä tarkoitetaan käsitteiden välisiä suhteita. Esimerkiksi puhelimella voi olla omistaja, ja toisaalta puhelimen omistaja voi opiskella jossain opinahjossa.
+</p>
+
+<p>
+  Käsitteitä voidaan ajatella myös hetkellisen olemassaolon kautta. Hyvät käsitteet eivät tyypillisesti ole (pysyvästi) olemassaoloriippuvaisia. Esimerkiksi puhelimen olemassaolo ei ole riippuvainen omistajasta, ja puhelimen omistaja ei ole riippuvainen opinahjosta. Käsitteen olemassaolosta riippuvaiset asiat -- kuten esimerkiksi henkilön nimi -- ovat hyviä attribuuttiehdokkaita.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Käsiteanalyysin vaiheet
+<% end %>
+
+<p>
+  Käsiteanalyysi koostuu viidestä vaiheesta, jotka ovat seuraavat:
+</p>
+
+<ol>
+  <li><strong>Tunnista käsite-ehdokkaat</strong>. Käsite-ehdokkaat tunnistetaan etsimällä ongelma-alueen kuvauksesta oleellisia substantiiveja ja ilmiöitä. Tässä vaiheessa myös rajataan pois käsitteitä, jotka eivät ole oleellisia ongelma-alueen kannalta.</li>
+  <li><strong>Tunnista käsitteiden väliset yhteydet</strong>. Yhteydet tunnistetaan etsimällä ongelma-alueen kuvauksesta verbejä, käsitteiden yhteyksiä sekä käsitteitä kuvaavia lausahduksia. </li>
+  <li><strong>Tunnista ja määrittele osallistumisrajoitteet</strong>. Osallistumisrajoitteet tarkentavat lopputuloksena saatavaa tietomallia. Osallistumisrajoitteita saadaan selville ongelma-alueen kuvauksessa esiintyvien adjektiivien ja määreiden kautta.</li>
+  <li><strong>Tunnista attribuutit ja lisää ne käsitteille</strong>. Tunnista käsitteisiin liittyvät tiedot eli attribuutit, joita halutaan tallentaa tietokantaan. Käsitteisiin liittyvät attribuutit tunnistaa muunmuassa olemassaoloriippuvaisista substantiiveista sekä käsitteiden yleisistä ominaisuuksista. Attribuutti saattaa olla joko yksittäinen arvo tai arvojoukko -- arvojoukot tunnistetaan tyypillisesti lukumäärien kuvauksista.</li>
+  <li><strong>Yleistä ja eriytä käsitteitä</strong>. Tunnista käsitteistä yliluokkia ja aliluokkia. Näiden tunnistaminen tapahtuu esimerkiksi käsitteitä tarkastelemalla ja miettimällä "onko käsite toisen käsitteen erikoistapaus". </li>
+</ol>
+
+<p>
+  Sovelletaan käsiteanalyysin askeleita seuraavaan Uimaseuraesimerkkiin.
+</p>
+
+<aside>
+
+  <hr/>
+  
+  <p>
+    <em>
+      Uimaseuramme Loch Nessin hirviöt on tähän päivään asti käyttänyt paperia uimareidensa tulosten seuraamiseen ja ylläpitoon. Uimaseuraamme juuri liittynyt valmennuspäällikkö vaatii kirjanpidon nykyaikaistamista, ja haluaa että tulokset tallennetaan tietokoneelle.
+    </em>
+  </p>
+  
+  <p>
+    <em>
+      Valmennuspäällikkömme antoi minulle tehtäväksi välittää tietoa seurastamme, eli tässäpä sitä: Meillä on noin sata mies- ja naispuolista uimaria. Uimarit kilpailevat yleensä yhdessä lajissa, esimerkiksi selkäuinnissa, mutta jotkut uimarit kilpailevat useammassakin lajissa. Tuloksia kirjataan sekä kuukausittain järjestettävistä seuran sisäisistä "kuukauden vesihiisi"-kisoista, että jokaisesta seuran ulkopuolella järjestettävästä kilpailusta. Valmentajien tulee pystyä käyttämään tietokoneelle tallennettuja tietoja myös kotoa esimerkiksi internetin välityksellä.
+    </em>
+  </p>
+
+  <hr/>
+  
+</aside>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tunnista käsite-ehdokaat
+<% end %>
+
+<p>
+  Käsite-ehdokkaita tunnistaessa laaditaan luettelo ongelma-alueen oleellisista tietokohteista. Luettelon laatiminen alkaa substantiivien tunnistamisesta. Ensimmäisessä vaiheessa oleelliset käsite-ehdokkaat alleviivataan.
+</p>
+
+
+<aside>
+
+  <hr/>
+  
+  <p>
+    <em>
+      <u>Uimaseuramme</u> Loch Nessin hirviöt on tähän päivään asti käyttänyt <u>paperia</u> <u>uimareidensa</u> <u>tulosten</u> seuraamiseen ja ylläpitoon. <u>Uimaseuraamme</u> juuri liittynyt <u>valmennuspäällikkö</u> vaatii <u>kirjanpidon</u> nykyaikaistamista, ja haluaa että <u>tulokset</u> tallennetaan <u>tietokoneelle</u>.
+    </em>
+  </p>
+
+  <p>
+    <em>
+      <u>Valmennuspäällikkömme</u> antoi minulle tehtäväksi välittää tietoa <u>seurastamme</u>, eli tässäpä sitä: Meillä on noin sata <u>mies- ja naispuolista</u> <u>uimaria</u>. <u>Uimarit</u> kilpailevat yleensä yhdessä <u>lajissa</u>, esimerkiksi <u>selkäuinnissa</u>, mutta jotkut uimarit kilpailevat useammassakin <u>lajissa</u>. Tuloksia kirjataan sekä kuukausittain järjestettävistä seuran sisäisistä "kuukauden vesihiisi"-<u>kisoista</u>, että jokaisesta seuran ulkopuolella järjestettävästä <u>kilpailusta</u>. Valmentajien tulee pystyä käyttämään tietokoneelle tallennettuja tietoja myös kotoa esimerkiksi internetin välityksellä.
+    </em>
+  </p>
+
+  <hr/>
+
+</aside>
+
+<p>
+  Substantiiveja tarkastelemalla luotu lista on seuraavanlainen. Alla olevassa listassa käsite-ehdokkaat on muutettu yksikkömuotoon.
+</p>
+
+<ul>
+  <li>Uimaseura</li>
+  <li>Paperi</li>
+  <li>Uimari</li>
+  <li>Tulos</li>
+  <li>Valmennuspäällikkö</li>
+  <li>Kirjanpito</li>
+  <li>Tietokone</li>
+  <li>Seura</li>
+  <li>Miesuimari</li>
+  <li>Naisuimari</li>
+  <li>Selkäuinti</li>
+  <li>Laji</li>
+  <li>Kilpailu</li>
+</ul>
+
+<p>
+  Käsite-ehdokkaiden karsinta tapahtuu harkitsemalla jokaista ehdokasta erikseen ja miettimällä onko se oleellinen ongelma-alueen ratkaisun kannalta. Alla kuvattu eräs karsinta.
+</p>
+
+
+<ul>
+  <li><s>Uimaseura</s> -- seuralle tehdään järjestelmää, voidaan jättää pois ainakin toistaiseksi.</li>
+  <li><s>Paperi</s> -- tästä haluttiin päästä eroon, tulokset kirjattiin aiemmin paperille.</li>
+  <li>Uimari</li>
+  <li>Tulos</li>
+  <li><s>Valmennuspäällikkö</s> -- valmennuspäällikkö haluaa uuden järjestelmän, mutta ei oleellinen käsite tietomallin kannalta.</li>
+  <li><s>Kirjanpito</s> -- järjestelmä tulee sisältämään kirjanpidon, mutta kirjanpito ei käsite järjestelmässä.</li>
+  <li><s>Tietokone</s> -- kts. edellinen</li>
+  <li><s>Seura</s> -- kts. uimaseura.</li>
+  <li><s>Miesuimari</s> -- Uimari on valittuna käsitteeksi, sukupuoli voi esim. olla uimarin attribuuttina.</li>
+  <li><s>Naisuimari</s> -- kts. edellinen</li>
+  <li><s>Selkäuinti</s> -- Laji on valittuna käsitteeksi.</li>
+  <li>Laji</li>
+  <li>Kilpailu</li>
+</ul>
+
+<p>
+  Ehdokkaiden karsinnan jälkeen seuraavat käsitteet ovat jäljellä:
+</p>
+
+<ul>
+  <li>Kilpailu</li>
+  <li>Laji</li>
+  <li>Uimari</li>
+  <li>Tulos</li>
+</ul>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tunnista käsitteiden väliset yhteydet
+<% end %>
+
+<p>
+  Yhteydet tunnistetaan etsimällä tekstistä verbejä, käsitteiden yhteyksiä sekä käsitteitä kuvaavia lausahduksia. Tämän lisäksi aiempi aihealueen tietämys on tässä hyödyksi.
+</p>
+
+<aside>
+
+  <hr/>
+  
+  <p>
+    <em>
+      Uimaseuramme Loch Nessin hirviöt on tähän päivään asti käyttänyt paperia uimareidensa tulosten seuraamiseen ja ylläpitoon. Uimaseuraamme juuri liittynyt valmennuspäällikkö vaatii kirjanpidon nykyaikaistamista, ja haluaa että tulokset tallennetaan tietokoneelle.
+    </em>
+  </p>
+  
+  <p>
+    <em>
+      Valmennuspäällikkömme antoi minulle tehtäväksi välittää tietoa seurastamme, eli tässäpä sitä: <u>Meillä on noin sata mies- ja naispuolista uimaria</u>. <u>Uimarit kilpailevat yleensä yhdessä lajissa</u>, esimerkiksi selkäuinnissa, mutta <u>jotkut uimarit kilpailevat useammassakin lajissa</u>. <u>Tuloksia kirjataan sekä kuukausittain järjestettävistä seuran sisäisistä "kuukauden vesihiisi"-kisoista, että jokaisesta seuran ulkopuolella järjestettävästä kilpailusta</u>. Valmentajien tulee pystyä käyttämään tietokoneelle tallennettuja tietoja myös kotoa esimerkiksi internetin välityksellä.
+    </em>
+  </p>
+
+  <hr/>
+  
+</aside>
+
+<p>
+  Edellä tarkastellusta kuvauksesta nousee esille seuraavat tekstit:
+</p>
+
+<ul>
+  <li>
+    Meillä on noin sata mies- ja naispuolista uimaria
+  </li>
+  <li>
+    Uimarit kilpailevat yleensä yhdessä lajissa
+  </li>
+  <li>
+    jotkut uimarit kilpailevat useammassakin lajissa
+  </li>
+  <li>
+    Tuloksia kirjataan sekä kuukausittain järjestettävistä seuran sisäisistä "kuukauden vesihiisi"-kisoista, että jokaisesta seuran ulkopuolella järjestettävästä kilpailusta
+  </li>
+</ul>
+
+<p>
+  Teksteistä voidaan päätellä seuraavat yhteydet:
+</p>
+
+<ul>
+  <li>
+    Meillä on noin sata mies- ja naispuolista uimaria: seuraan liittyy uimareita. Poistimme aiemmin käsitteen seura, joten tämä yhteys ei ole relevantti.
+  </li>
+  <li>
+    Uimarit kilpailevat yleensä yhdessä lajissa: uimariin liittyy laji, uimariin liittyy kilpailu, kilpailuun liittyy laji.
+  </li>
+  <li>
+    jotkut uimarit kilpailevat useammassakin lajissa: (sama kuin yllä).
+  </li>
+  <li>
+    Tuloksia kirjataan sekä kuukausittain järjestettävistä seuran sisäisistä "kuukauden vesihiisi"-kisoista, että jokaisesta seuran ulkopuolella järjestettävästä kilpailusta: tulos liittyy kilpailuun. 
+  </li>
+</ul>
+
+<p>
+  <em>
+    Aiempi tieto aihealueeseen liittyen antaa olettaa, että tulokseen liittyy kilpailun lisäksi myös laji ja uimari. 
+  </em>
+</p>
+
+<p>
+  Esille nousee siis seuraavat yhteydet:
+</p>
+
+<ul>
+  <li>
+    Uimariin liittyy laji
+  </li>
+  <li>
+    Uimariin liittyy kilpailu
+  </li>
+  <li>
+    Kilpailuun liittyy laji
+  </li>
+  <li>
+    Tulokseen liittyy kilpailu
+  </li>
+  <li>
+    Tulokseen liittyy laji
+  </li>
+  <li>
+    Tulokseen liittyy uimari
+  </li>
+</ul>
+
+
+<figure>
+  <img src="/img/viikko3/uimari-kasitteet.png" alt="[Uimari]-[Laji]
+						   [Laji]-[Kilpailu]
+						   [Kilpailu]-[Uimari]
+						   [Tulos]-[Uimari]
+						   [Tulos]-[Laji]
+						   [Tulos]-[Kilpailu]"/>
+  <p>&nbsp;</p>
+  <figcaption>Kun käsitteet on tunnistettu, hahmotellaan niiden välisiä yhteyksiä. Yllä on kuvattuna eräs mahdollisuus ongelma-alueen käsitteiden yhteyksiksi.</figcaption>
+</figure>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tunnista ja määrittele osallistumisrajoitteet
+<% end %>
+
+<p>
+  Osallistumisrajoitteilla tarkoitetaan lukumäärällisiä rajoitteita käsitteiden välillä. Osallistumisrajoitteet merkitään luokkakaavioon käsitteitä yhdistävien viivojen päätyihin. Osallistumisrajoitteita saadaan selville ongelma-alueen kuvauksessa esiintyvien adjektiivien ja määreiden kautta, jonka lisäksi aihealueeseen liittyvä tietämyksestä on hyötyä.
+</p>
+
+<p>
+  Edellisessä askeleessa tunnistetuista yhteyksistä saadaan selville seuraavat tiedot: uimari voi osallistua yhteen tai useampaan lajiin, eli uimariin voi liittyä monta lajia. Toisaalta, yhtä lajia voi harrastaa useampi uimari. Kilpailussa voi olla monta lajia, ja lajia voidaan todennäköisesti uida monessa kilpailussa. Kilpailussa voi olla monta uimaria, ja uimari voi uida useammassa kilpailussa. Yksittäiseen tulokseen taas liittyy yksi uimari, yksi laji, ja yksi kilpailu -- mutta, yhteen uimariin voi liittyä monta tulosta, yhteen lajiin voi liittyä monta tulosta, ja yhteen kilpailuun voi liittyä monta tulosta.
+</p>
+
+<p>
+  Ehdotus käsitekaavioksi osallistumisrajoitteiden kanssa on seuraavanlainen:
+</p>
+
+<figure>
+  <img src="/img/viikko3/uimari-kasitteet-rajoitteilla.png" alt="[Uimari]*-*[Laji]
+								[Laji]*-*[Kilpailu]
+								[Kilpailu]*-*[Uimari]
+								[Tulos]*-1[Uimari]
+								[Tulos]*-1[Laji]
+								[Tulos]*-1[Kilpailu]"/>
+  <p>&nbsp;</p>
+  <figcaption>Kun käsitteiden väliset yhteydet on tunnistettu, lisätään yhteyksiin osallistumisrajoitteet. Yllä pohdittu erästä mahdollisuutta osallistumisrajoitteiksi.</figcaption>
+</figure>
+
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tunnista attribuutit ja lisää ne käsitteille
+<% end %>
+
+<p>
+  Käsitteisiin liittyvät attribuutit tunnistaa muunmuassa olemassaoloriippuvaisista substantiiveista sekä käsitteiden yleisistä ominaisuuksista. Attribuutti saattaa olla joko yksittäinen arvo tai arvojoukko -- arvojoukot tunnistetaan tyypillisesti lukumäärien kuvauksista. Samalla kuitenkin halutaan tallentaa vain ne attribuutit (ja käsitteet), jotka ovat ongelma-alueen kannalta oleellisua. 
+</p>
+
+<p>
+  Ongelma-alueen kuvauksesta tiedämme, että kilpailuilla on paikka (esim. "paikalliset kilpailut", "seuran ulkopuoliset kilpailut") ja nimi (esim. "kuukauden vesihiisi"), jonka lisäksi nimestä voi päätellä, että kilpailuun liittyy aika. Vastaavasti uimareihin liittyy todennäköisesti nimi ja syntymäaika, vaikkei kuvauksessa kumpaakaan suoraan pyydetä. Nimen perusteella on helppo tarkastaa kenestä on kyse, ja syntymäaika auttaa seuraamaan tuloskehitystä. Tulokseen tarvitaan jonkinlainen tieto tuloksesta -- uimakisoissa kyseessä on tarkka aika, ja laji kerrotaan tässä nimenä.
+</p>
+
+<figure>
+  <img src="/img/viikko3/uimari-kasitteet-rajoitteilla-ja-attribuuteilla.png" alt="[Uimari|nimi:String;syntymäaika:Date]
+								 [Laji|nimi:String]
+								 [Kilpailu|nimi:String;paikka:String;aika:Date]
+								 [Tulos|millisekuntia:Double]
+								 [Uimari]*-*[Laji]
+								 [Laji]*-*[Kilpailu]
+								 [Kilpailu]*-*[Uimari]
+								 [Tulos]*-1[Uimari]
+								 [Tulos]*-1[Laji]
+								 [Tulos]*-1[Kilpailu]"/>
+  <p>&nbsp;</p>
+  <figcaption>Kun käsitteiden väliset yhteydet ja osallistumisrajoitteet on tunnistettu, lisätään käsitteille attribuutit.</figcaption>
+</figure>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Yleistä ja eriytä käsitteitä
+<% end %>
+
+<p>
+  Tunnista käsitteistä yliluokkia ja aliluokkia. Näiden tunnistaminen tapahtuu esimerkiksi käsitteitä tarkastelemalla ja miettimällä "onko käsite toisen käsitteen erikoistapaus". Vastaavasti toistuvat attribuutit saattavat antaa ilmi yli- ja aliluokkia. 
+</p>
+
+<p>
+  Yli- ja aliluokkien etsintä kannattaa tehdä matriisina, missä jokaista käsitettä verrataan jokaiseen muuhun käsitteeseen. Käymällä läpi käsitteemme, huomaamme, ettei niissä ole yli- tai aliluokille tarvetta.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th>
+      -
+    </th>
+    <th>
+      Kilpailu
+    </th>
+    <th>
+      Laji
+    </th>
+    <th>
+      Tulos
+    </th>
+    <th>
+      Uimari
+    </th>
+  </tr>
+  <tr>
+    <th>
+      Kilpailu
+    </th>
+    <td>
+      -
+    </td>
+    <td>
+      Kilpailu ei ole lajin erikoistapaus.
+    </td>
+    <td>
+      Kilpailu ei ole tuloksen erikoistapaus.
+    </td>
+    <td>
+      Kilpailu ei ole uimarin erikoistapaus.
+    </td>
+  </tr>
+  <tr>
+    <th>
+      Laji
+    </th>
+    <td>
+      Laji ei ole kilpailun erikoistapaus.
+    </td>
+    <td>
+      -
+    </td>
+    <td>
+      Laji ei ole tuloksen erikoistapaus.
+    </td>
+    <td>
+      Laji ei ole uimarin erikoistapaus.
+    </td>
+  </tr>
+  <tr>
+    <th>
+      Tulos
+    </th>
+    <td>
+      Tulos ei ole kilpailun erikoistapaus.
+    </td>
+    <td>
+      Tulos ei ole lajin erikoistapaus.
+    </td>
+    <td>
+      - 
+    </td>
+    <td>
+      Tulos ei ole uimarin erikoistapaus.
+    </td>
+  </tr>
+  <tr>
+    <th>
+      Uimari
+    </th>
+    <td>
+      Uimari ei ole kilpailun erikoistapaus.
+    </td>
+    <td>
+      Uimari ei ole lajin erikoistapaus.
+    </td>
+    <td>
+      Uimari ei ole tuloksen erikoistapaus.
+    </td>
+    <td>
+      - 
+    </td>
+  </tr>
+</table>
+
+<p>
+  Luokkakaaviota ei siis tarvitse tässä tapauksessa muuttaa.
+</p>
+
+<p>
+  Tarkastellaan vielä tilannetta, missä luokkakaaviosta löytyy tapaus, missä toinen käsite on toisen käsitteen erikoistapaus. Oletetaan, että käytössämme ovat käsitteet Henkilö ja Opiskelija. Henkilöllä on nimi, syntymäaika ja sähköpostiosoite. Opiskelijalla on nimi, syntymäaika, sähköpostiosoite ja opiskelijanumero.
+</p>
+
+
+<figure>
+  <img src="/img/viikko3/henkilo-ja-opiskelija.png" alt="[Henkilo|nimi:String;syntymäaika:Date;email:String]
+							 [Opiskelija|nimi:String;syntymäaika:Date;email:String;opiskelijanumero:String]"/>
+  <p>&nbsp;</p>
+  <figcaption>Henkilö ja opiskelija luokkakaaviossa.</figcaption>
+</figure>
+
+<p>
+  Huomaamme, että opiskelija on henkilön erikoistapaus. Opiskelijalla on muuten samat ominaisuudet kuin henkilöllä, mutta sillä on lisäksi opiskelijanumero. Voimme luoda tämän perusteella luokkakaavion, missä opiskelija perii henkilön. Tämä merkitään seuraavasti.
+</p>
+
+<figure>
+  <img src="/img/viikko3/henkilo-ja-opiskelija-perinta.png" alt="[Henkilo|nimi:String;syntymäaika:Date;email:String]
+								 [Opiskelija|opiskelijanumero:String]
+								 [Henkilo]^-[Opiskelija]"/>
+  <p>&nbsp;</p>
+  <figcaption>Henkilö ja opiskelija luokkakaaviossa. Opiskelija perii henkilön, eli opiskelijalla on kaikki henkilön attribuutit, jonka lisäksi opiskelijalla on myös omat attribuuttinsa.</figcaption>
+</figure>
+
+
+<% partial 'partials/hint', locals: { name: 'Perintä ja luokkakaaviosta tietokantakaavioksi' } do %>
+
+  <p>
+    Perintä käsitellään tietokantakaaviossa yhden suhde yhteen -tyyppisenä yhteytenä. Kun perintänä merkittyä yhteyttä muunnetaan tietokantakaavioksi, lisätään perivään käsitteeseen viiteavain, joka viittaa perittävään käsitteeseen. Edellinen opiskelija-henkilö -esimerkki muuntuu seuraavanlaiseksi tietokantakaavioksi.
+  </p>
+
+  
+  <figure>
+    <img src="/img/opiskelija-perii-henkilon-tietokantakaavio.png" alt="[Henkilo|(pk) id: Integer; nimi:String;syntymäaika:Date;email:String], [Opiskelija|(pk) id: Integer; (fk) henkilo_id: Henkilo; opiskelijanumero:String], [Henkilo]-[Opiskelija]"/>
+    <p>&nbsp;</p>
+  </figure>
+
+<% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Tietokannan normalisointi ja denormalisointi
+<% end %>
+
+<p>
+  Tietokannan normalisointi on askeleittainen prosessi, mikä sisältää mahdollisten ongelmakohtien tunnistamisen ja niiden korjaamisen. Tietokannan normalisointiprosessin tuloksena tietokanta sisältää hyvin vähän toisteista tietoa. Tietokannan denormalisointi on käänteinen prosessi, missä tietokannassa sijaitsevan toisteisuuden määrä lisääntyy. Samalla tietokantakyselyiden tehokkuus tyypillisesti kasvaa.
+</p>
+
+<p>
+  Tarkastellaan näitä kahta seuraavaksi.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan normalisointi
+<% end %>
+
+<p>
+  Tietokannan normalisoinnin tavoite on vähentää tietokantatauluissa esiintyvää toisteista tietoa. Pääpiirteittäin tavoite on sama kuin käsiteanalyysissä: lopulta jokainen taulu liittyy vain tiettyyn käsitteeseen ja taulun attribuutit liittyvät vain kyseisen taulun esittämään käsitteeseen. Lähestymistapa on kuitenkin toisenlainen: tietokannan normalisoinnissa etsimme epäkohtia olemassaolevista tietokantatauluista, jonka jälkeen näitä epäkohtia korjataan.
+</p>
+
+<p>
+  Tietokannan normalisointi tapahtuu askeleittain normaalimuotojen avulla.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Ensimmäinen normaalimuoto
+<% end %>
+
+<p>
+  Tietokantataulu on ensimmäisessä normaalimuodossa, jos se täyttää seuraavat ehdot:
+</p>
+
+<ol>
+  <li>
+    Sarakkeen arvot eivät saa sisältää listoja.
+  </li>
+  <li>
+    Taulun sarakkeet eivät muodosta toistuvia ryhmiä.
+  </li>
+  <li>
+    Sarakkeen arvojen tulee olla saman tyyppisiä. 
+  </li>
+  <li>
+    Jokaisen sarakkeen nimen tulee olla tietokantataulussa uniikki.
+  </li>
+  <li>
+    Sarakkeiden järjestyksen ei tule vaikuttaa tietokantataulun toimintaan.
+  </li>
+  <li>
+    Tietokantataulussa ei saa olla kahta täsmälleen samanlaista riviä.
+  </li>
+  <li>
+    Rivien järjestyksen ei tule vaikuttaa tietokantataulun toimintaan.
+  </li>
+</ol>
+
+<p>
+  Alla on esimerkki henkilöitä sisältävästä tietokantataulusta. Jokaiseen henkilöön liittyy tunnus (id), nimi sekä pilkuilla eroteltu lista puhelinnumeroita. Esimerkki rikkoo ensimmäistä normaalimuotoa, sillä puhelinnumerot sisältävät listoja.
+</p>
+
+<table class="table">
+  <tr>
+    <th colspan=3>Henkilo((pk) id, nimi, puhelinnumerot)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      nimi
+    </th>
+    <th>
+      puhelinnumerot
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Larry
+    </td>
+    <td>
+      555-1024, 555-2048
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Moe
+    </td>
+    <td>
+      555-0512, 555-0256, 555-0128
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Curly
+    </td>
+    <td>
+      555-0001, 555-0002, 555-0004
+    </td>
+  </tr>
+</table>
+
+<p>
+  Ensimmäinen korjaus ylläolevaan tietokantatauluun on eritellä puhelinnumerot erillisiksi sarakkeikseen (tehty alla). Tämä ei ole kovin hyvä ratkaisu -- koko tietokantataulun rakennetta tulee muuttaa jos jollain on esimerkiksi neljä tai viisi erillistä numeroa. Tämä myös rikkoo ensimmäistä normaalimuotoa, sillä puhelinnumero muodostaa toistuvan ryhmän.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan=5>Henkilo((pk) id, nimi, puhelinnumero1, puhelinnumero2, puhelinnumero3)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      nimi
+    </th>
+    <th>
+      puhelinnumero1
+    </th>
+    <th>
+      puhelinnumero2
+    </th>
+    <th>
+      puhelinnumero3
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Larry
+    </td>
+    <td>
+      555-1024
+    </td>
+    <td>
+      555-2048
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Moe
+    </td>
+    <td>
+      555-0512
+    </td>
+    <td>
+      555-0256
+    </td>
+    <td>
+      555-0128
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Curly
+    </td>
+    <td>
+      555-0001
+    </td>
+    <td>
+      555-0002
+    </td>
+    <td>
+      555-0004
+    </td>
+  </tr>
+</table>
+
+<p>
+  Sopivampi korjaus ongelmaan on muodostaa erillinen tietokantataulu puhelinnumeroille. Henkilön ja puhelinnumeron välillä on yhden suhden moneen -yhteys, eli yhteen henkilöön liittyy monta puhelinnumeroa, mutta jokainen puhelinnumero liittyy yhteen henkilöön.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan=2>Henkilo((pk) id, nimi)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      nimi
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Larry
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Moe
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Curly
+    </td>
+  </tr>
+</table>
+
+<p>
+  &nbsp;
+</p>
+
+<table class="table">
+  <tr>
+    <th colspan=3>Puhelinnumero((pk) id, (fk) henkilo_id -&gt; Henkilo, puhelinnumero)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      <u>
+	henkilo_id
+      </u>
+    </th>
+    <th>
+      puhelinnumero
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      555-1024
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      555-2048
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      2
+    </td>
+    <td>
+      555-0512
+    </td>
+  </tr>
+  <tr>
+    <td>
+      4
+    </td>
+    <td>
+      2
+    </td>
+    <td>
+      555-0256
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+  </tr>
+</table>
+  
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Toinen normaalimuoto
+<% end %>
+
+
+<p>
+  Ensimmäisessä normaalimuodossa kyse on ensiaskeleista tietokannan rakenteen järkevöittämiseen. Muissa normaalimuodoissa käsite <em>funktionaalinen riippuvuus</em> sarakkeiden välillä on oleellinen.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Funktionaalinen riippuvuus' } do %>
+
+  <p>
+    Sarake B on funktionaalisesti riippuvainen sarakkeesta A (A määrää funktionaalisesti B:n), jos sarakkeen A arvon perusteella voidaan yksikäsitteisesti selvittää sarakkeen B arvo. Tällöin kirjoitetaan <code>A -&gt; B</code>, ja sanotaan, että "sarake B on funktionaalisesti riippuvainen sarakkeesta A". Huom! A voi olla myös kokoelma sarakkeita!
+  </p>
+
+  <p>
+    <em>
+      Esimerkiksi henkilön nimi on funktionaalisesti riippuvainen henkilötunnuksesta, sillä henkilötunnuksen perusteella voidaan yksikäsitteisesti selvittää nimi. Toisaalta, henkilötunnus ei ole funktionaalisesti riippuvainen henkilön nimestä, koska useammalla henkillä voi olla sama nimi.
+    </em>
+  </p>
+
+  <p>
+    Selvittäminen voi tapahtua kyselyllä "SELECT DISTINCT b FROM Taulu WHERE a=tiedetty_arvo", missä avainsana DISTINCT palauttaa uniikit rivit. Jos attribuutti <code>b</code> on funktionaalisesti riippuva <code>a</code>:sta, tuottaa ylläoleva kysely joko yhden tai ei yhtään tulosriviä, mutta ei koskaan enempää. Tämän ehdon on oltava voimassa aina, ei vain hetkellisesti.
+  </p>
+  
+<% end %>
+
+<p>
+  Tietokantataulu on toisessa normaalimuodossa jos (1) se on ensimmäisessä normaalimuodossa ja (2) tietokantataulun sarakkeet (poislukien avaimet) ovat <em>funktionaalisesti riippuvaisia</em> tietokantataulun (yhdellä sarakkeella määritellystä) pääavaimesta.
+</p>
+
+<p>
+  Jos tietokantataulun pääavain on määritelty yhden sarakkeen avulla, ovat kaikki tietokantataulun sarakkeet automaattisesti funktionaalisesti riippuvaisia pääavaimesta. Käytännössä siis, jos taulu on ensimmäisessä normaalimuodossa ja sillä on yhden sarakkeen avulla määritelty pääavain, on se automaattisesti toisessa normaalimuodossa.
+</p>
+
+<p>
+  Jos taas tietokantataulun pääavain on määritelty useamman sarakkeen avulla, tulee tietokantataulun jokaisen sarakkeen olla riippuvainen koko avaimesta, eli osittaista riippuvuutta pääavaimesta ei sallita. Tarkastellaan tilannetta, missä tietokantataulun pääavain on määritelty useamman sarakkeen kautta ja tällainen tilanne tapahtuu.
+</p>
+
+<p>
+  Oletetaan seuraavat tietokantataulut, joissa pääavaimet on alleviivattu. Ensimmäisessä kahdessa tietokantataulussa pääavain on id, kolmannessa taulussa pääavain on määrätty kahden viiteavaimen yhdistelmänä. 
+</p>
+
+<ul>
+  <li>Asiakas ((pk) <u>id</u>, nimi)</li>
+  <li>Kauppa ((pk) <u>id</u>, nimi, osoite)</li>
+  <li>Ostos ((fk) <u>asiakas_id</u> -&gt; Asiakas, (fk) <u>kauppa_id</u> -&gt; Kauppa, hinta, kaupunki)</li>
+</ul>
+
+<p>
+  Taulut Asiakas ja Kauppa ovat ensimmäisessä ja toisessa normaalimuodossa.
+</p>
+
+<p>
+  Tarkastellaan taulua Ostos. Taulun Ostos sarake hinta kertoo ostoksen hinnan. Sarake kaupunki kertoo missä ostos tehtiin.
+</p>
+
+
+
+<table class="table">
+  <tr>
+    <th colspan=3>Ostos ((fk) <u>asiakas_id</u> -&gt; Asiakas, (fk) <u>kauppa_id</u> -&gt; Kauppa, hinta, kaupunki)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	asiakas_id
+      </u>
+    </th>
+    <th>
+      <u>
+	kauppa_id
+      </u>
+    </th>
+    <th>
+      hinta
+    </th>
+    <th>
+      kaupunki
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      14.90
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      3
+    </td>
+    <td>
+      15.20
+    </td>
+    <td>
+      Vantaa
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      8.40
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      2
+    </td>
+    <td>
+      19.20
+    </td>
+    <td>
+      Espoo
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      3
+    </td>
+    <td>
+      10.40
+    </td>
+    <td>
+      Vantaa
+    </td>
+  </tr>
+  <tr>
+    <td>
+      4
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      12.20
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+  </tr>
+</table>
+
+<p>
+  Kun tarkastelemme taulua Ostos, huomaamme, että tietokantataulun sarake kaupunki on funktionaalisesti riippuvainen sarakkeesta kauppa_id. Koska sarake kauppa_id on osa tietokantataulun pääavaimesta, tämä rikkoo toista normaalimuotoa. Yksi ratkaisu ongelmaan on kaupungin siirtäminen tauluun Kauppa.
+</p>
+
+
+<ul>
+  <li>Asiakas ((pk) <u>id</u>, nimi)</li>
+  <li>Kauppa ((pk) <u>id</u>, nimi, osoite, kaupunki)</li>
+  <li>Ostos ((fk) <u>asiakas_id</u> -&gt; Asiakas, (fk) <u>kauppa_id</u> -&gt; Kauppa, hinta)</li>
+</ul>
+
+<p>
+  Nyt jokainen ylläolevista tietokantatauluista on ensimmäisessä ja toisessa normaalimuodossa.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Kandidaattiavain' } do %>
+  
+  <p>
+    Toisen normaalimuodon voi määritellä myös kandidaattiavain-käsitteen kautta. Tietokantataulun kandidaattiavaimet määritellään niiden tietokantataulun sarakkeiden joukkona, joiden avulla tietokantataulun rivit voidaan yksilöidä. Toisin sanoen, kandidaattiavainjoukko mahdollistaa tietokantatauuln rivin yksilöimisen.
+  </p>
+
+  <p>
+    Tietokantataululle voidaan määritellä tyypillisesti useampia kandidaattiavaimia, mutta näistä valitaan vain yksi tietokantataulun pääavaimeksi. Tarkastellaan taulua Henkilö, joka sisältää sarakkeet syntymäaika, etunimi, sukunimi ja puhelinnumero.
+  </p>
+
+  <p>
+    Kandidaattiavaimia etsitään sarakkeiden avulla muodostetusta joukkojen joukosta: {{syntymäaika}, {etunimi}, {sukunimi}, {puhelinnumero}, {syntymäaika, etunimi}, {syntymäaika, sukunimi}, {syntymäaika, puhelinnumero}, {etunimi, sukunimi}, {etunimi, puhelinnumero}, {syntymäaika, etunimi, sukunimi}, {syntymäaika, etunimi, puhelinnumero}, {syntymäaika, sukunimi, puhelinnumero}, {etunimi, sukunimi, puhelinnumero}, {syntymäaika, etunimi, sukunimi, puhelinnumero}}.
+  </p>
+
+  <p>
+    Jokaista joukkoa tarkastellaan niiden sisältämien sarakkeiden arvojoukkojen kautta. Jos joukolle on mahdollista löytää useampia rivejä, joissa kandidaattiavainjoukon arvot ovat samat, hylätään kandidaattiavain. Esimerkiksi useammalla henkilöllä voi olla sama syntymäaika, useammalla henkilöllä voi olla sama etunimi, ja useammalla henkilöllä voi olla sama sukunimi, joten {syntymäaika}, {etunimi}, {sukunimi} eivät ole kandidaattiavaimia. Vastaavasti joukko {etunimi, sukunimi} ei voi olla kandidaattiavain, sillä useammalla henkilöllä voi olla sama etunimi ja sukunimi.
+  </p>
+
+  <p>
+    Tätä prosessia jatkamalla tunnistetaan lopullinen kandidaattiavainten joukko. Edellisessä taulussa oikeastaan yksikään esitellyistä joukoista ei ole kandidaattiavainjoukko jos oletamme, että useammalla henkilöllä voi olla sama puhelinnumero.
+  </p>
+
+  <p>
+    Kandidaattiavainten avulla määriteltynä taulu on toisessa normaalimuodossa jos ja vain jos se on ensimmäisessä normaalimuodossa ja jokainen taulun kandidaattiavaimeen kuulumaton sarake on riippuvainen koko kandidaattiavaimen joukosta, mutta ei yksittäisestä joukon jäsenestä (jos joukkoon kuuluu useampi sarake).
+  </p>
+    
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Kolmas normaalimuoto
+<% end %>
+
+<p>
+  Kolmanteen normaalimuotoon liittyy oleellisesti käsite transitiivinen riippuvuus.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Transitiivinen riippuvuus' } do %>
+
+  <p>
+    Transitiivisella riippuvuudella tarkoitetaan sitä, että sarake A on funktionaalisesti riippuvainen sarakkeesta C jonkun toisen sarakkeen kautta. Sarake A on transitiivisesti riippuvainen sarakkeesta C, jos sarake A on funktionaalisesti riippuvainen sarakkeesta B ja sarake B on funktionaalisesti riippuvainen sarakkeesta C. Tässä A, B ja C voivat olla myös sarakejoukkoja.
+  </p>
+
+<% end %>
+
+<p>
+  Tietokantataulu on kolmannessa normaalimuodossa jos se on toisessa normaalimuodossa ja siinä olevat sarakkeet eivät ole transitiivisesti riippuvaisia taulun pääavaimesta.
+</p>
+
+
+<p>
+  Jos tietokantataulu rikkoo kolmannen normaalimuodon, eli tietokantataulusta tunnistetaan sarakkeita, jotka ovat transitiivisesti riippuvaisia pääavaimesta, eriytetään ne omaksi taulukseen. Eräs klassinen esimerkki tällaisesta tilanteesta liittyy postinumeroon -- tarkastellaan seuraavaa taulua Osoite.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan=4>Osoite((pk) <u>id</u>, katuosoite, postinumero, postitoimipaikka)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      katuosoite
+    </th>
+    <th>
+      postinumero
+    </th>
+    <th>
+      postitoimipaikka
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Työpajankatu 13
+    </td>
+    <td>
+      00580
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Työpajankatu 2 R1 C
+    </td>
+    <td>
+      00580
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Siltavuorenranta 18
+    </td>
+    <td>
+      00170
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+  </tr>
+</table>
+
+
+<p>
+  Yllä olevassa tietokantataulussa havaitaan funktionaalinen riippuvuus <code>postinumero -&gt postitoimipaikka</code>, eli postitoimipaikan saa selvitettyä postinumeron perusteella. Samalla kaikki sarakkeet ovat selvitettävissä taulun pääavaimen kautta, joten taulusta löytyy myös transitiivinen riippuvuus. Ratkaisu tähän on -- esimerkiksi -- luoda erillinen taulu postinumeroille. 
+</p>
+
+<ul>
+  <li>Osoite((pk) <u>id</u>, katuosoite, postinumero)</li>
+  <li>Postinumero((pk) <u>postinumero</u>, postitoimipaikka)</li>
+</ul>
+
+
+
+<% partial 'partials/hint', locals: { name: 'Muita normaalimuotoja' } do %>
+
+  <p>
+    Ensimmäisen, toisen ja kolmannen normaalimuodon lisäksi tietokannan normalisointiin käytetään <a href="https://en.wikipedia.org/wiki/Boyce%E2%80%93Codd_normal_form" target="_blank" norel>Boyce-Codd -normaalimuotoa</a>, <a href="https://en.wikipedia.org/wiki/Fourth_normal_form" target="_blank" norel>Neljättä normaalimuotoa</a> ja <a href="https://en.wikipedia.org/wiki/Fifth_normal_form" target="_blank" norel">Viidettä normaalimuotoa</a>.
+  </p>
+
+  <p>
+    Tämän kurssin puitteissa ensimmäiset kolme normaalimuotoa riittävät tietokannan suunnitteluun.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan denormalisointi
+<% end %>
+
+<p>
+  Tietokannan normalisointi johtaa tyypillisesti tilanteeseen, missä tietokannassa on useita tietokantatauluja, joista jokainen kuvaa jotain selkeää käsitettä. Tietokantataulujen väliset yhteydet tunnistetaan pää- ja viiteavainten avulla, ja taulujen attribuutit ovat selkeitä. Tietokannasta puuttuu toisteinen tieto.
+</p>
+
+<p>
+  Yleisesti ottaen yllä kuvattu tilanne on hyvä, mutta absoluuttinen hyvyys liittyy paljolti myös käyttötarkoitukseen. Esimerkiksi raportointiin tarkoitettujen järjestelmien ei kannata todennäköisesti -- jos raportin luonti on hidas operaatio -- luoda samoja raportteja yhä uudelleen ja uudelleen, vaan voi olla mielekästä luoda erillinen tietokantataulu (tai muutama), jotka sisältävät raporteille oleelliset tiedot valmiiksi laskettuna.
+</p>
+
+<p>
+  Myös tietokannan (tai tietokantataulun) käyttötarkoitus vaikuttaa normalisoinnin tarpeeseen. Esimerkiksi sivukäyntien kirjaamiseen tarkoitettu logitusjärjestelmä toimii tehokkaammin jos sivukäyntien tallentamiseen tarkoitetut osat järjestelmästä on denormalisoitu. Tarkastellaan tätä seuraavan esimerkin kautta.
+</p>
+
+<p>
+  Alla on annettuna kaksi tietokantaa, toinen on normalisoitu ja toinen denormalisoitu. Kumpaakin käytetään järjestelmässä kävijöiden tekemien tapahtumien kirjaamiseen.
+</p>
+
+<p>
+  Alla olevassa versiossa käyttäjä ja sivu on eriytetty omaksi käsitteekseen, johon tapahtuma-taulu viittaa. Kun tapahtumaa luodaan, tulee tapahtuman lisäämisen yhteydessä hakea käyttäjän tunnus taulusta Kayttaja sekä osoitetta vastaavan sivun tunnus taulusta Sivu.
+</p>
+
+
+<ul>
+  <li>
+    Kayttaja ((pk) id, kayttajatunnus)
+  </li>
+  <li>
+    Sivu ((pk) id, osoite)
+  </li>
+  <li>
+    Tapahtuma ((pk) id, (fk) kayttaja_id -&gt; Kayttaja, (fk) sivu_id -&gt; Sivu, operaatio, ip-osoite, laite)
+  </li>
+</ul>
+
+<p>
+  Toinen vaihtoehto on tallentaa käyttäjätunnus ja sivun osoite sellaisenaan.
+</p>
+
+<ul>
+  <li>
+    Tapahtuma ((pk) id, kayttajatunnus, osoite, aika, operaatio, ip-osoite, laite)
+  </li>
+</ul>
+
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Operaatioiden tehokkuuden tarkastelu' } do %>
+
+  <p>
+    Lisää SQLiten avulla tehtäväpohjan kansioon <code>db</code> kaksi yllä kuvattua tietokantaa, joita käytetään järjestelmässä tapahtuvien tapahtumien tallentamiseen. Tee tämän jälkeen ohjelma, joka testaa tiedon lisäämisen nopeutta edellä mainittuihin tietokantatauluihin. 
+  </p>
+
+  <p>
+    Voit olettaa, että järjestelmä saa jokaisen tapahtuman yhteydessä tietoonsa käyttäjätunnuksen, osoitteen, ajan, tehdyn operaation, ip-osoitteen sekä käyttäjän käyttämän laitteen. Tehtäväpohjassa on valmiit metodit satunnaisen tiedon luomiseen.
+  </p>
+
+  <p>
+    Kun tietoa lisätään ensimmäiseen tietokantaan, tapahtuman lisäämisen yhteydessä tulee hakea käyttäjätaulusta tieto käyttäjästä (ja tallentaa käyttäjä tauluun jos kyseistä käyttäjää ei vielä ole), jonka lisäksi sivutaulusta tulee hakea tieto sivusta osoitteen perusteella (sekä lisätä sivu jos sitä ei vielä ole).
+  </p>
+
+  <p>
+    Kun tietoa lisätään toiseen tietokantaan, riittää tiedon tallentaminen tietokantatauluun.
+  </p>
+
+  <p>
+    Kun ohjelma lisää tietoa kumpaankin tietokantatauluun ja tulostaa lisäysoperaatioiden kestot, palauta ohjelma. Testaa lisäyksen nopeutta vähintään 25000 rivin lisäyksellä.
+  </p>  
+
+<% end %>
+
+
+
+<% partial 'partials/hint', locals: { name: 'Normalisoida vai eikö normalisoida?' } do %>
+
+  <p>
+    Lue CodingHorror.com-blogista kirjoitus <a href="http://blog.codinghorror.com/maybe-normalizing-isnt-normal/" target="_blank">Maybe Normalizing Isn't Normal</a>.
+  </p>
+
+  
+  <p>
+    Ensimmäisen, toisen ja kolmannen normaalimuodon lisäksi tietokannan normalisointiin käytetään <a href="https://en.wikipedia.org/wiki/Boyce%E2%80%93Codd_normal_form" target="_blank" norel>Boyce-Codd -normaalimuotoa</a>, <a href="https://en.wikipedia.org/wiki/Fourth_normal_form" target="_blank" norel>Neljättä normaalimuotoa</a> ja <a href="https://en.wikipedia.org/wiki/Fifth_normal_form" target="_blank" norel">Viidettä normaalimuotoa</a>.
+  </p>
+
+  <p>
+    Tämän kurssin puitteissa ensimmäiset kolme normaalimuotoa riittävät tietokannan suunnitteluun.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Muita tiedon esitysmuotoja
+<% end %>
+
+<p>
+  Tarkastellaan vielä muutamia muita yleisiä tiedon esitysmuotoja.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  XML
+<% end %>
+
+<p>
+  XML (EXtensible Markup Language) on kieli, jolla kuvataan rakenteellista tietoa. Se koostuu kahdesta osasta, otsakkeesta ja rungosta. Otsake on valinnainen, ja sisältää esimerkiksi dokumentin versionumeron, tiedon käsittelyohjeita, sekä mahdollisia tietoja tiedon rakenteesta. XML-dokumentin runko taas alkaa <em>juurielementistä</em>, joita on vain yksi, jonka alla on yksi tai useampia elementtejä, joilla voi olla arvoja.
+</p>
+
+<p>
+  Alla on esimerkki XML-dokumentista, jossa on kuvattu opiskelijoiden nimiä.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;?xml version="1.0"?&gt;
+&lt;opiskelijat&gt;
+  &lt;opiskelija&gt;
+    &lt;nimi&gt;Ada Lovelace&lt;/nimi&gt;
+  &lt;/opiskelija&gt;
+  &lt;opiskelija&gt;
+    &lt;nimi&gt;Edgar F. Codd&lt;/nimi&gt;
+  &lt;/opiskelija&gt;
+  &lt;opiskelija&gt;
+    &lt;nimi&gt;Lixia Zhang&lt;/nimi&gt;
+  &lt;/opiskelija&gt;
+&lt;/opiskelijat&gt;
+<% end %>
+
+<p>
+  XML-dokumentin elementit voivat sisältää useita elementtejä. Alla on kuvaus kahdesta kurssista sekä niihin liittyvistä opettajista.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;?xml version="1.0"?&gt;
+&lt;kurssit&gt;
+  &lt;kurssi&gt;
+    &lt;nimi&gt;Ohjelmoinnin perusteet&lt;/nimi&gt;
+    &lt;luento&gt;Ti 10-12&lt;/luento&gt;
+    &lt;opettaja&gt;
+      &lt;nimi&gt;Charles Babbage&lt;/nimi&gt;
+    &lt;/opettaja&gt;
+  &lt;/kurssi&gt;
+  &lt;kurssi&gt;
+    &lt;nimi&gt;Tietokantojen perusteet&lt;/nimi&gt;
+    &lt;luento&gt;Pe 12-14&lt;/luento&gt;
+    &lt;opettaja&gt;
+      &lt;nimi&gt;Edgar F. Codd&lt;/nimi&gt;
+    &lt;/opettaja&gt;
+  &lt;/kurssi&gt;
+&lt;/kurssit&gt;
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  HTML
+<% end %>
+
+<p>
+  HTML on kieli web-sivustojen luomiseen. HTML on kuvauskieli, jonka avulla kuvataan sekä web-sivun rakenne että sivun sisältämä teksti. HTML-sivujen rakenne määritellään HTML-kielessä määritellyillä elementeillä, ja yksittäinen HTML-dokumentti koostuu sisäkkäin ja peräkkäin olevista elementeistä.
+</p>
+
+<p>
+  Sivujen rakenteen määrittelevät elementit erotellaan pienempi kuin (&lt;) ja suurempi kuin (&gt;) -merkeillä. Elementti avataan elementin nimen sisältävällä pienempi kuin -merkillä alkavalla ja suurempi kuin -merkkiin loppuvalla merkkijonolla, esim. <code>&lt;html&gt;</code>, ja suljetaan merkkijonolla jossa elementin pienempi kuin -merkin jälkeen on vinoviiva, esim <code>&lt;/html&gt;</code>. Yksittäisen elementin sisälle voi laittaa muita elementtejä.
+</p>
+
+<p>
+  Suurin osa elementeistä tulee sulkea lopuksi. Osa HTML5:n elementeistä &ndash; esimerkiksi <code>&lt;br&gt;</code> &ndash; on kuitenkin ns. tyhjiä ("void"), eikä niille kirjoiteta erillistä lopetusta. Halutessaan tyhjät elementit voi lopettaa X(HT)ML-tyyliseen /-merkkiin, esimerkiksi seuraavasti: <code>&lt;br /&gt;</code>.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  HTML-dokumentin runko
+<% end %>
+
+<p>
+  Tyypillisen HTML-dokumentin runko näyttää seuraavalta. Kun klikkaat allaolevassa <code>iframe</code>-elementissä <code>Result</code>-tekstiä, näet HTML-sivun, ja kun painat <code>HTML</code>-tekstiä, näet HTML-koodin. Klikkaamalla elementin oikeassa ylälaidassa olevasta <em>Edit in JSFiddle</em>-linkistä, pääset muokkaamaan elementtiä suoraan JSFiddlessä.
+</p>
+
+<iframe width="100%" height="350" src="http://jsfiddle.net/e3tuhyLz/embedded/html,result" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+<p>
+  Yllä olevassa HTML-dokumentissa on dokumentin tyypin kertova erikoiselementti <code>&lt;!DOCTYPE html&gt;</code>, joka kertoo dokumentin olevan HTML-sivu. Tätä seuraa elementti <code>&lt;html&gt;</code>, joka aloittaa HTML-dokumentin. Elementti <code>&lt;html&gt;</code> sisältää yleensä kaksi elementtiä, elementit <code>&lt;head&gt;</code> ja <code>&lt;body&gt;</code>. Elementti <code>&lt;head&gt;</code> sisältää sivun otsaketiedot, eli esimerkiksi sivun käyttämän merkistön <code>&lt;meta charset="utf-8" /&gt;</code> ja otsikon <code>&lt;title&gt;</code>. Elementti <code>&lt;body&gt;</code> sisältää selaimessa näytettävän sivun rungon. Ylläolevalla sivulla on ensimmäisen tason otsake-elementti <code>h1</code> (<em>header 1</em>) ja tekstielementti <code>p</code> (<em>paragraph</em>).
+</p>
+
+<p>
+  Elementit voivat sisältää attribuutteja, joilla voi olla yksi tai useampi arvo. Yllä olevassa HTML-dokumentissa elementille <code>meta</code> on määritelty erillinen attribuutti <code>charset</code>, joka kertoo dokumentissa käytettävän merkistön: "utf-8". Attribuuttien lisäksi elementit voivat sisältää <em>tekstisolmun</em>. Esimerkiksi yllä olevat elementit <code>title</code>, <code>h1</code> ja <code>p</code> kukin sisältävät tekstisolmun eli tekstiä. Tekstisolmulle ei ole erillistä elementtiä tai määrettä, vaan se näkyy tekstinä.
+</p>
+
+<p>
+  Puhe tekstisolmuista antaa viitettä jonkinlaisesta puurakenteesta. HTML-dokumentit, aivan kuten XML-dokumentit, ovat rakenteellisia dokumentteja, joiden rakenne on usein helppo ymmärtää puumaisena kaaviona. Ylläolevan web-sivun voi esittää esimerkiksi seuraavanlaisena puuna (attribuutit ja dokumentin tyyppi on jätetty merkitsemättä).
+</p>
+
+<pre>
+                   html
+               /          \
+             /              \
+          head              body
+        /       \         /      \
+     meta       title     h1      p
+                 :        :       :
+              tekstiä  tekstiä tekstiä
+</pre>
+
+<p>
+  Koska HTML-dokumentti on rakenteellinen dokumentti, on elementtien sulkemisjärjestyksellä väliä. Elementit tulee sulkea samassa järjestyksessä kuin ne on avattu. Esimerkiksi, järjestys <code>&lt;body&gt;&lt;p&gt;whoa, minttutee!&lt/body&gt;&lt;/p&gt;</code> on väärä, kun taas järjestys <code>&lt;body&gt;&lt;p&gt;whoa, minttutee!&lt;/p&gt;&lt/body&gt;</code> on oikea.
+</p>
+
+<p>
+  Kaikki elementit eivät kuitenkaan sisällä tekstisolmua, eikä niitä suljeta erikseen. Yksi näistä poikkeuksista on <a href="http://www.w3schools.com/tags/tag_link.asp" target="_blank">link</a>-elementti.
+</p>
+
+<p>
+  Kun selaimet lataavat HTML-dokumenttia, ne käyvät sen läpi ylhäältä alas, vasemmalta oikealle. Kun selain kohtaa elementin, se luo sille uuden solmun. Seuraavista elementeistä luodut solmut menevät aiemmin luodun solmun alle kunnes aiemmin kohdattu elementti suljetaan. Aina kun elementti suljetaan, puussa palataan ylöspäin edelliselle tasolle.
+</p>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Listaelementit
+<% end %>
+
+<p>
+  Sivuille voi lisätä listoja mm. <code>ol</code> (<em>ordered list</em>) ja <code>ul</code> (<em>unordered list</em>) -elementtien avulla. Elementeillä <code>ol</code> tai <code>ul</code> aloitetaan lista, ja listan sisälle asetettavat yksittäisiin listaelementteihin käytetään <code>li</code> (<em>list item</em>)-elementtiä. Yksittäiset listaelementit voivat taas sisältää esimerkiksi tekstisolmun tai lisää html-elementtejä.
+</p>
+
+<iframe width="100%" height="350" src="http://jsfiddle.net/m5c5g65L/embedded/html,result" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Linkit toisille sivuille
+<% end %>
+
+<p>
+  Elementin <code>a</code> (<em>anchor</em>) avulla voi luoda linkin sivulta toiselle. Sivu, jolle käyttäjä siirtyy, merkitään elementin <code>a</code> attribuutin <code>href</code> arvolla. Jos sovelluksessasi on kaksi sivua, <code>index.html</code> ja <code>oma.html</code>, voi sivulta <code>oma.html</code> luoda linkin sivulle <code>index.html</code> komennolla <code>&lt;a href="index.html"&gt;index.html&lt;/a&gt;</code>.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Lisää HTML-sivujen tekemisestä!' } do %>
+
+  <p>
+    Lisää tietoa HTML-sivujen tekemisestä löytyy mm. osoitteesta <a href="http://www.w3schools.com/html/" target="_blank" norel>http://www.w3schools.com/html/</a>.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/exercise', locals: { name: 'Käyttöliittymä' } do %>
+
+  <p>
+    Luo tehtäväpohjassa olevaan kansioon <code>src</code> (tai Site Root) uusi sivu <code>index.html</code>. Muokkaa sivua siten, että se näyttää seuraavalta selaimessa:
+  </p>
+
+  
+  <img src="/img/kampuskuoro.png" border=1/>
+
+  <p>
+    Ei haittaa jos tekstin leveys on eri kuin yllä olevassa kuvassa! Kun olet valmis ja sivusi näyttää oikealta selaimessa, palauta tehtävä TMC:lle.
+  </p>
+  
+<% end %>
+
+
+<%= partial 'partials/quiz', locals: { id: '59cd619724f0d600041c161c' } %>
+
