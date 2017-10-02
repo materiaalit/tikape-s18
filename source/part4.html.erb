@@ -16,6 +16,18 @@
 
 
 
+<% partial 'partials/hint', locals: { name: 'Neljännen osan tehtävien lataaminen' } do %>
+
+  <p>
+    Huom! Jos tehtävien lataaminen epäonnistuu, lataa NetBeansiin "Java EE Base" tai "Java Web and EE" -liitännäinen. Tämä onnistuu valitsemalla Tools -> Plugins -> Available Plugins ja etsimällä kyseisen liitännäisen listasta.
+  </p>
+    
+<% end %>
+
+
+
+
+
 <% partial 'partials/material_heading' do %>
   Käsiteanalyysi
 <% end %>
@@ -1418,7 +1430,11 @@
 
 
 <% partial 'partials/exercise', locals: { name: 'Käyttöliittymä' } do %>
-
+  
+  <p>
+    Huom! Jos tehtävien lataaminen epäonnistuu, lataa NetBeansiin "Java EE Base" tai "Java Web and EE" -liitännäinen. Tämä onnistuu valitsemalla Tools -> Plugins -> Available Plugins ja etsimällä kyseisen liitännäisen listasta.
+  </p>
+    
   <p>
     Luo tehtäväpohjassa olevaan kansioon <code>src</code> (tai Site Root) uusi sivu <code>index.html</code>. Muokkaa sivua siten, että se näyttää seuraavalta selaimessa:
   </p>
