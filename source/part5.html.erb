@@ -1,0 +1,1786 @@
+---
+  title: Osa 5
+  exercise_page: true
+  quiz_page: true
+  published: true
+---
+
+
+<% partial 'partials/hint', locals: { name: 'Viidennen osan oppimistavoitteet' } do %>
+
+  <p>
+    Osaa tehdä SQL-kielellä yhteenvetokyselyitä. Osaa luoda yhtä tietokantataulua käyttävän ja muokkaavan web-sovelluksen, jota voi käyttää selaimella. Tuntee sekvenssikaaviot.
+  </p>
+  
+<% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Yhteenvetokyselyt SQL-kielellä
+<% end %>
+
+<p>
+  Harjoittelemamme SQL-kyselyt ovat tähän mennessä tuottaneet listauksia tietokantataulujen sisällöistä. Listauksia tuottavat kyselyt ovat erittäin hyödyllisiä, kun halutaan vastata esimerkiksi kysymyksiin kuten "Listaa kaikki opiskelijat, jotka ovat osallistuneet kurssille tietokantojen perusteet" tai "Listaa kaikki kurssit, joille annettu opiskelija on ilmoittautunut". Kysymykset kuten "Kuinka moni opiskelija on osallistunut kurssille tietokantojen perusteet" ovat kuitenkin vaatineet manuaalista työtä, sillä kyselyn tulosrivit on pitänyt laskea käsin tai jonkun toisen ohjelman avulla.
+</p>
+
+<p>
+  SQL-kieli tarjoaa välineitä yhteenvetokyselyiden tekemiseen. Tällaisia kyselyitä ovat esimerkiksi juurikin yllä mainittu "kuinka moni" -- eli tulosrivien määrä -- sekä esimerkiksi erilaiset summa- ja keskiarvokyselyt. Käytännössä yhteenvetokyselyt tehdään SQL-kielen tarjoamien funktioiden avulla, jotka muuntavat tulosrivit toiseen muotoon. Alla on listattuna muutamia tyypillisimpiä funktioita, joita tietokantakyselyissä käytetään.
+</p>
+
+<table class="table">
+  
+  <tr>
+    <th>
+      Tavoite
+    </th>
+    <th>
+      Funktio
+    </th>
+    <th>
+      Esimerkki
+    </th>
+  </tr>
+
+  <tr>
+    <td>
+      Rivien lukumäärän selvittäminen
+    </td>
+    <td>
+      <code>COUNT</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT COUNT(*) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Numeerisen sarakkeen keskiarvon laskeminen
+    </td>
+    <td>
+      <code>AVG</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT AVG(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Numeerisen sarakkeen summan laskeminen
+    </td>
+    <td>
+      <code>SUM</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT SUM(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Numeerisen sarakkeen minimiarvon selvittäminen
+    </td>
+    <td>
+      <code>MIN</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT MIN(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      Numeerisen sarakkeen maksimiarvon selvittäminen
+    </td>
+    <td>
+      <code>MAX</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT MAX(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+</table>
+
+
+<p>
+  Tarkastellaan näitä kyselyitä hieman tarkemmin. Oletetaan, että käytössämme on seuraava lentomatkoja kuvaava tietokantataulu.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan="4">
+      Lentomatka(yhtio, lahtopaikka, maaranpaa, pituus)
+    </th>
+  </tr>
+  <tr>
+    <th>
+      Lentoyhtiö
+    </th>
+    <th>
+      Lähtöpaikka
+    </th>
+    <th>
+      Määränpää
+    </th>
+    <th>
+      Lennon pituus (minuuttia)
+    </th>
+  </tr>
+  <tr>
+    <td>
+      Air Berlin
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Berliini
+    </td>
+    <td>
+      205
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Oulu
+    </td>
+    <td>
+      70
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Berliini
+    </td>
+    <td>
+      200
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Tukholma
+    </td>
+    <td>
+      50
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Mallorca
+    </td>
+    <td>
+      230
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Norwegian
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Mallorca
+    </td>
+    <td>
+      240
+    </td>
+  </tr>
+</table>
+
+<p>
+  Yhteenvetokyselyiden avulla saamme selville erilaisia tilastoja. Alla muutamia esimerkkejä:
+</p>
+
+<ul>
+  <li>
+    Kuinka monta matkaa tietokantataulussa Lentomatka on yhteensä?
+    <% partial 'partials/sql_highlight' do %>
+SELECT COUNT(*) FROM Lentomatka
+    <% end %>
+  </li>
+
+  <li>
+    Kuinka monta lentoyhtiötä on tietokantataulussa lentomatka? (Huomaa avainsanan DISTINCT käyttö)
+    <% partial 'partials/sql_highlight' do %>
+SELECT COUNT(DISTINCT yhtio) FROM Lentomatka
+    <% end %>
+  </li>  
+  
+  <li>
+    Kuinka monta lentoa taulussa on Helsingistä Mallorcalle?
+    <% partial 'partials/sql_highlight' do %>
+SELECT COUNT(*) FROM Lentomatka
+    WHERE lahtopaikka = 'Helsinki' AND maaranpaa = 'Mallorca'
+    <% end %>
+  </li>
+
+  <li>
+    Mikä on keskimääräinen Finnairin lennon pituus?
+    <% partial 'partials/sql_highlight' do %>
+SELECT AVG(pituus) FROM Lentomatka
+    WHERE yhtio = 'Finnair'
+    <% end %>
+  </li>
+
+  <li>
+    Mikä on lyhin matkan kesto Helsingistä Berliiniin?
+    <% partial 'partials/sql_highlight' do %>
+SELECT MIN(pituus) FROM Lentomatka
+    WHERE lahtopaikka = 'Helsinki' AND maaranpaa = 'Berliini'
+    <% end %>
+  </li>
+
+</ul>
+
+<p>
+  Yllä olevat esimerkit tuottavat tulokseksi aina yhden luvun. Entä jos haluaisimme saada selville yhtiökohtaisia tietoja kuten vaikkapa jokaisen yhtiön lyhimmän lennon? Tarkastellaan tätä seuraavaksi.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tulosten ryhmittely
+<% end %>
+
+
+<p>
+  Tulosten ryhmittely tietyn sarakkeen perusteella tapahtuu komennon <code>GROUP BY</code> perustella. Komento <code>GROUP BY</code> lisätään taulujen listauksen ja mahdollisten kyselyn rajausehtojen jälkeen. Komentoa <code>GROUP BY</code> seuraa sarake, jonka perusteella tulokset ryhmitellään. Jotta ryhmittelystä tulee mielekäs, asetetaan ryhmittelyn peruste tyypillisesti myös SELECT-komentoa seuraavaan sarakelistaukseen.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT <em>ryhmittelysarake</em>, <em>FUNKTIO</em>(<em>sarake</em>) FROM <em>Taulu</em>
+      GROUP BY <em>ryhmittelysarake</em>
+<% end %>
+
+
+<p>
+  Alla muutamia esimerkkejä:
+</p>
+
+<ul>
+  
+  <li>
+    Kuinka monta matkaa kullakin lentoyhtiöllä on tarjolla?
+    <% partial 'partials/sql_highlight' do %>
+SELECT yhtio, COUNT(*) FROM Lentomatka GROUP BY yhtio
+    <% end %>
+  </li>
+
+  <li>
+    Kuinka monta alle 100 minuutin pituista lentomatkaa eri kaupungeista lähtee?
+    <% partial 'partials/sql_highlight' do %>
+SELECT lahtopaikka, COUNT(*) FROM Lentomatka
+    WHERE pituus < 100 GROUP BY lahtopaikka
+    <% end %>
+  </li>
+
+  <li>
+    Kuinka pitkiä kunkin lentoyhtiön matkat ovat keskimäärin?
+    <% partial 'partials/sql_highlight' do %>
+SELECT yhtio, AVG(pituus) FROM Lentomatka GROUP BY yhtio
+    <% end %>
+  </li>
+   
+</ul>
+
+
+<p>
+  Taulujen yhdistäminen toimii kuten ennen. Valittavat taulut kerrotaan joko FROM -avainsanan jälkeen tai JOIN -avainsanan jälkeen, riippuen tavasta, jolla yhdistäminen tehdään. Ryhmittelykomento tulee mahdollisten WHERE-ehtojen jälkeen.
+</p>
+
+<p>
+  Oletetaan seuraavat taulut Kurssi ja Kurssitehtävä.
+</p>
+
+
+<ul>
+  <li>
+    Kurssi((pk) id, nimi, opintopisteet)
+  </li>
+  <li>
+    Kurssitehtava((pk) id, (fk) kurssi_id -&gt; Kurssi, tehtava)
+  </li>
+</ul>
+
+<p>
+  Kurssikohtaisten tehtävien lukumäärän laskeminen onnistuu seuraavasti. Avainsana AS muuntaa tuloksena saatavassa taulussa olevan sarakkeen nimen.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, COUNT(*) AS tehtäviä FROM Kurssi, Kurssitehtävä
+      WHERE Kurssi.id = Kurssitehtava.kurssi_id
+      GROUP BY Kurssi.nimi
+<% end %>
+
+
+<p>
+  Edellä kuvatun kyselyn tuloksia tarkastellessa huomaamme, että tuloksissa ei ole yhtäkään tehtävätöntä kurssia. Tämä selittyy kyselyillämme -- olemme valinneet mukaan vain rivit, joilla hakuehdot täyttyvät. Kirjoitetaan edellinen kysely siten, että otamme huomioon kurssit vaikka niihin ei liittyisikään yhtäkään toisen taulun riviä -- käytämme siis <code>LEFT JOIN</code>-liitosoperaatiota.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, COUNT(*) AS tehtäviä FROM Kurssi
+      LEFT JOIN Kurssitehtävä ON Kurssi.id = Kurssitehtava.kurssi_id
+      GROUP BY Kurssi.nimi
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Ryhmittely useamman sarakkeen perusteella
+<% end %>
+
+
+<p>
+  Komennolle <code>GROUP BY</code> voi antaa myös useampia sarakkeita, jolloin ryhmittely tapahtuu sarakeryhmittäin. Esimerkiksi ryhmittely <code>GROUP BY kurssi, arvosana</code> ryhmittelisi taulussa olevat rivit ensin kurssin perusteella, jonka jälkeen kurssikohtaiset ryhmät ryhmiteltäisiin vielä arvosanan perusteella. Tällöin jokaiselle kurssille tulisi erilliset arvosanaryhmät.
+</p>
+
+<p>
+  Oletetaan edellä kuvatun taulun lisäksi taulut Kurssisuoritus ja Opiskelija:
+</p>
+
+<ul>
+  <li>
+    Kurssisuoritus((pk) id, (fk) kurssi_id -&gt; Kurssi, opiskelija_id -&gt; Opiskelija, arvosana, paivamaara)
+  </li>
+  <li>
+    Opiskelija((pk) id, opiskelijanumero, nimi, syntymävuosi)
+  </li>
+</ul>
+
+<p>
+  Kurssikohtaiset arvosanaryhmät saa selville seuraavalla kyselyllä.
+</p>
+
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, Kurssisuoritus.arvosana AS arvosana, COUNT (*) AS lukumäärä
+      FROM Kurssi, Kurssisuoritus
+      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
+      GROUP BY Kurssi.nimi, Kurssisuoritus.arvosana
+<% end %>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tulosten järjestäminen
+<% end %>
+
+<p>
+  Kyselyn tulokset voi järjestää komennolla <code>ORDER BY</code>, jota seuraa järjestettävät sarakkeet. Sarakkeelle voi antaa myös lisämääreen <code>ASC</code> (<em>ascending</em>), joka kertoo että tulokset tulee järjestää nousevaan järjestykseen, ja <code>DESC</code> (<em>descending</em>), joka kertoo että tulokset tulee järjestää laskevaan järjestykseen. Oletuksena järjestys on nouseva.
+</p>
+
+<p>
+  Komento <code>ORDER BY</code> tulee kyselyn loppuun. Edellisen kurssiarvosanatilaston tulokset saisi kurssin nimen perusteella järjestykseen seuraavasti.
+</p>
+
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, Kurssisuoritus.arvosana AS arvosana, COUNT (*) AS lukumäärä
+      FROM Kurssi, Kurssisuoritus
+      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
+      GROUP BY Kurssi.nimi, Kurssisuoritus.arvosana
+      ORDER BY Kurssi.nimi
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Hakutulosten rajaaminen yhteenvetokyselyissä
+<% end %>
+
+<p>
+  Yhteenvetokyselyissä laskettavat tulokset kuten summa, rivien lukumäärä ja keskiarvo muodostetaan vasta, kun kaikki kyselyn rivit on selvillä. Kyselyiden tuloksen rajaamiseen käytetty WHERE toimii siten, että se tarkastelee tuloksia riveittäin -- se ei osaa odottaa summan laskemisen lopputulosta.
+</p>
+
+<p>
+  Jos yhteenvetokyselyn tuloksen perusteella halutaan rajata tuloksia, tulee käyttää <code>HAVING</code>-ehtoa. HAVING ehto tarkastetaan vasta, kun yhteenvetokyselyn tulokset ovat selvillä. Ehto HAVING lisätään ryhmittelykyselyn jälkeen esimerkiksi seuraavalla tavalla.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, AVG(Kurssisuoritus.arvosana) keskiarvo
+      FROM Kurssi, Kurssisuoritus
+      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
+      GROUP BY Kurssi.nimi
+      HAVING keskiarvo &lt; 2
+      ORDER BY Kurssi.nimi
+<% end %>
+
+<p>
+  Yllä olevalla kyselyllä saadaan selville ne kurssit, joihin liittyvien kurssisuoritusten keskiarvo on alle 2. 
+</p>
+
+<p>
+  Kuten esimerkissä näkyy, samassa kyselyssä voi olla sekä <code>WHERE</code>-ehto että <code>HAVING</code>-ehto.
+</p>
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Yhteenvetokyselyt' } do %>
+
+  
+  <p>
+    Tehtäväpohjan kansiossa <code>db</code> tulee tiedosto nimeltä <code>Chinook_Sqlite.sqlite</code>. Käytimme samaa tiedostoa osan 3 tehtävässä 2. Tietokannassa on seuraavat taulut:
+  </p>
+
+  <pre>
+  sqlite&gt; .tables
+  Album          	Employee       	InvoiceLine    	PlaylistTrack
+  Artist         	Genre          	MediaType      Track        
+  Customer       	Invoice        	Playlist     
+  </pre>
+
+  <p>
+    Tietokanta kuvaa digitaalisen musiikin myyntipalvelua. Tietokannan relaatiokaavio löytyy osoitteesta <a href="http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation" target="_blank" norel>http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation</a>. Kirjoita SQLiten avulla kyselyt, joilla saa selville seuraavat tiedot.
+  </p>
+
+  
+  <ul>
+    <li>Kysely 1: Kuinka monta kappaletta kuhunkin genreen liittyy?</li>
+    <li>Kysely 2: Kuinka monta kappaletta kustakin genrestä on ostettu? Voit olettaa, että kappale on ostettu jos lasku on olemassa.</li>
+    <li>Kysely 3: Mitkä artistit esiintyvät useimmilla levyillä? Järjestäkä artistit levymäärän mukaan ja tulosta niistä 5 yleisimmin esiintyvää -- 5 yleisimmän artistin tulostamiseen auttaa avainsana "LIMIT".</li>
+  </ul>
+
+  <p>
+    Kun olet saanut kyselyt toimimaan, kopioi ne tehtäväpohjassa olevan luokan Kyselyja metodeihin kysely1, kysely2 ja kysely3. Metodeihin tulee siis kopioida SQL-kieliset kyselyt, joilla em. kysymyksiin saa vastaukset.
+  </p>
+
+
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Alikyselyt
+<% end %>
+
+<p>
+  Alikyselyt ovat nimensä mukaan kyselyn osana suoritettavia alikyselyitä, joiden tuloksia käytetään osana pääkyselyä. Pohditaan kysymystä <em>Miten haen opiskelijat, jotka eivät ole vielä osallistuneet yhdellekään kurssille?</em>, ja käytetään siihen ensin aiemmin tutuksi tullutta tapaa, eli LEFT JOIN -kyselyä. Yhdistetään opiskelijaa ja kurssisuoritusta kuvaavat taulut LEFT JOIN-kyselyllä siten, että myös opiskelijat, joilla ei ole suorituksia tulevat mukaan vastaukseen. Tämän jälkeen, jätetään vastaukseen vain ne rivit, joilla kurssisuoritukseen liittyvät tiedot ovat tyhjiä -- tämä onnistuu katsomalla mitä tahansa kurssisuoritus-taulun saraketta, ja tarkistamalla onko se tyhjä, eli <em>null</em>. Tämä onnistuu seuraavasti:
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT opiskelijanumero FROM Opiskelija
+      LEFT JOIN Kurssisuoritus
+      ON Opiskelija.id = Kurssisuoritus.opiskelija_id
+      WHERE Kurssisuoritus.kurssi_id IS null
+<% end %>
+  
+<p>
+  Toinen vaihtoehto edellisen kyselyn toteuttamiseen on luoda kysely, joka hakee kaikki ne opiskelijat, jotka eivät ole kurssisuorituksia saaneiden opiskelijoiden joukossa. Tässä on oleellisesti kaksi kyselyä: (1) hae niiden opiskelijoiden tunnus, joilla on kurssisuoritus, ja (2) hae opiskelijat, jotka eivät ole edellisen kyselyn palauttamassa joukossa.
+</p>
+
+<p>
+  Ensimmäinen kysely on suoraviivainen.
+</p>
+
+  
+<% partial 'partials/sql_highlight' do %>
+  SELECT opiskelija_id FROM Kurssisuoritus
+<% end %>
+
+<p>
+  Toinenkin kysely on melko suoraviivainen -- avainsanalla NOT IN voidaan rajata joukkoa.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT * FROM Opiskelija
+      WHERE id NOT IN (<em>ensimmainen kysely</em>)
+<% end %>
+
+<p>
+  Yhdessä kyselyt ovat siis muotoa:
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT * FROM Opiskelija
+      WHERE id NOT IN (
+          SELECT opiskelija_id FROM Kurssisuoritus
+      )
+<% end %>
+
+<p>
+  Käytännössä alikyselyt tuottavat kyselyn tuloksena taulun, josta pääkyselyssä tehtävä kysely tehdään. Ylläolevassa esimerkissä alikyselyn tuottamassa taulussa on vain yksi sarake, jossa on kurssisuorituksen saaneiden opiskelijoiden opiskelijanumerot.
+</p>
+
+<p>
+  Määreen <code>NOT IN</code>, joka tarkastaa että valitut arvot eivät ole alikyselyn tuottamassa taulussa, lisäksi käytössä on määre <code>IN</code>. Määreen <code>IN</code> avulla voidaan luoda ehto, jolla tarkastetaan, että valitut arvot ovat annetussa joukossa tai taulussa. Esimerkiksi alla haetaan kaikki kurssisuoritukset, joissa arvosana on kolme tai viisi.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT * FROM Kurssisuoritus WHERE arvosana IN (3, 5)
+<% end %>
+
+<p>
+  Määreiden IN ja NOT IN lisäksi alikyselyissä voidaan käyttää määreitä EXISTS ja NOT EXISTS, joiden avulla voidaan rajata hakujoukkoa alikyselyssä olevan ehdon perusteella. Voimme esimerkiksi kirjoittaa aiemmin kirjoitetun kursseja suorittamattomia opiskelijoita etsivän kyselyn siten, että jokaisen Opiskelija-taulussa olevan opiskelijanumeron kohdalla tarkistetaan, että sitä ei löydy taulusta Kurssisuoritus.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT opiskelijanumero FROM Opiskelija
+      WHERE NOT EXISTS
+          (SELECT opiskelija_id FROM Kurssisuoritus
+               WHERE Kurssisuoritus.opiskelija_id = Opiskelija.id)
+<% end %>
+
+<p>
+  Edellä oleva kysely tarkistaa jokaisen Opiskelija-taulussa olevan opiskelijanumeron kohdalla ettei sitä löydy Kurssisuoritus-taulun opiskelija-sarakkeesta. Käytännössä -- jos tietokantamoottori ei optimoi kyselyä -- jokainen opiskelija-taulun rivi aiheuttaa uuden kyselyn kurssisuoritus-tauluun, mikä tekee kyselystä tehottoman.
+</p>
+ 
+<% partial 'partials/hint', locals: { name: 'Kyselyn tulos on taulu' } do %>
+
+  <p>
+    Jokainen SQL-kysely tuottaa tuloksena taulun. Taulussa voi olla tasan yksi sarake ja rivi, tai vaikkapa tuhansia rivejä ja kymmeniä sarakkeita. Silloinkin, kun suoritamme yksinkertaisen haun, kuten vaikkapa "Hae kaikki kurssilla 'Tietokantojen perusteet' olevat opiskelijat", on haun tuloksena taulu.
+  </p>
+
+  <p>
+    Kaikki tekemämme SQL-kyselyt ovat liittyneet tauluihin. Emmekö siis voisi tehdä kyselyjä myös vastauksiin? Vastaus on kyllä.
+  </p>
+
+  <p>
+    Esimerkiksi vanhimman (tai vanhimmat, jos tämä ei ole yksikäsitteistä) opiskelijan löytää -- muunmuassa -- etsimällä kaikista pienimmän mahdollisimman syntymävuoden (kyselyn tulos on taulu), jonka jälkeen vastaustaulussa olevaa tulosta kaikkien opiskelijoiden syntymävuosiin.
+  </p>
+
+  <% partial 'partials/sql_highlight' do %>
+    SELECT * FROM Opiskelija
+    WHERE syntymävuosi
+    IN (SELECT MIN(syntymävuosi) FROM Opiskelija)
+  <% end %>
+
+<% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Tietokantaa käyttävien web-sovellusten rakentaminen
+<% end %>
+ 
+<p>
+  Selaimen -- ja nykyään kännykän -- kautta käytettävät sovellukset ovat lähes poikkeuksetta syrjäyttäneet perinteiset työpöytäsovellukset. Tietokannan käyttö sovelluksen osana ei kuitenkaan ole muuttuneet. Työpöytäsovellusten aikana työpöytäsovellus käytti joko paikallisella koneella olevaa tietokannanhallintajärjestelmää, tai otti etäyhteyden toisella koneella käynnissä olevaan tietokannanhallintajärjestelmään. Selaimessa toimivia sovelluksia käytettäessä tietokannanhallintajärjestelmä toimii palvelinohjelmiston -- eli sovelluksen, johon selain ottaa yhteyttä -- kanssa samalla koneella, tai erillisellä koneella, johon palvelinohjelmisto ottaa yhteyden tarvittaessa.
+</p>
+
+<p>
+  Tutustumme seuraavaksi tietokantaa käyttävän palvelinohjelmiston toimintaan ja toteutukseen.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Projektinhallintatyökalu Maven
+<% end %>
+
+<p>
+  Jotta Javalla ja NetBeansilla tehtävään projektiin saa tietokannan käyttöön, tulee ohjelmoijan noutaa tietokanta-ajuri. Ajurien noutaminen kannattaa hoitaa ns. riippuvuuksia hallinnoivan projektinhallintatyökalun, kuten Mavenin, avulla.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Maven-projektin luominen NetBeansissa
+<% end %>
+
+<p>
+  Uuden Mavenia käyttävän projektin luominen NetBeansissa tapahtuu valitsemalla <em>File</em> -> <em>New Project</em> -> Kategoriaksi <em>Maven</em> ja projektiksi <em>Java Application</em>. Tämän jälkeen valitaan <em>Next</em>, ja täytetään projektin tiedot. Alla on esimerkki projektin tiedoista, projektin sijainti (Project location) on konekohtainen.
+</p>
+
+<figure>
+  <img src="/img/viikko3/nb-maven.png" alt="Project Name: tikape
+
+					   Project Location: (omasta koneesta riippuva)
+
+					   Group Id: tikape
+
+					   Version: (saa olla kuten on aluksi)
+
+					   Package: tikape"
+  />
+  <figcaption>Maven-projektin asetukset</figcaption>
+</figure>
+
+<p>
+  Tämän jälkeen painetaan Finish, ja projekti ilmestyy NetBeansin vasemmassa laidassa olevalle listalle. Etsi nyt projektin <em>Project Files</em> sisältä <code>pom.xml</code>-tiedosto -- se näyttää esimerkiksi seuraavalta:
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;tikape&lt;/groupId&gt;
+    &lt;artifactId&gt;tikape&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;maven.compiler.source&gt;1.7&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;1.7&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+&lt;/project&gt;
+<% end %>
+
+<p>
+  Koska käytössämme on Java 8, vaihdetaan sekä <code>maven.compiler.source</code> että <code>maven.compiler.source</code> -arvot muotoon <code>1.8</code>.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;tikape&lt;/groupId&gt;
+    &lt;artifactId&gt;tikape&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;maven.compiler.source&gt;<strong>1.8</strong>&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;<strong>1.8</strong>&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+&lt;/project&gt;
+<% end %>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Kirjastojen lisääminen projekteihin Mavenin avulla
+<% end %>
+
+<p>
+  Kirjastot kuten tietokanta-ajurit ja web-sovelluksen luomiseen tarvittavat apukirjastot ladataan Maven-työkalun avulla. Mavenin termein kirjastoja kutsutaan riippuvuuksiksi (dependency). Lisätään esimerkiksi SQLite-ajuri projektin käyttöön.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;tikape&lt;/groupId&gt;
+    &lt;artifactId&gt;tikape&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;maven.compiler.source&gt;<strong>1.8</strong>&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;<strong>1.8</strong>&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.xerial&lt;/groupId&gt;
+            &lt;artifactId&gt;sqlite-jdbc&lt;/artifactId&gt;
+            &lt;version&gt;3.20.0&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+&lt;/project&gt;
+<% end %>
+
+<p>
+  Kun NetBeans-projektista valitsee oikealla hiirennapilla <em>Dependencies</em> ja klikkaa <em>Download Declared Dependencies</em>, latautuu JDBC-ajuri projektin käyttöön.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tietokantaa käyttävä ohjelma
+<% end %>
+
+<p>
+  Avaa projektiin liittyvä <em>Source Packages</em>, ja klikkaa <em>tikape</em>-pakkausta oikealle hiirennapilla. Valitse tämän jälkeen <em>New</em> -> <em>Java Class</em>, jonka jälkeen avautuu valikko, missä voit antaa luokalle nimen. Anna luokan nimeksi <code>Main</code>.
+</p>
+
+<p>
+  Avaa tiedosto tuplaklikkaamalla sitä. Muokkaa tiedostoa vielä siten, että se on seuraavan näköinen:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+    }
+}
+<% end %>
+
+<figure>
+  <img src="/img/viikko3/nb-main.png" alt="Projektin lähdekooditiedosto Main.java on avattuna."/>
+  <figcaption>Avattu projekti NetBeansissa</figcaption>
+</figure>
+
+<p>
+  Lisää projektiin <em>import</em>-komento <code>import java.sql.*;</code>, joka hakee kaikki SQL-kyselyihin liittyvät Javan kirjastot.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.sql.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+    }
+}
+<% end %>
+
+<p>
+  Avataan seuraavaksi tietokantayhteys tietokantaan <em>testi.db</em>, ja tehdään siellä kysely "SELECT 1", jolla pyydetään tietokantaa palauttamaan luku 1 -- käytämme tätä yhteyden testaamiseksi. Jos yhteyden luominen onnistuu, tulostetaan "Hei tietokantamaailma!", muulloin "Yhteyden muodostaminen epäonnistui".
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.sql.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        Connection connection = DriverManager.getConnection("jdbc:sqlite:testi.db");
+
+        Statement statement = connection.createStatement();
+
+        ResultSet resultSet = statement.executeQuery("SELECT 1");
+
+        if(resultSet.next()) {
+            System.out.println("Hei tietokantamaailma!");
+        } else {
+            System.out.println("Yhteyden muodostaminen epäonnistui.");
+        }
+    }
+}
+<% end %>
+ 
+<% partial 'partials/sample_output' do %>
+  Hei tietokantamaailma!
+<% end %>
+
+<p>
+  Kun suoritamme ohjelman ensimmäistä kertaa valitsemalla <em>Run</em> -> <em>Run Project</em>, SQLite luo puuttuvan tietokannan paikalle uuden tietokannan. Projektin kansiossa on nyt tiedosto <code>testi.db</code>, joka on tietokantamme.
+</p>
+
+
+<figure>
+  <img src="/img/viikko3/nb-testidb.png" alt="Kun ohjelma on suoritettu ensimmäistä kertaa, tiedosto testi.db luodaan projektiin."/>
+  <figcaption>Tietokantatiedosto <em>testi.db</em> löytyy projektin kansiosta. Tiedostot löytyvät <em>Files</em>-välilehdeltä.</figcaption>
+</figure>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tietokantakyselyiden tekeminen
+<% end %>
+
+<p>
+  Oletetaan, että tietokannassa on tietokantataulu <code>Pyora</code>, jolla on sarakkeet <code>rekisterinumero</code> ja <code>merkki</code>. Jokaisen pyörän rekisterinumeron ja merkin tulostaminen tapahtuu seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
+
+Statement stmt = connection.createStatement();
+ResultSet rs = stmt.executeQuery("SELECT * FROM Pyora;");
+
+while (rs.next()) {
+    String rekisterinumero = rs.getString("rekisterinumero");
+    String merkki = rs.getString("merkki");
+
+    System.out.println(rekisterinumero + " " + merkki);
+}
+
+stmt.close();
+rs.close();
+
+connection.close();
+<% end %>
+  
+<p>
+  Käydää ylläoleva ohjelmakoodi läpi askeleittain.
+</p>
+
+<ol>
+  <li>
+    <p>Luomme ensin JDBC-yhteyden tietokantaan <em>vuokraamo.db</em>.
+      
+      <% partial 'partials/code_highlight' do %>
+Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
+      <% end %>
+    </p>
+    
+  </li>
+
+  <li>
+    <p>Kyselyn tekeminen tapahtuu pyytämällä yhteydeltä <em>Statement</em>-oliota, jota käytetään kyselyn tekemiseen ja tulosten pyytämiseen. Metodi <em>executeQuery</em> suorittaa parametrina annettavan SQL-kyselyn, ja palauttaa tulokset sisältävän <em>ResultSet</em>-olion.
+
+      <% partial 'partials/code_highlight' do %>
+Statement statement = connection.createStatement();
+ResultSet resultSet = statement.executeQuery("SELECT * FROM Pyora;");
+      <% end %>
+    </p>
+  </li>
+
+  <li>
+    <p>Tämän jälkeen ResultSet-oliossa olevat tulokset käydään läpi. Metodia next() kutsumalla siirrytään kyselyn palauttamissa tulosriveissä eteenpäin. Kultakin riviltä voi kysyä sarakeotsikon perusteella solun arvoa. Esimerkiksi kutsu getString("rekisterinumero") palauttaa kyseisellä rivillä olevan sarakkeen "rekisterinumero" arvon String-tyyppisenä.
+
+      <% partial 'partials/code_highlight' do %>
+while(resultSet.next()) {
+    String rekisterinumero = rs.getString("rekisterinumero");
+    String merkki = rs.getString("merkki");
+
+    System.out.println(rekisterinumero + " " + merkki);
+}
+	<% end %>
+    </p>
+  </li>
+  
+  <li>
+    <p>Kun kyselyn vastauksena saadut rivit on käyty läpi, eikä niitä enää tarvita, vapautetaan niihin liittyvät resurssit.
+      
+      <% partial 'partials/code_highlight' do %>
+stmt.close();
+rs.close();
+      <% end %>
+    </p>
+  </li>
+
+
+  <li>
+    <p>Lopulta tietokantayhteys suljetaan.
+
+      <% partial 'partials/code_highlight' do %>
+connection.close();
+      <% end %>
+    </p>
+
+    Huomaathan, että jos tietokantayhteyksiä ei sulje, jäävät ne odottamaan uusia kyselyitä. Tällöin ennemmin tai myöhemmin yhteyksiä on niin paljon auki, ettei tietokannanhallintajärjestelmä suostu uusien yhteyksien avaamiseen. 
+  </li>
+</ol>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokantaa käyttävien web-sovellusten rakentaminen
+<% end %>
+
+<p>
+  Selain kommunikoi palvelimen kanssa tekemällä pyyntöjä joihin palvelin vastaa. Selain tekee pyynnön esimerkiksi kun käyttäjä kirjoittaa osoitekenttään sivun osoitteen -- esimerkiksi https://materiaalit.github.io/tikape-s17/ -- ja painaa enter. Tällöin tehdään hakupyyntö (<code>GET</code>) osoitteessa <code>materiaalit.github.io</code> olevalle palvelimelle. Palvelin vastaanottaa pyynnön, käsittelee sen -- esimerkiksi hakee haluttavan dokumentin tiedostojärjestelmästä -- ja luo käyttäjälle näytettävän sivun. Sivu palautetaan vastauksena pyynnölle tekstimuodossa. Selain päättelee vastauksen sisällön perusteella miten sivu tulee näyttää käyttäjälle ja näyttää sivun käyttäjälle.
+</p>
+
+<p>
+  Sivun näyttämisen yhteydessä selain hakee myös sisältöä, joihin sivu viittaa. Esimerkiksi jokainen tällä sivulla oleva kuva haetaan erikseen, aivan kuten erilaiset dynaamista toiminnallisuutta lisäävät Javascript -tiedostot sekä sivun ulkoasun tyylittelyyn liittyvät tyylitiedostot.
+</p>
+
+<p>
+  Käyttäjän näkökulmasta selain tekee käytännössä kahdenlaisia pyyntöjä. Hakupyynnöt (<code>GET</code>) liittyvät tietyssä osoitteessa olevan resurssin hakemiseen, kun taas lähestyspyynnöt (<code>POST</code>) liittyvät tiedon lähettämiseen tiettyyn osoitteeseen.
+</p>
+
+<p>
+  Tutustutaan tähän käytännössä Javalla toteutetun <a href="http://sparkjava.com/" target="_blank">Spark</a>-nimisen web-sovelluskehyksen avulla.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Spark ja ensimmäinen web-sovellus
+<% end %>
+
+<p>
+  <a href="http://sparkjava.com/" target="_blank">Spark</a>-sovelluskehyksen käyttöönotto toimii luvun 8.2 osassa "<em>Maven-projektin luominen NetBeansissa</em>" esitetyllä tavalla. Toisin kuin oppaassa, Maven-projektin riippuvuudeksi halutaan lisätä Spark. Tiedosto <code>pom.xml</code> näyttää lopuksi esimerkiksi seuraavalta:
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;tikape&lt;/groupId&gt;
+    &lt;artifactId&gt;tikape-web-sample&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
+            &lt;artifactId&gt;spark-core&lt;/artifactId&gt;
+            &lt;version&gt;2.6.0&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+<% end %>
+
+<p>
+  Oleellista edellä on se, että Javan versioksi on määritelty 1.8, ja sparkin versioksi 2.6.0.
+</p>
+
+<p>
+  Nyt voimme luoda uuden pääohjelmaluokan. Lisätään <code>Main.java</code>-tiedostoon rivi <code>import spark.Spark;</code>, jolloin käyttöömme tulee oleellisimmat Sparkin tarjoamat toiminnallisuudet. Kutsutaan tämän jälkeen Sparkin get-metodia, ja määritellään sen avulla osoite, jota palvelinohjelmistomme tulee kuuntelemaan, sekä teksti, joka palautetaan, kun selaimella tehdään pyyntö annettuun osoitteeseen.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import spark.Spark;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Spark.get("/hei", (req, res) -&gt; {
+            return "Hei maailma!";
+        });
+
+    }
+}
+<% end %>
+
+<p>
+  Yllä olevassa esimerkissä palvelimelle määritellään osoite <code>/hei</code>. Jos selaimella tehdään osoitteeseen pyyntö, pyyntöön vastataan tekstillä <code>Hei maailma!</code>.
+</p>
+
+<p>
+  Kun ylläolevan sovelluksen käynnistää, Spark käynnistää web-palvelimen osoitteeseen <code>http://localhost:4567</code>, eli paikallisen koneen porttiin <code>4567</code>. Palvelin on tämän jälkeen käynnissä, ja odottaa siihen tehtäviä pyyntöjä. Kun haemme web-selaimella sivua osoitteesta <code>http://localhost:4567</code>, palauttaa palvelin selaimelle tekstimuotoista tietoa, ja selain näyttää käyttäjälle seuraavanlaisen sivun:
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-localhost-not-found.png" alt="Kun osoitteeseen http://localhost:4567 tehdään pyyntö, sieltä palautuu sivu, jossa näkyy teksti '404 Not found'."/>
+  <figcaption>Kun osoitteeseen http://localhost:4567 tehdään pyyntö, sieltä palautuu sivu, jossa näkyy teksti '404 Not found'.</figcaption>
+</figure>
+
+<p>
+  Kun teemme pyynnön osoitteeseen <code>http://localhost:4567/hei</code>, eli palvelinohjelmiston osoitteeseen <code>/hei</code>, saammekin vastaukseksi ohjelmakoodissa määrittelemämme <code>Hei maailma!</code>-tekstin.
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-localhost-hei-maailma.png" alt="Kun osoitteeseen http://localhost:4567/hei tehdään pyyntö, sieltä palautuu teksti 'Hei maailma!'."/>
+  <figcaption>Kun osoitteeseen http://localhost:4567/hei tehdään pyyntö, sieltä palautuu teksti 'Hei maailma!'.</figcaption>
+</figure>
+
+
+
+<% partial 'partials/hint', locals: { name: 'NetBeans ja palvelimen sammuttaminen' } do %>
+  
+  <p>
+    Palvelimen sammuttaminen tapahtuu NetBeansissa punaista neliötä klikkaamalla. Joissakin käyttöjärjestelmissä tämä ei kuitenkaan toimi oikein, jolloin palvelin tulee sammuttaa komentoriviltä.
+  </p>
+
+  <p>
+    Saat portissa <code>4567</code> käynnissä olevan prosessin tunnuksen tietoon terminaalissa komennolla <code>lsof -i :4567</code>. Etsi komennon palauttamasta tulosteesta prosessin tunnus, jonka jälkeen voit sammuttaa prosessin komennolla <code>kill -9 prosessin-tunnus</code>.
+  </p>
+
+  <p>
+    Esimerkiksi:
+  </p>
+
+  <pre>
+> lsof -i :4567
+COMMAND  PID     USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+java    9916 kayttaja   51u  IPv6 0x65802ef6be5c6f29      0t0  TCP *:tram (LISTEN)
+>
+  </pre>
+
+  <p>
+    Yllä prosessin tunnus (PID) on 9916. Tämän jälkeen prosessi sammutetaan komennolla <code>kill -9 9916</code>.
+  </p>
+
+  <pre>
+> lsof -i :4567
+COMMAND  PID     USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+java    9916 kayttaja   51u  IPv6 0x65802ef6be5c6f29      0t0  TCP *:tram (LISTEN)
+> kill -9 9916
+  </pre>
+  
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Useamman osoitteen kuunteleminen
+<% end %>
+
+
+<p>
+  Spark-palvelimelle määritellään <code>get</code>-metodin avulla palvelimen kuuntelemia osoitteita. Metodikutsun yhteydessä määritellään myös palvelimen palauttama data. Palautettava data on tekstiä, mutta selain päättelee palautetun tekstin sisällön perusteella, mitä tekstille tulee tehdä. Alla olevassa ohjelmakoodissa määritellään kaksi osoitetta, joista palautetaan dataa. Toinen palauttaa aiemmin nähdyn tekstin <code>Hei maailma!</code>, ja toinen palauttaa tekstin <code>Moi maailma!</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import spark.Spark;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Spark.get("/hei", (req, res) -&gt; {
+            return "Hei maailma!";
+        });
+
+        Spark.get("/testi", (req, res) -&gt; {
+            return "Moi maailma!";
+        });
+    }
+}
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon esittäminen selaimessa
+<% end %>
+
+<p>
+  Selain näyttää käyttäjälle palvelimelta saamansa tekstimuotoisen vastauksen. Jos vastaus on HTML-muodossa, tulkitsee selain vastauksen, ja luo sen perusteella näkymän käyttäjälle. Periaatteessa palvelimelta voisi palauttaa suoraan HTML-koodia tekstimuodossa esimerkiksi seuraavalla tavalla.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Spark.get("/testi", (req, res) -&gt; {
+      return "&lt;h1&gt;Iso Viesti!&lt;/&gt;";
+  });
+<% end %>
+
+<p>
+  HTML-koodin palauttaminen suoraan palvelinohjelmistosta on kuitenkin hyvin epätyypillistä. Käytännössä html-sivut luodaan lähes aina ensin erilliseen tiedostoon, jonka palvelin palauttaa käyttäjälle. Voimme tehdä näin myös Sparkin kautta.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Thymeleaf ja HTML-sivujen luominen
+<% end %>
+
+<p>
+  Thymeleaf on eräs väline HTML-sivujen palauttamiseen suoraan palvelinohjelmistolta. Thymeleaf tarjoaa käyttäjälle lisäksi mahdollisuuden palvelimelta saatavan datan lisäämiseksi suoraan HTML-sivulle.
+</p>
+
+<p>
+  Lisätään projektiin riippuvuudeksi <code>spark-template-thymeleaf</code>-projekti, joka tuo käyttöön <a href="http://www.thymeleaf.org/" target="_blank">Thymeleaf</a>-kirjaston. Projektin konfiguraatio on nyt kokonaisuudessaan seuraavanlainen:
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;tikape&lt;/groupId&gt;
+    &lt;artifactId&gt;tikape-web-sample&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
+            &lt;artifactId&gt;spark-core&lt;/artifactId&gt;
+            &lt;version&gt;2.6.0&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
+            &lt;artifactId&gt;spark-template-thymeleaf&lt;/artifactId&gt;
+            &lt;version&gt;2.5.5&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+<% end %>
+
+<p>
+  Tehdään seuraavaksi resurssikansio (<code>resources</code>) projektin kansioon <code>src/main/</code>, jos sitä ei vielä ole. Uuden kansion saa luotua NetBeansin Files-välilehdellä klikkaamalla kansiota oikealla hiirennapilla, ja valitsemalla <code>New -> Folder</code>. Kun kansio on luotu, pitäisi käytössä olla kansio <code>src/main/resources</code>. Tämän jälkeen <code>resources</code>-kansioon tulee vielä luoda kansio <code>templates</code>, johon HTML-tiedostot tullaan laittamaan.
+</p>
+
+<figure>
+  <img src="/img/viikko6/nb-src-main-resources-templates.png" alt="Kansio src/main/resources/templates on luotu."/>
+  <figcaption>Projektiin liittyvän kansion <code>src</code> allaolevassa kansiossa <code>main</code> on nyt kansio <code>resources</code>, jossa on taas kansio <code>templates</code>.</figcaption>
+</figure>
+
+<p>
+  Lisätään kansioon <code>templates</code> uusi html-dokumentti (<code>New -&gt; HTML File</code>), ja asetetaan tiedoston nimeksi <code>index.html</code>.
+</p>
+
+<figure>
+  <img src="/img/viikko6/nb-src-main-resources-templates-index.png" alt="Kansioon src/main/resources/templates on luotu index.html-niminen tiedosto."/>
+  <figcaption>Nyt kansiossa <code>src/main/resources/templates</code> on tiedosto <code>index.html</code>.</figcaption>
+</figure>
+
+<p>
+  Käyttämämme Thymeleaf-kirjasto olettaa, että HTML-tiedostot ovat tietyn muotoisia -- palataan tähän myöhemmin. Tässä välissä riittää, että html-sivun sisällöksi kopioi seuraavan aloitussisällön.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+    &lt;head&gt;
+        &lt;title&gt;Otsikko&lt;/title&gt;
+        &lt;meta charset="utf-8" /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+<% end %>
+
+<p>
+  Huom! Jos näet virheen <code>500 Internal Server Error!</code> sekä NetBeansin lokeihin tulee viestiä "Parse errorista", tarkista, että sivun sisältö on aluksi täsmälleen ylläoleva.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Thymeleafin avulla luodun sivun palauttaminen käyttäjälle
+<% end %>
+
+<p>
+  Voimme palauttaa kansiossa <code>src/main/java/resources/templates</code> olevia <code>.html</code>-päätteisiä tiedostoja Sparkin avulla seuraavasti. Allaolevassa metodikutsussa määritellään kuunneltavaksi osoitteeksi <code>/sivu</code>, jonka jälkeen käyttäjälle palautetaan <code>index</code>-niminen sivu. Sivun nimen perusteella päätellään palautettava html-tiedosto -- nimi <code>index</code> muunnetaan muotoon <code>src/main/java/resources/templates/</code>index<code>.html</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.util.HashMap;
+import spark.ModelAndView;
+import spark.Spark;
+import spark.template.thymeleaf.ThymeleafTemplateEngine;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Spark.get("/sivu", (req, res) -> {
+            HashMap map = new HashMap<>();
+
+            return new ModelAndView(map, "index");
+        }, new ThymeleafTemplateEngine());
+    }
+}
+<% end %>
+
+<p>
+  Kun yllä määritelty sovellus käynnistetään, ja kansiossa <code>src/main/java/resources/templates</code> on tiedosto <code>index.html</code>, näytetään tiedoston sisältö käyttäjälle. Huomaathan, että tiedoston sisällön tulee olla kuten edellisessä kappaleessa näytetty. Näkymä on käyttäjälle esimerkiksi seuraavanlainen:
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-index.png" alt="Osoite http://localhost:4567/sivu avattuna."/>
+  <figcaption>Osoite http://localhost:4567/sivu avattuna.</figcaption>
+</figure>
+
+
+<p>
+  Mitä tässä oikein tapahtuu? Tutkitaan sivun palauttamista vielä tarkemmin.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+Spark.get("/sivu", (req, res) -> {
+    HashMap map = new HashMap&lt;&gt;();
+
+    return new ModelAndView(map, "index");
+}, new ThymeleafTemplateEngine());
+<% end %>
+
+<p>
+  Metodikutsun ensimmäinen rivi lienee tuttu. Kerromme, että ohjelman tulee kuunnella osoitteeseen <code>/sivu</code> tehtäviä hakupyyntöjä. Tämän jälkeen tulee pyynnön käsittelyyn liittyvä lohko, josta tällä kertaa palautetaan olio, joka sisältää <code>HashMap</code>-olion sekä tiedon näytettävästä html-sivusta. Tämän jälkeen pyynnön käsittelyyn lisätään vielä erillinen olio, <code>ThymeleafTemplateEngine</code>, joka käsittelee html-sivun ennen sen palautusta.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Palvelimelta saadun tiedon näyttäminen käyttäjälle
+<% end %>
+
+<p>
+  Thymeleaf-komponentin avulla voimme lisätä html-sivulle tietoa. Tämä tapahtuu lisäämällä <code>HashMap</code>-olioon <code>put</code>-metodilla arvo, esimerkiksi <code>map.put("teksti", "Hei mualima!");</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+Spark.get("/sivu", (req, res) -> {
+    HashMap map = new HashMap<>();
+    map.put("teksti", "Hei mualima!");
+
+    return new ModelAndView(map, "index");
+}, new ThymeleafTemplateEngine());
+<% end %>
+  
+<p>
+  Tämän jälkeen html-sivua <code>index.html</code> muokataan siten, että sinne lisätään "paikka" tiedolle. Tiedon lisääminen tapahtuu lisäämällä sivulle html-elementti, jossa on <em>attribuutti</em> <code>th:text</code>, jolle annetaan HashMap-olioon lisätyn arvon nimi aaltosulkujen sisällä siten, että aaltosulkuja edeltää dollarimerkki -- eli <code>th:text="${teksti}"</code>. Elementti voi olla vaikka <code>h2</code>-elementti, jolloin kokonaisuus voisi olla vaikkapa seuraava <code>&lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;</code>.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+    &lt;head&gt;
+        &lt;title&gt;Otsikko&lt;/title&gt;
+        &lt;meta charset="utf-8" /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
+
+        &lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+<% end %>
+
+<p>
+  Kun käynnistämme palvelimen, ja avaamme osoitteen <code>http://localhost:4567/sivu</code>, näemme seuraavanlaisen näkymän.
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-index-ja-thyme.png" alt="Osoite http://localhost:4567/sivu avattuna."/>
+  <figcaption>Osoite http://localhost:4567/sivu avattuna.</figcaption>
+</figure>
+
+
+<p>
+  <strong>HashMap</strong> on ohjelmoinnissa käytettävä lokerikko, missä jokaisella lokerolla on nimi, mihin arvon voi asettaa. Alla olevassa esimerkissä luomme ensin HashMap-olion, jonka jälkeen asetamme lokeroon nimeltä <code>teksti</code> arvon <code>"Hei mualima!"</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+HashMap map = new HashMap&lt;&gt;();
+map.put("teksti", "Hei mualima!");
+<% end %>
+
+<p>
+  Kun HashMap-olio <em>palautetaan</em> pyynnön käsittelyn jälkeen -- <code>return new ModelAndView(map, "index");</code> -- annetaan lokerikko Thymeleafin käyttöön.
+</p>
+
+<p>
+  Thymeleaf etsii annetusta HashMap-oliosta lokeroita <code>th:text</code>-attribuutille annetulla nimellä. Esimerkiksi kun Thymeleaf käsittelee edellä näkemämme <code>&lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;</code>-rivin, etsii se HashMap-oliosta lokeron nimeltä <code>teksti</code>, ja asettaa siinä olevan arvon <em>elementin tekstiarvoksi</em>. Tässä tapauksessa teksti <code>testi</code> korvataan HashMap-olion lokerosta teksti löytyvällä arvolla, eli tekstillä <code>Hei mualima!</code>.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Listojen lisääminen sivulle
+<% end %>
+
+<p>
+  Tutustutaan vielä olioiden ja listojen käsittelyyn Thymeleafin avulla. Oletetaan, että käytössämme on seuraava <em>Opiskelija</em>-luokka.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+public class Opiskelija {
+
+    private Integer id;
+    private String nimi;
+
+    public Opiskelija() {
+    }
+
+    public Opiskelija(Integer id, String nimi) {
+        this.id = id;
+        this.nimi = nimi;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getNimi() {
+        return nimi;
+    }
+
+    public void setNimi(String nimi) {
+        this.nimi = nimi;
+    }
+}
+<% end %>
+
+<p>
+  Jokaisella opiskelijalla on siis tunnus sekä nimi. Tämän lisäksi, jokaiselle opiskelijalle kuuluu <code>get</code>- ja <code>set</code>-metodit, joiden avulla opiskelijaan liittyviä tietoja voidaan hakea ja muokata. Muokataan aiempaa ohjelmaamme siten, että käytössämme on listallinen opiskelijoita, jotka palautetaan sivun mukana thymeleafin käsiteltäväksi.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import spark.ModelAndView;
+import spark.Spark;
+import spark.template.thymeleaf.ThymeleafTemplateEngine;
+
+public class Main {
+
+    public static void main(String[] args) {
+        ArrayList&lt;Opiskelija&gt; opiskelijat = new ArrayList&lt;&gt;();
+        opiskelijat.add(new Opiskelija(1, "Ada Lovelace"));
+        opiskelijat.add(new Opiskelija(2, "Charles Babbage"));
+
+        Spark.get("/opiskelijat", (req, res) -> {
+            HashMap map = new HashMap&lt;&gt;();
+            map.put("teksti", "Hei mualima!");
+            map.put("opiskelijat", opiskelijat);
+
+            return new ModelAndView(map, "index");
+        }, new ThymeleafTemplateEngine());
+    }
+}
+<% end %>
+
+<p>
+  Lisätään vielä opiskelijat html-sivulle.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+    &lt;head&gt;
+        &lt;title&gt;Otsikko&lt;/title&gt;
+        &lt;meta charset="utf-8" /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
+
+        &lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;
+
+        &lt;h2 th:text="${opiskelijat}"&gt;opiskelijatesti&lt;/h2&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+<% end %>
+
+<p>
+  Kun nyt haemme sivua, saamme (esimerkiksi) seuraavanlaisen näkymän.
+</p>
+
+
+<figure>
+  <img src="/img/viikko6/spark-index-opiskelijat.png" alt="Osoite http://localhost:4567/opiskelijat avattuna. Sivulla näkyy teksti Hei maailma!
+
+							  Hei mualima!
+
+							  [tikape.Opiskelija@4f4a43a5, tikape.Opiskelija@41ce9964]"/>
+  <figcaption>Osoite http://localhost:4567/sivu avattuna. Opiskelijat näkyvät, mutta eivät toivotussa muodossa.</figcaption>
+</figure>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Listan tulostaminen ja läpikäynti Thymeleafin avulla
+<% end %>
+
+<p>
+  Ohjelmointikursseilla listan läpikäymiseen käytetään muunmuassa <code>while</code> ja <code>for</code>-lausetta. Voisimme esimerkiksi tulostaa opiskelijoihin liittyvät tiedot seuraavasti Java-koodissa:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+ArrayList&lt;Opiskelija&gt; opiskelijat = new ArrayList&lt;&gt;();
+opiskelijat.add(new Opiskelija(1, "Ada Lovelace"));
+opiskelijat.add(new Opiskelija(2, "Charles Babbage"));
+
+for (int i = 0; i &lt; opiskelijat.size(); i++) {
+    Opiskelija opiskelija = opiskelijat.get(i);
+    System.out.println("id: " + opiskelija.getId());
+    System.out.println("nimi: " + opiskelija.getNimi());
+    System.out.println();
+}
+<% end %>
+
+<% partial 'partials/sample_output' do %>
+id: 1
+nimi: Ada Lovelace
+
+id: 2
+nimi: Charles Babbage
+<% end %>
+
+<p>
+  Vastaavanlainen toiminnallisuus löytyy myös Thymeleafista. Voimme käydä listan elementit läpi attribuutilla <code>th:each</code>, jolle annetaan sekä läpikäytävän listan nimi -- taas aaltosulkujen sisällä siten, että aaltosulkuja ennen on dollarimerkki -- sekä yksittäisen listaelementin nimi, jota käytetään listaa läpikäydessä. Alla olevassa esimerkissä aloitetaan lista <code>ul</code>-elementin avulla. Jokaiselle opiskelijalle luodaan oma <code>li</code>-elementti (<code>&lt;li th:each="opiskelija: ${opiskelijat}"&gt;...&lt;/li&gt;</code>), jonka sisälle haetaan käsiteltävään opiskelijaan liittyvät tiedot.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+    &lt;head&gt;
+        &lt;title&gt;Otsikko&lt;/title&gt;
+        &lt;meta charset="utf-8" /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
+
+        &lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;
+
+        &lt;ul&gt;
+            &lt;li th:each="opiskelija: ${opiskelijat}"&gt;
+                &lt;span th:text="${opiskelija.id}"&gt;1&lt;/span&gt; &lt;span th:text="${opiskelija.nimi}"&gt;Essi esimerkki&lt;/span&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+<% end %>
+  
+<p>
+  Kun sivua tarkastelee selaimesta, näyttää se seuraavalta:
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-index-opiskelijat-listana.png" alt="Osoite http://localhost:4567/opiskelijat avattuna. Sivulla näkyy teksti
+								  Hei maailma!
+
+								  Hei mualima!
+
+								  1 Ada Lovelace
+								  2 Charles Babbage"/>
+  <figcaption>Osoite http://localhost:4567/sivu avattuna. Opiskelijat näkyvät listattuna.</figcaption>
+</figure>
+
+<p>
+  Edelläolevassa esimerkissä käydään listalla olevat opiskelijat läpi, ja luodaan niiden perusteella sivulle dataa. Mielenkiintoista esimerkissä on se, että yksittäisen opiskelijan id-kenttään pääsee käsiksi sanomalla (esimerkiksi) <code>&lt;span th:text="${opiskelija.id}"&gt;1&lt;/span&gt;</code>. Tässä Thymeleaf päättelee <code>opiskelija.id</code>-kohdassa, että sen tulee etsiä opiskelija-oliolta <code>getId()</code>-metodia, kutsua sitä, ja asettaa tähän metodin palauttama arvo.
+</p>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon lähettäminen palvelimelle
+<% end %>
+
+<p>
+  Tiedon lähettäminen (<code>POST</code>) palvelimelle tapahtuu HTML-sivuilla lomakkeen avulla.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Lomakkeen määrittely
+<% end %>
+
+<p>
+  Lomakkeelle (<code>form</code>) määritellään metodiksi (<code>method</code>) lähetys, eli POST, sekä osoite, johon lomakkeella oleva tieto tulee lähettää. Lomakkeen määrittely alkaa muodossa <code>&lt;form method="POST" action="/osoite"&gt;</code>, missä <code>/osoite</code> on palvelimelle määritelty osoite. Tätä seuraa erilaiset lomakkeen kentät, esimerkiksi tekstikenttä (<code>&lt;input type="text" name="nimi"/&gt;</code>), johon syötettävälle arvolle tulee <code>name</code>-kentässä määritelty nimi. Lomakkeeseen tulee lisätä myös nappi (<code>&lt;input type="submit" value="Lähetä!"/&gt;</code>), jota painamalla lomake lähetetään. Lomake voi olla kokonaisuudessaan esimerkiksi seuraava:
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;form method="POST" action="/opiskelijat"&gt;
+  Nimi:&lt;br/&gt;
+  &lt;input type="text" name="nimi"/&gt;&lt;br/&gt;
+  &lt;input type="submit" value="Lisää opiskelija"/&gt;
+&lt;/form&gt;
+<% end %>
+
+<p>
+  Yllä määritelty lomake näyttää selaimessa (esimerkiksi) seuraavalta:
+</p>
+
+<pre>
+  <div>
+    <form method="POST" action="/opiskelijat">
+      Nimi:<br/>
+      <input type="text" name="nimi"/><br/>
+      <input type="submit" value="Lisää opiskelija"/>
+    </form>
+  </div>
+</pre>
+
+<p>
+  Nappia painamalla lomakkeeseen kirjoitettu tieto yritetään tämän materiaalin osoitteessa olevaan polkuun <code>/opiskelijat</code>. Ei taida onnistua..
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tiedon lähetyksen vastaanotto
+<% end %>
+
+<p>
+  Palvelimelle määritellään tietoa vastaanottava osoite metodilla <code>post</code>, jolle annetaan parametrina kuunneltava osoite, sekä koodi, joka suoritetaan kun osoitteeseen lähetetään tietoa. Pyynnön mukana lähetettävään tietoon -- esimerkiksi ylläolevalla lomakkeella voidaan lähettää nimi-niminen arvo palvelimelle -- pääsee käsiksi <code>req</code>-nimisen parametrin metodilla <code>queryParams</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+Spark.post("/opiskelijat", (req, res) -&gt; {
+    String nimi = req.queryParams("nimi");
+    System.out.println("Vastaanotettiin " + nimi);
+
+    return "Kerrotaan siitä tiedon lähettäjälle: " + nimi;
+});
+<% end %>
+
+<p>
+  Samaa osoitetta voi käsitellä sekä <code>get</code>, että <code>post</code>-metodilla. Palvelin voi siis palauttaa selaimen tekemiin hakupyyntöihin tiettyä dataa -- esimerkiksi vaikkapa lomakkeen -- ja käsitellä lähetetyn tiedon erikseen. Alla on määritelty kaksi <code>/opiskelijat</code>-osoitetta kuuntelevaa toiminnallisuutta. Toinen palauttaa merkkijonona muotoillun lomakkeen (tämä kannattaisi tehdä erilliselle HTML-sivulle!), toinen taas palauttaa tekstin, jonka osana on lomakkeella lähetetty nimi.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import spark.Spark;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Spark.get("/opiskelijat", (req, res) -&gt; {
+            return "&lt;form method=\"POST\" action=\"/opiskelijat\"&gt;\n"
+                    + "Nimi:&lt;br/&gt;\n"
+                    + "&lt;input type=\"text\" name=\"nimi\"/&gt;&lt;br/&gt;\n"
+                    + "&lt;input type=\"submit\" value=\"Lisää opiskelija\"/&gt;\n"
+                    + "&lt;/form&gt;";
+        });
+
+        Spark.post("/opiskelijat", (req, res) -&gt; {
+            String nimi = req.queryParams("nimi");
+            return "Kerrotaan siitä tiedon lähettäjälle: " + nimi;
+        });
+
+    }
+}
+<% end %>
+
+<p>
+  Kun palvelin käynnistetään ylläolevalla ohjelmalla, löytyy osoitteesta <code>http://localhost:4567/opiskelijat</code> seuraavanlainen sivu:
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-lomake.png" alt="Kun osoitteeseen http://localhost:4567/opiskelijat tehdään pyyntö, nähdään aiemmin määritelty lomake."/>
+  <figcaption>Kun osoitteeseen http://localhost:4567/opiskelijat tehdään pyyntö, nähdään aiemmin määritelty lomake.</figcaption>
+</figure>
+
+<p>
+  Täytetään lomake -- vaikkapa nimellä <a href="https://en.wikipedia.org/wiki/Edgar_F._Codd" target="_blank">Edgar F. Codd</a>.
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-lomake-taytetty.png" alt="Lomakkeen nimi-kenttään asetettu arvo 'Edgar F. Codd'."/>
+  <figcaption>Lomakkeen nimi-kenttään asetettu arvo 'Edgar F. Codd'.</figcaption>
+</figure>
+
+<p>
+  Kun painamme nyt nappia <code>Lisää opiskelija</code>, tekstikentän sisältö lähetetään palvelimelle lomakkeen <code>action</code>-kentän määrittelemään osoitteeseen. Jos lomakkeessa määritelty metodiksi (<code>method</code>) post, tehdään lähetyspyyntö. Jos action kenttä on <code>/opiskelijat</code> ja metodi <code>POST</code>, lähetettävä tieto vastaanotetaan ja suoritetaan rivillä <code>post("/opiskelijat", (req, res) -&gt; {</code> alkavalla ohjelmakoodilla. Aiemmin määritellyllä ohjelmalla käyttäjälle näytetään seuraavanlainen sivu:
+</p>
+
+<figure>
+  <img src="img/viikko6/spark-lomake-lahetetty.png" alt="Lomake on lähetetty ja palvelin palauttaa tekstin 'Kerrotaan siitä tiedon lähettäjälle: Edgar F. Codd'."/>
+  <figcaption>Lomake on lähetetty ja palvelin palauttaa tekstin 'Kerrotaan siitä tiedon lähettäjälle: Edgar F. Codd'.</figcaption>
+</figure>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tiedon säilöminen palvelimelle hetkellisesti
+<% end %>
+
+<p>
+  Voimme tallentaa vastaanotetun tiedon palvelimelle palvelimen käynnissäoloajaksi säilömällä sen esimerkiksi <code>ArrayList</code>-tyyppiseen listaan. Muokataan ylläolevaa aiempaa koodia siten, että hakupyyntö osoitteeseen <code>/opiskelijat</code> palauttaa sekä lomakkeen että tallennetut opiskelijat. Tämän lisäksi, lisätään osoitteeseen <code>/opiskelijat</code> tehtävän lähetyspyynnön käsittelyyn lomakkeelta saatavan nimi-kentän lisääminen ohjelmassa olevaan listaan.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.util.ArrayList;
+import spark.Spark;
+
+public class Main {
+
+    public static void main(String[] args) {
+        ArrayList&lt;String&gt; nimet = new ArrayList&lt;&gt;();
+
+        Spark.get("/opiskelijat", (req, res) -&gt; {
+            String opiskelijat = "";
+            for (String nimi : nimet) {
+                opiskelijat += nimi + "&lt;br/&gt;";
+            }
+
+            return opiskelijat
+                    + "&lt;form method=\"POST\" action=\"/opiskelijat\"&gt;\n"
+                    + "Nimi:&lt;br/&gt;\n"
+                    + "&lt;input type=\"text\" name=\"nimi\"/&gt;&lt;br/&gt;\n"
+                    + "&lt;input type=\"submit\" value=\"Lisää opiskelija\"/&gt;\n"
+                    + "&lt;/form&gt;";
+        });
+
+        Spark.post("/opiskelijat", (req, res) -&gt; {
+            String nimi = req.queryParams("nimi");
+            nimet.add(nimi);
+            return "Kerrotaan siitä tiedon lähettäjälle: " + nimi;
+        });
+
+    }
+}
+<% end %>
+
+<p>
+  Nyt kun osoitteessa <code>/opiskelijat</code> olevalla lomakkeella tehdään useampia pyyntöjä, tulee lomakesivulle lisää näytettäviä opiskelijoita.
+</p>
+
+<figure>
+  <img src="/img/viikko6/spark-lomake-lahetetty-monesti.png" alt="Lomakkeella lähetetty arvot 'Edgar F. Codd' ja 'Ada Lovelace' ja lomake-sivu avattu uudestaan."/>
+  <figcaption>Lomakkeella lähetetty arvot 'Edgar F. Codd' ja 'Ada Lovelace' ja lomake-sivu avattu uudestaan.</figcaption>
+</figure>
+
+
+<p>
+  Tiedon lisääminen edellisellä tavalla johtaa tilanteeseen, missä käyttäjä näkee lisäyksen yhteydessä vain listasivun. Hyvä käytäntö on lisätä lisäystoiminnallisuuden loppuun uudelleenohjauskutsu, jonka perusteella selain pyydetään tekemään uusi kutsu osoitteeseen, joka sisältää tietojen listaamisen. Tämä onnistuu esimerkiksi seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+Spark.post("/opiskelijat", (req, res) -&gt; {
+    String nimi = req.queryParams("nimi");
+    nimet.add(nimi);
+    response.redirect("/opiskelijat");
+    return "";
+});
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Useamman kentän lähettäminen
+<% end %>
+
+<p>
+  HTML-lomakkeelle voidaan määritellä useampia kenttiä. Jokaisella kentällä tulee olla eri nimi, jotta palvelimella voidaan ottaa lomakkeen tiedon vastaan. Esimerkiksi nimeä ja osoitetta voisi kerätä vaikkapa seuraavanlaisella lomakkeella.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;form method="POST" action="/opiskelijat"&gt;
+Nimi:&lt;br/&gt;
+&lt;input type="text" name="nimi"/&gt;&lt;br/&gt;
+Osoite:&lt;br/&gt;
+&lt;input type="text" name="osoite"/&gt;&lt;br/&gt;
+&lt;input type="submit" value="Lisää opiskelija"/&gt;
+&lt;/form&gt;
+<% end %>
+
+<p>
+  Lomake näyttää selaimessa (esimerkiksi) seuraavalta:
+</p>
+
+<pre>
+  <div>
+    <form method="POST" action="/opiskelijat">
+      Nimi:<br/>
+      <input type="text" name="nimi"/><br/>
+      Osoite:<br/>
+      <input type="text" name="osoite"/><br/>
+      <input type="submit" value="Lisää opiskelija"/>
+    </form>
+  </div>
+</pre>
+
+
+<% partial 'partials/exercise', locals: { name: 'Työlista' } do %>
+
+  <p>
+    Tehtäväpohjassa on valmiina web-sovellus, joka näyttää käyttäjälle tehtäviä.
+  </p>
+
+  <p>
+    Lisää sovellukseen toiminnallisuus, jonka avulla käyttäjälle voi lisätä tehtäviä. Toiminnallisuuden lisääminen kannattanee aloittaa seuraavilla askeleilla: (1) lisää sovellukseen lomake tehtävien lisäämistä varten, (2) lisää sovellukseen osoite, joka kuuntelee lomakkeen lähetystä -- lisää tallennustoiminnallisuuden loppuun myös uudelleenohjaus, ja (3) tallenna lähetetty tieto listalle.
+  </p>
+
+  <p>
+    Huomaa, että joudut sammuttamaan palvelimen aina muutosten yhteydessä. Toisin sanoen, ohjelmointiympäristö ei automaattisesti päivitä muutoksia palvelimelle. Muistathan myös sammuttaa palvelimen kun tehtävä on valmis -- näin palvelin ei jää estämään muiden palvelinten käynnistymistä.
+  </p>
+
+  <p>
+    Kun sovellus toimii, palauta se TMC:lle.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan käyttöönotto
+<% end %>
+
+<p>
+  Tietokannan käyttöönotto onnistuu kuten Java-ohjelmissa yleensä. Tällä kertaa tosin hyödynnämme tietokantaa osana web-sovellusta. Opiskelijoiden noutaminen tietokannasta tapahtuisi esimerkiksi seuraavasti:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape;
+
+import java.util.HashMap;
+import spark.ModelAndView;
+import spark.Spark;
+import spark.template.thymeleaf.ThymeleafTemplateEngine;
+import tikape.database.Database;
+import tikape.database.OpiskelijaDao;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        Database database = new Database("jdbc:sqlite:opiskelijat.db");
+        database.setDebugMode(true);
+
+        OpiskelijaDao opiskelijaDao = new OpiskelijaDao(database);
+
+        Spark.get("/opiskelijat", (req, res) -> {
+            HashMap map = new HashMap&lt;&gt;();
+            map.put("opiskelijat", opiskelijaDao.findAll());
+
+            return new ModelAndView(map, "index");
+        }, new ThymeleafTemplateEngine());
+    }
+}
+<% end %>
+
+
+<% partial 'partials/exercise', locals: { name: 'Työlista tietokannalla' } do %>
+
+  <p>
+    Tehtäväpohjassa on valmiina sama web-sovellus kuin edellisessä tehtävässä, eli sovellus joka näyttää käyttäjälle tehtäviä. Tässä tehtävässä toteutetaan sekä edellisen tehtävän toiminnallisuus -- jos teit edellisen tehtävän, voit kopioida edellisen osan toiminnallisuuden tänne -- ja lisätään mukaan tietokanta.
+  </p>
+
+  <p>
+    Edellisen osan tehtävänannosta: <em>Lisää sovellukseen toiminnallisuus, jonka avulla käyttäjälle voi lisätä tehtäviä. Toiminnallisuuden lisääminen kannattanee aloittaa seuraavilla askeleilla: (1) lisää sovellukseen lomake tehtävien lisäämistä varten, (2) lisää sovellukseen osoite, joka kuuntelee lomakkeen lähetystä -- lisää tallennustoiminnallisuuden loppuun myös uudelleenohjaus, ja (3) tallenna lähetetty tieto listalle.</em>
+  </p>
+
+  <p>
+    Muokkaa tätä sovellusta siten, että tehtävät haetaan tietokannasta. Tämän onnistumiseen tarvitset seuraavat askeleet: (1) määrittele tehtäville tietokantataulut, (2) luo tarvittavat luokat ja toiminnallisuudet tietokantakyselyiden tekemiseen, ja (3) vaihda tehtäväpohjan lista tietokannasta haettavaan listaukseen.
+  
+  <p>
+    Huomaa, että joudut sammuttamaan palvelimen aina muutosten yhteydessä. Toisin sanoen, ohjelmointiympäristö ei automaattisesti päivitä muutoksia palvelimelle. Muistathan myös sammuttaa palvelimen kun tehtävä on valmis -- näin palvelin ei jää estämään muiden palvelinten käynnistymistä.
+  </p>
+
+  <p>
+    Kun sovellus toimii, palauta se TMC:lle.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Sekvenssikaaviot
+<% end %>
+
+<p>
+  Sekvenssikaaviot ovat järjestelmien (ja olioiden) vuorovaikutuksen visualisointiin käytettävä menetelmä. Sekvenssikaaviossa järjestelmät kuvataan pystysuorina viivoina ja järjestelmien väliset kutsut vaakasuorina viivoina. Aika kulkee ylhäältä alas. Järjestelmät kuvataan laatikoina sekvenssikaavion ylälaidassa, joista pystysuorat viivat lähtevät. Järjestelmien kutsuihin merkitään oleellinen kuvaustieto, esimerkiksi olioiden yhteydessä metodin nimi tai korkeammalla tasolla järjestelmän toimintaa kuvattavaessa haluttu toiminto. Kutsun palauttama tieto piirretään palaavana katkoviivana.
+</p>
+
+<p>
+  Alla on kuvattuna tilanne, missä käyttäjä haluaa hakea palvelimelta kaikki opiskelijat (vastaa edellisen luvun lopussa olevan sovellusken tarjoamaa toiminnallisuutta.
+</p>
+
+<figure>
+  <img src="/img/sekvenssikaavio.png" alt="Selaimen, palvelimen sekä tietokannan välistä kommunikaatiota kuvaava sekvenssikaavio."/>
+  <figcaption>Käyttäjä tekee selaimella pyynnön palvelimelle menemällä osoitteeseen "/opiskelijat". Palvelimella oleva koodi tekee ensin pyynnön tietokantaan, missä haetaan kaikki tietokannassa olevat opiskelijat. Tämän jälkeen palvelin antaa opiskelijalistan sekä html-sivun nimen Thymeleafille, joka luo sivusta HTML-sivun. Lopulta luotu HTML-sivu palautetaan käyttäjälle.</figcaption>
+</figure>
+
+
+<%= partial 'partials/quiz', locals: { id: '59d65c9cdd63ba00049b6ade' } %>
+
