@@ -1266,7 +1266,7 @@ public class Task {
   Nyt sovelluksessa näkyvästä käyttäjien listauksesta pääsee käsiksi yksittäisen käyttäjän näkymään sekä hänelle määrättyihin tehtäviin.
 </p>
 
-<% partial 'partials/exercise', locals: { name: 'Sanitettitarkastuksia' } do %>
+<% partial 'partials/exercise', locals: { name: 'Sanitettitarkastus' } do %>
 
   <p>
     Tehtävien lisääminen käyttäjälle toteutettiin edellä kuvatussa sovelluksessa tietokantaa käyttäville sovelluksille harmittavan yleisellä tavalla. Kun käyttäjälle lisätään tehtävä, kyseistä tehtävää ei enää näytetä sivulla, missä tehtäviä voi lisätä käyttäjille. Mikään ei kuitenkaan estä ilkeämielistä käyttäjää leikkimästä selainta ja tekemästä pyyntöjä palvelimelle.
@@ -1291,10 +1291,10 @@ kayttaja@kone:~/kansio$ curl --data "userId=2" http://localhost:4567/tasks/1
 <% end %>
 
 
-<% partial 'partials/exercise', locals: { name: 'Tehtävien merkkaaminen tehdyksi' } do %>
+<% partial 'partials/exercise', locals: { name: 'Tehtävät tehdyksi' } do %>
 
   <p>
-    Tehtäväpohjan mukana tulee edellä kuvattu sovellus. Lisää tehtävään toiminnallisuus, minkä avulla käyttäjäkohtaiselta sivulta voi merkitä tehtäviä tehdyksi.
+    Tehtäväpohjan mukana tulee edellä kuvattu sovellus. Lisää tehtävään toiminnallisuus, minkä avulla käyttäjäkohtaisella sivulla voi merkitä tehtäviä tehdyksi.
   </p>
   
 <% end %>
@@ -1563,14 +1563,14 @@ kayttaja@kone:~/kansio$ curl --data "userId=2" http://localhost:4567/tasks/1
   Esimerkin jatkaminen jätetään omalle vastuulle. Seuraavana olisi näkymän kopiointi sekä TaskApplication-luokan muokkaaminen siten, että sovelluksessa pääsee käsiksi kategorioihin.
 </p>
 
-<% partial 'partials/exercise', locals: { name: 'Tehtävien kategoriat' } do %>
+<% partial 'partials/exercise', locals: { name: 'Kategoriat tehtäville' } do %>
 
   <p>
     Tehtäväpohjassa tulee edellä kuvattu sovellus. Toteuta sovellukseen mahdollisuus kategorioiden määrittelyyn tehtäville. Kategorioiden määrittelyn tulee tapahtua tehtäväsivun kautta -- jokaisen tehtävän kohdalla tulee olla lista kategorioista. Kategorian lisääminen tehtävälle ei poista tehtävää tehtäväsivulta.
   </p>
 
   <p>
-    Kategorioiden listaamissivulla (osoitteessa /categories) tulee näyttää myös kategorioihin liittyvät tehtävät, joita ei ole vielä tehty.
+    Muokkaa kategorioiden listaamissivua siten, että jokainen listan kategoria on linkki kategoriakohtaiselle sivulle. Kategoriakohtaisens sivun tulee näyttää ne tehtävät, joita ei ole vielä tehty. Mikäli mahdollista, tehtävät nimen vieressä tulee näkyä myös käyttäjä, kenelle tehtävä on merkitty tehtäväksi.
   </p>
   
 <% end %>
