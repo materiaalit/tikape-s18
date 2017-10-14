@@ -1,0 +1,1736 @@
+---
+  title: Osa 6
+  exercise_page: true
+  quiz_page: true
+  published: true
+---
+
+
+<% partial 'partials/hint', locals: { name: 'Kuudennen osan oppimistavoitteet' } do %>
+
+
+  <p>
+    Tuntee käsitteet indeksi, transaktio ja tietokannan eheys. Osaa luoda useampaa tietokantataulua käyttävän ja muokkaavan web-sovelluksen. Osaa siirtää web-sovelluksen verkkoon, missä se on kaikkien nähtävillä.
+  </p>
+
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Tietokantakyselyiden tehokkuudesta
+<% end %>
+
+<p>
+  Tietokantaan tehtävä SQL-kielinen kysely voidaan suorittaa useammalla eri tavalla. Kyselyn suoritus voi käydä läpi tietokantataulun jokaisen rivin, se voi tarkastella vain rajattua osaa tietokantataulun riveistä, tai suoritus voi olla useamman taulun tapauksessa jonkinlainen yhdistelmä edellisiä. Kyselystrategia perustuu tietokannanhallintajärjestelmän sisäisen kyselynoptimoijan sekä tietokantatauluihin määriteltyjen ominaisuuksien kuten indeksien perusteella.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokantakyselyn tarkastelu
+<% end %>
+
+<p>
+  Tietokantakyselyiden suoritusstrategiaa voi tarkastella tietokannanhallintajärjestelmäkohtaisen apukyselyn avulla. SQLitessä kyselyn sisältöön pääsee kommennolla <code>EXPLAIN QUERY PLAN</code>, jota seuraa konkreettinen kysely. Suoritusstrategia sisältää tiedon läpikäytävistä tietokannoista sekä kyselyn muodosta. Kyselyn muoto on joko "SCAN" tai "SEARCH". Muoto SCAN käy koko tietokantataulun läpi ja SEARCH tarkastelee tietokantatauluun liittyvää indeksiä.
+</p>
+
+<p>
+  Tarkastellaan tätä konkreettisen esimerkin kautta. Oletetaan, että käytössämme on tietokanta, jossa on seuraavat tietokantataulut.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Asiakas (
+      id integer PRIMARY KEY,
+      nimi varchar(200),
+      puhelinnumero varchar(20),
+      katuosoite varcar(50),
+      postinumero integer,
+      postitoimipaikka varchar(20)
+  );
+<% end %>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Tilaus (
+      id integer PRIMARY KEY,
+      asiakas_id integer,
+      aika date,
+      kuljetustapa varchar(40),
+      vastaanotettu boolean,
+      toimitettu boolean,
+      FOREIGN KEY (asiakas_id) REFERENCES Asiakas(id)
+  );
+<% end %>
+
+<p>
+  Jos haluamme listata asiakkaiden nimet ja puhelinnumerot, teemme kyselyn "SELECT nimi, puhelinnumero FROM Asiakas". Strategia on selvä -- käydään koko tietokantataulu läpi. Ensimmäisessä esimerkissä kytketään lisäksi SQLiten otsikot päälle ja vaihdetaan tulostusmuotoa kolumnimuotoon. Alla olevissa esimerkeissä on lisäksi käytetty .width -komentoa tulostuksen leveyden sovittamiseksi.
+</p>
+
+<% partial 'partials/sample_output' do %>
+sqlite> .headers on
+sqlite> .mode column
+sqlite> EXPLAIN QUERY PLAN SELECT nimi, puhelinnumero FROM Asiakas;
+selectid order from detail                                                                      
+-------- ----- ---- ------------------
+0        0     0    SCAN TABLE Asiakas                                                          
+<% end %>
+
+
+<p>
+  Vastaava strategia liittyy myös tietyn nimisen asiakkaan etsimiseen. Alla kuvatussa esimerkissä tarkastellaan kyselyä, missä etsitään Cobb-nimistä asiakasta.
+</p>
+
+<% partial 'partials/sample_output' do %>
+  sqlite> EXPLAIN QUERY PLAN SELECT nimi, puhelinnumero
+              FROM Asiakas WHERE nimi = 'Cobb';
+  selectid order from  detail            
+  -------- ----- ----  ------------------
+  0        0     0     SCAN TABLE Asiakas
+<% end %>
+
+<p>
+  Myös Tilaus-taulun tietojen listaaminen vaatii koko tietokantataulun läpikäynnin. Alla listataan tilaukset, jotka on jo toimitettu.
+</p>
+
+
+<% partial 'partials/sample_output' do %>
+  sqlite> EXPLAIN QUERY PLAN SELECT * FROM Tilaus
+              WHERE toimitettu = 1;
+  selectid order from detail           
+  -------- ----- ---- -----------------
+  0        0     0    SCAN TABLE Tilaus
+<% end %>
+
+<p>
+  Tarkastellaan seuraavaksi hieman monimutkaisempaa kyselyä, missä tulostetaan niiden asiakkaiden nimet, jotka ovat tehneet vähintään yhden tilauksen.
+</p>
+
+
+<% partial 'partials/sample_output' do %>
+sqlite> EXPLAIN QUERY PLAN SELECT nimi, puhelinnumero
+            FROM Asiakas JOIN Tilaus
+                ON Asiakas.id = Tilaus.asiakas_id;
+selectid order from detail                                                  
+-------- ----- ---- --------------------------------------------------------
+0        0     1    SCAN TABLE Tilaus                                       
+0        1     0    SEARCH TABLE Asiakas USING INTEGER PRIMARY KEY (rowid=?)
+<% end %>
+
+<p>
+  Kysely onkin nyt erilainen. Kyselyssä käydään ensin läpi koko taulu Tilaus, jonka jälkeen etsitään tietokantataulusta Asiakas rivejä asiakas-taulun pääavaimen perusteella. Entä jos tietokantataulu Asiakas olisikin määritelty siten, että kenttä <code>id</code> ei olisi pääavain?
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Asiakas (
+      id integer,
+      nimi varchar(200),
+      puhelinnumero varchar(20),
+      katuosoite varcar(50),
+      postinumero integer,
+      postitoimipaikka varchar(20)
+  );
+<% end %>
+
+<% partial 'partials/sample_output' do %>
+sqlite> EXPLAIN QUERY PLAN SELECT nimi, puhelinnumero
+            FROM Asiakas JOIN Tilaus
+                ON Asiakas.id = Tilaus.asiakas_id;
+selectid order from detail                                                           
+-------- ----- ---- -----------------------------------------------------------------
+0        0     0    SCAN TABLE Asiakas                                               
+0        1     1    SEARCH TABLE Tilaus USING AUTOMATIC COVERING INDEX (asiakas_id=?)
+<% end %>
+
+<p>
+  Tietokannanhallintajärjestelmä vaihtaa läpikäytävien taulujen järjestystyä. Nyt kysely käy ensin läpi koko Asiakas-taulun, ja etsii tämän jälkeen Tilaus-taulusta tietoa automaattisesti luodun indeksin perusteella.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Indeksit eli hakua nopeuttavat tietorakenteet
+<% end %>
+
+<p>
+  Indeksit ovat tietokantatauluista erillisiä yhden tai useamman sarakkeen tiedoista koostuvia tietorakenteita, jotka viittaavat tietokantataulun riveihin. Indeksirakenteita on useita erilaisia, mm. hajautustaulut ja puurakenteet. Indeksien tavoite on käytännössä -- tietokantojen yhteydessä -- tietokantakyselyiden nopeuttaminen.
+</p>
+
+<p>
+  <em>
+    Indeksiä voi ajatella perinteikkään kirjaston korttiluettelona. Kirjaston tiskille mentäessä ja tiettyä kirjaa kysyttäessä, kirjastovirkailija käy läpi kirjan nimen perusteella aakkostettuja kortteja. Koska nimet ovat aakkosjärjestyksessä, jokaista korttia ei tarvitse tarkastella tiettyä kirjaa etsittäessä. Kortissa on tieto kirjan konkreettisesta paikasta kirjastossa -- kun kortti löytyy, kirjan voi hakea. Jos kirjan nimen sijaan kirjaa etsitään kirjoittajan perusteella, tulee käyttää toista korttipakkaa, joka sisältää kirjoittajien nimet sekä mahdollisesti myös tiedon kirjojen nimistä. Jos kirjaa etsitään sisällön perusteella joudutaan huonolla tuurilla käymään jokainen fyysinen kirjaston kirja läpi.
+  </em>
+</p>
+
+<p>
+  Pohditaan tilannetta, missä miljardi riviä sisältävän taulun tiettyyn sarakkeeseen on määritelty indeksi. Oletetaan, että indeksi sisältää arvot järjestettynä. Tällöin, tiettyä arvoa haettaessa, voimme aloittaa keskimmäisestä arvosta -- jos haettava arvo on pienempi, tutkitaan "vasemmalla" olevaa puolikasta. Jos taas haettava arvo on suurempi, tutkitaan "oikealla" olevaa puolikasta. Alueen rajaaminen jatkuu niin pitkään, kunnes haettava arvo löytyy, tai rajaus päätyy tilanteeseen, missä tutkittavia arvoja ei enää ole. Tämä menetelmä -- <em>puolitushaku</em> tai <em>binäärihaku</em> lienee tuttu ohjelmointikursseilta.
+</p>
+
+<p>
+  Jos rivejä on yhteensä miljardi, voidaan ne jakaa kahteen osaan noin log<sub>2</sub> 1 000 000 000 kertaa, eli noin 30 kertaa. Jos oletamme, että arvoa ei löydy taulusta, tulee yhteensä tarkastella siis noin 30 riviä miljardin sijaan.
+</p>
+
+<p>
+  Indeksin määrittely tietokantataulun sarakkeelle tapahtuu tietokantataulun luomisen jälkeen komennolla <code>CREATE INDEX</code>, jota seuraa uuden indeksin nimi, avainsana <code>ON</code>, sekä taulu ja taulun sarakkeet, joille indeksi luodaan. Tietokannanhallintajärjestelmä luo tietokantataulun pääavaimelle ja viiteavaimille indeksit tyypillisesti automaattisesti.
+</p>
+
+<p>
+  Oletetaan, että sovelluksessamme asiakkaita haetaan usein nimen perusteella. Luodaan edellä kuvattuun Asiakas-taulun sarakkeelle nimi indeksi.
+</p>
+
+<% partial 'partials/sample_output' do %>
+  sqlite> CREATE INDEX idx_asiakas_nimi ON Asiakas (nimi);
+<% end %>
+
+<p>
+  Tarkastellaan aiemmin tehtyä Cobb-nimisen henkilön hakua uudelleen.
+</p>
+
+<% partial 'partials/sample_output' do %>
+  sqlite> EXPLAIN QUERY PLAN SELECT nimi, puhelinnumero FROM Asiakas
+              WHERE nimi = 'Cobb';
+  selectid order from detail                                                    
+  -------- ----- ---- ----------------------------------------------------------
+  0        0     0    SEARCH TABLE Asiakas USING INDEX idx_asiakas_nimi (nimi=?)
+<% end %>
+
+<p>
+  Strategia muuttuu edellisestä. Aiemmin tietokannanhallintajärjestelmän strategia on ollut koko tietokantataulun Asiakas läpikäynti, nyt tietoa haetaan indeksistä. Jos käytössä oleva indeksi olisi esimerkiksi hajautustaulu, tapahtuisi haku vakioajassa -- eli "tarkasteluja" tehtäisiin "yksi" riippumatta tietomäärästä -- <em>tietorakenteisiin, niihin tehtäviin hakuihin sekä niiden tehokkuuksiin tutustutaan tarkemmin kurssilla tietorakenteet ja algoritmit.</em>
+</p>
+
+<p>
+  Taulut ja sarakkeet, joihin indeksejä kannattaa harkita, liittyvät paljon suoritettuihin (ja hitaahkoihin) tietokantakyselyihin. Ensimmäiset askeleet liittyvät (1) tietokantataulujen pää- ja viiteavainten indeksien luomiseen, (2) hakuehtoihin liittyvien sarakkeiden indeksien luomiseen sekä (3) järjestysehtoihin liittyvien sarakkeiden indeksien lumiseen. Alla on kuvattuna eräs suoraviivainen prosessi tietokantataulun indeksien päättämiselle: lähtökohtana on kysely.
+</p>
+
+<figure>
+  <img src="/img/indeksit-saanto.png" alt="alku=>start: Alku
+				    join=>condition: Käsitelläänkö 
+				    useampia
+				    tauluja?
+				    where=>condition: Kyselyssä
+				    rajausehtoja?
+				    loppu=>end: Loppu
+				    avaimet=>operation: Luo taulujen pääavaimille
+				    ja viiteavaimille indeksit
+				    rajaus=>operation: Luo indeksit rajausehdossa
+				    esiintyville sarakkeille.
+				    jarjestys=>condition: Järjestetäänkö 
+				    tuloksia?
+				    jarj=>operation: Luo indeksit 
+				    järjestettäville sarakkeille.
+				    alku->join
+				    join(yes,right)->avaimet->where
+				    join(no)->where
+				    where(yes,right)->rajaus->jarjestys
+				    where(no)->jarjestys
+				    jarjestys(no)->loppu
+				    jarjestys(yes,right)->jarj->loppu" />
+</figure>
+
+
+<p>
+  Indeksin luominen tietokantataululle luo tietorakenteen, jota käytetään tiedon hakemiseen. Jokaista indeksiä tulee päivittää myös tietokantaa muokkaavien operaatioiden yhteydessä, jotta indeksin tiedot ovat ajan tasalla. Käytännössä liiallinen indeksien luominen saattaa myös hidastaa sovelluksen toimintaa.
+</p>
+
+  
+<% partial 'partials/material_sub_heading' do %>
+  Välimuistit sovelluksissa
+<% end %>
+
+<p>
+  Kun tietokantaa käytetään osana annettua sovellusta (esimerkiksi web-sovellusta), sovelluksen vastuulla on tietokantakyselyiden tekeminen tietokannanhallintajärjestelmään. Jos sovellus on ainoa tietokannan käyttäjä (tietokantaa ei muokata muista järjestelmistä), ja jos merkittävä osa kyselyistä on toistuvia hakukyselyjä, voi sovellukseen rakentaa tietokannan toimintaa abstrahoiva välimuisti.
+</p>
+
+<p>
+  Välimuistissa on käytännössä kyse käsiteltävän tiedon tuomisesta lähemmäksi käyttäjää. Tietokantaa käyttävien sovellusten tapauksessa usein haettava tieto tuodaan sovelluksen muistiin, jolloin sovelluksen ei tarvitse hakea tietoa erikseen tietokannasta. Välimuisti tyhjennetään aina tietokannan päivityksen yhteydessä, jolloin käyttäjälle päätyvä tieto on aina ajan tasalla.
+</p>
+
+<p>
+  Yksinkertaisimmillaan välimuistitoteutus voi olla olemassaolevan Dao-toteutuksen kapselointi erilliseen Dao-toteutukseen. Oletetaan, että käytössämme on kolmannelta viikolta tuttu vaillinainen AsiakasDao-toteutus. Välimuistillisen toteutuksen luominen on melko suoraviivaista -- alla toteutuksessa muistetaan vain yksittäiset asiakkaat.
+</p>
+
+
+
+<% partial 'partials/code_highlight' do %>
+  import java.util.*;
+  import java.sql.*;
+
+  public class CachedAsiakasDao extends AsiakasDao implements Dao&lt;Asiakas, Integer&gt; {
+
+      private HashMap&lt;Integer, Asiakas&gt; asiakkaatAvaimilla;
+  
+      public CachedAsiakasDao(Database database) {
+          super(database);
+          this.asiakkaatAvaimilla = new HashMap&lt;&gt;();
+      }
+
+      @Override
+      public Asiakas findOne(Integer key) throws SQLException {
+          if (asiakkaatAvaimilla.containsKey(key)) {
+              Asiakas asiakas = super.findOne(key);
+              asiakkaatAvaimilla.put(key, asiakas);
+          }
+
+          return asiakkaatAvaimilla.get(key);
+      }
+
+      @Override
+      public Asiakas saveOrUpdate(Asiakas object) throws SQLException {
+          Asiakas asiakas = super.saveOrUpdate(object);
+          asiakkaatAvaimilla.put(asiakas.getId(), asiakas);
+          return asiakas;
+      }
+  
+      @Override
+      public void delete(Integer key) throws SQLException {
+          this.asiakkaatAvaimilla.removeKey(key);
+          return super.delete(key);
+      }
+  }
+<% end %>
+
+<p>
+  Jos asiakkaiden tietohin liittyvistä tietokantakyselyistä 99% on hakuoperaatioita, on merkittävässä osassa tapauksia tieto valmiiksi sovelluksen käytössä, jolloin tietokantaan ei tarvitse ottaa yhteyttä. Toisaalta, jos sovellus on sellainen, että merkittävä osa käsittelystä sisältää myös tietokannassa olevan tiedon muokkausoperaatioita, ei edellä kuvatusta välimuistista ole juurikaan hyötyä.
+</p>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Tietokannan eheys ja transaktiot
+<% end %>
+
+<p>
+  Eheydellä viitataan tallennetun tiedon oikeellisuuteen. Tietokannanhallintajärjestelmä ylläpitää tietokannan eheyttä jatkuvasti. Esimerkiksi sarakkeen, joka on määritelty sisältämään vain numeerista tietoa, ei pitäisi sisältää tekstimuotoista tietoa. Vastaavasti viiteavainten tulee viitata aina olemassaolevaan tietoon. 
+</p>
+
+<p>
+  Eheyden ylläpitämisen sekä kohta tutuksi tulevien tietokantatransaktioiden ymmärtämiseksi on hyvä tuntea tietokannan toimintaa sovellustasolla. Kurssin ensimmäisessä osassa tarkasteltiin tiedon käsittelyä tiedostoissa -- tietokanta käyttää kiintolevyä tiedon tallentamiseen, mutta rivien käsittely tapahtuu (keskus)muistissa. Kun riviä halutaan päivittää, se haetaan ensin kovalevyltä muistiin, päivitetään ja viedään takaisin levylle.
+</p>
+
+<p>
+  Keskusmuistin ongelma on se, että sen sisältö häviää esimerkiksi sähkökatkoksen sattuessa tai palvelimen kaatuessa. Havainnollistetaan ongelmallisuutta esimerkeillä:
+</p>
+
+<ul>
+  <li>Annetaan kaikille yrityksen 1000000 kuukausipalkkaiselle työntekijälle 5% palkan korotus. <code>UPDATE Palkat SET kkpalkka = kkpalkka * 1,05</code> Mitä jos tietokantapalvelin kaatuu, kun vasta 10000 muutettua riviä on tallennettu levylle? 990000 vihaista työntekijää jää ilman palkankorotusta? Tarvitaan jokin keino varmistaa, että päivitys tehdään kokonaan tai ei lainkaan.</li>
+  <li>Entä jos palkkojen maksuun liittyvä prosessi lukee palkkatietoja juuri samalla kun niitä ollaan päivittämässä? Lukuoperaatio voi lukea esimerkiksi vain tietyn toimipaikan työntekijöiden palkat - 100 riviä. Jos päivitys on yhtäaikaa kesken, voi käydä niin, että osaan luetuista riveistä on ehditty jo tehdä päivitys ja osaan ei. Nyt osa työntekijöistä saa syyskuun palkkansa korotettuna ja osa ei? Tarvitaan jokin keino hallita yhtäaikaisia prosesseja.</li>
+</ul>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokantatransaktiot
+<% end %>
+
+<p>
+  Tietokantatransaktiot ratkaisevat edellä mainitut ongelmat. Ongelmat voidaan jakaa kahteen kategoriaan:
+</p>
+  
+<ul>
+  <li>Operaatioden keskeytymiset järjestelmän kaatuessa, häiriötilanteissa tai hallituissa keskeytyksissä</li>
+  <li>Samanaikaset prosessit</li>
+</ul>
+  
+<p>
+  Tietokantatransaktio sisältää yhden tai useamman tietokantaan kohdistuvan operaation, jotka suoritetaan (järjestyksessä) kokonaisuutena. Jos yksikin operaatio epäonnistuu, kaikki operaatiot perutaan, ja tietokanta palautetaan tilaan, missä se oli ennen transaktion aloitusta. Klassinen esimerkki tietokantatransaktiosta on tilisiirto, missä nostetaan rahaa yhdeltä tililtä, ja siirretään rahaa toiselle tilille. Jos tilisiirron suoritus ei onnistu -- esimerkiksi rahan lisääminen toiselle tilille epäonnistuu -- tulee myös rahan nostaminen toiselta tililtä perua.
+</p>
+
+<p>
+  Jokainen tietokantakysely suoritetaan omassa transaktiossaan, mutta, käyttäjä voi myös määritellä useamman kyselyn saman transaktion sisälle. Transaktio aloitetaan komennolla <code>BEGIN TRANSACTION</code>, jota seuraa kyselyt, ja lopulta komento <code>COMMIT</code>. Oletetaan, että käytössämme on taulu <code>Tili(id, saldo)</code>.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+CREATE TABLE Tili (
+    id integer PRIMARY KEY,
+    saldo NOT NULL
+);
+<% end %>
+
+<p>
+  Tilisiirto kahden tilin välillä toteutetaan yhtenä transaktiona seuraavasti.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+BEGIN TRANSACTION;
+  UPDATE Tili SET saldo = saldo - 10 WHERE id = 1;
+  UPDATE Tili SET saldo = saldo + 10 WHERE id = 2;
+COMMIT;
+<% end %>
+
+<p>
+  Ylläolevassa transaktiossa suoritetaan kaksi kyselyä, mutta tietokannan näkökulmasta toiminto on <em>atominen</em>, eli sitä ei voi pilkkoa osiin. Komennon <code>COMMIT</code> yhteydessä muutokset joko tallennetaan kokonaisuudessaan tietokantaan, tai tietokantaan ei tehdä minkäänlaisia muutoksia.
+</p>
+
+<p>
+  Tietokantatransaktiota kirjoittaessa, ohjelmoija voi huomata tehneensä virheen. Tällöin suoritetaan komento <code>ROLLBACK</code>, joka peruu aloitetun transaktion aikana tehdyt muutokset. Suoritettua (<code>COMMIT</code>) tietokantatransaktiota ei voi perua.
+</p>
+
+<p>
+  Alla esimerkki kahdesta tietokantatransaktiosta. Ensimmäinen perutaan, sillä siinä yritettiin vahingossa siirtää rahaa väärälle tilille. Toinen suoritetaan. Kokonaisuudessaan allaolevan kyselyn lopputulos on se, että tililtä 1 on otettu 10 rahayksikköä, ja tilille 2 on lisätty 10 rahayksikköä.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+BEGIN TRANSACTION;
+  UPDATE Tili SET saldo = saldo - 10 WHERE id = 1;
+  UPDATE Tili SET saldo = saldo + 10 WHERE id = 3;
+ROLLBACK;
+
+BEGIN TRANSACTION;
+  UPDATE Tili SET saldo = saldo - 10 WHERE id = 1;
+  UPDATE Tili SET saldo = saldo + 10 WHERE id = 2;
+COMMIT;
+<% end %>
+
+<p>
+  Jokainen tietokantakysely -- myös "yhden rivin kyselyt" -- suoritetaan transaktion sisällä. Tietokannanhallintajärjestelmän vastuulla on vahtia, että transaktiot suoritetaan peräkkäin siten, että samaa tietoa ei voida käsitellä useammasta transaktiosta saman aikaan.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokantatransaktiot ja rajoitteet
+<% end %>
+
+<p>
+  Koska tietokannanhallintajärjestelmä näkee transaktioiden sisällä suoritettavat käskyt atomisina, eli yksittäisenä kokonaisuutena, voivat tietokantatauluun määritellyt rajoitteet olla hetkellisesti rikki, kunhan ne transaktion suorituksen jälkeen ovat kunnossa.
+</p>
+
+<p>
+  Esimerkiksi suomen kirjanpitosääntöjen mukaan jokaisessa yrityksessä tulee olla kaksinkertainen kirjanpito. Tässä jokaisen tilitapahtuman yhteydessä tulee merkitä sekä mistä raha on otettu (debit), että mihin raha on laitettu (credit). Tällaisessa järjestelmässä tulee olla (esimerkiksi) tietokantataulu <code>Kirjanpitotapahtuma</code>, johon muutokset merkitään.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+CREATE TABLE Kirjanpitotapahtuma
+(
+    id integer PRIMARY KEY,
+    paivamaara date NOT NULL,
+    kirjanpitotili integer NOT NULL,
+    kuvaus text NOT NULL,
+    debit integer NOT NULL,
+    credit integer NOT NULL,
+    FOREIGN KEY(kirjanpitotili) REFERENCES Tili(id),
+    CONSTRAINT kirjaus_tasmaa CHECK (SUM(debit) = SUM(credit))
+)
+<% end %>
+
+<p>
+  Nyt yhden transaktion sisällä voi tehdä useamman kirjanpitotapahtuman, kunhan transaktion suorituksen yhteydessä kirjanpitotapahtumien debit- ja credit-sarakkeiden summa täsmää. Yllä tietokantataulun luomiskomentoon on lisätty rajoite (<code>CONSTRAINT</code>), jonka avulla tietokantatauluun voidaan lisätä sääntöjä, joiden tulee olla aina transaktion jälkeen voimassa.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannanhallintajärjestelmän ominaisuuksia
+<% end %>
+
+
+<p>
+  <strong>ACID</strong> (<strong>A</strong>tomicity, <strong>C</strong>onsistency, <strong>I</strong>solation, <strong>D</strong>urability) on joukko tietokannanhallintajärjestelmän ominaisuuksia:
+</p>
+
+<ul>
+
+  <li>Atomisuudella (<code>Atomicity</code>) varmistetaan, että tietokantatransaktio suoritetaan joko kokonaisuudessaan tai ei lainkaan. Jos tietokannanhallintajärjestelmään tehtävät transaktiot eivät olisi atomisia, voisi esimerkiksi päivityskyselyistä päätyä tietokantaan asti vain osa -- tilisiirtoesimerkissä vain rahan ottaminen yhdeltä tililtä, mutta ei sen lisäämistä toiselle.</li>
+    
+  <li>Eheydellä (<code>Consistency</code>) varmistetaan, että tietokantaan määritellyt rajoitteet, kuten viiteavaimet, pätevät jokaisen transaktion jälkeen. Jos tietokanta ei mahdollistaisi eheystarkistusta, voisi esimerkiksi kirjanpito olla virheellinen.</li>
+  
+  <li>Eristäytyneisyydellä (<code>Isolation</code>) varmistetaan, että transaktio (A) ei voi lukea toisen transaktion (B) muokkaamaa tietoa ennenkuin toinen transaktio (B) on suoritettu loppuun. Tällä varmistetaan se, että jos transaktioita suoritetaan rinnakkaisesti, kumpikin näkee tietokannan eheässä tilassa.</li>
+
+  <li>Pysyvyydellä (<code>Durability</code>) varmistetaan, että transaktion suorituksessa tapahtuvat muutokset ovat pysyviä. Kun käyttäjä lisää tietoa tietokantaan, tietokannanhallintajärjestelmän tulee varmistaa että tieto säilyy myös virhetilanteissa (jos transaktion suoritus onnistuu).</li> 
+
+</ul>
+
+<p>
+  Tietokannanhallintajärjestelmät toteuttavat ACID-ominaisuudet käyttäen write-ahead-lokia (WAL). Se tarkoittaa sitä, että suoritettavaksi tuleva tietokantaoperaatio tallennetaan tekstimuotoisena lokina levylle ennen rivien varsinaista päivitystä. Tällöin operaatiot voidaan suorittaa uudelleen, jos tietokantapalvelin kaatuu ennen kuin muistissa päivitetyt rivit ehditään tallentaa levylle. Tämä nopeuttaa tietokannan toimintaa merkittävästi, sillä pitkien operaatioden suorituksen valmistumista ei tarvitse odottaa ennen kuin sovellukselle voidaan vastata operaation onnistuneen. Kurssilla <em>Transaktioiden hallinta</em> tutustutaan tarkemmin transaktioiden toimintaan.
+</p>
+
+
+<% partial 'partials/material_heading' do %>
+  Useampaa tietokantataulua käyttävä web-sovellus
+<% end %>
+
+<p>
+  Rakennetaan seuraavaksi useampaa tietokantataulua käyttävä web-sovellus. Tarve on seuraava:
+</p>
+
+<p>
+  <em>
+    Haluaisin käyttööni tehtävien hallintaan tarkoitetun englanninkielisen sovelluksen. Jokaisella tehtävällä on nimi sekä tieto siitä, että onko tehtävä tehty. Tehtäviin voi määritellä aihepiirejä, joiden perusteella tehtäviä pitäisi myös pystyä hakemaan. Tämän lisäksi sovelluksessa tulee olla käyttäjiä, joiden tulee pystyä ottamaan tehtäviä työn alle. Vain työn alle otettu tehtävä voidaan merkitä tehdyksi.
+  </em>
+</p>
+
+<p>
+  Kuvauksesta tunnistetaan käsitteet <em>tehtävä</em>, <em>aihepiiri</em> ja <em>käyttäjä</em>. Tämän lisäksi tehtävä voi kuulua yhteen tai useampaan aihepiiriin, ja jokaiseen aihepiiriin voi liittyä useampi tehtävä. Käyttäjällä voi olla useampia tehtäviä työn alla. Aihealueen kuvaus ei ota kantaa siihen, voiko sama tehtävä olla useammalla käyttäjällä samaan aikaan työn alla -- suunnitellaan tietokanta siten, että samaa tehtävää voi periaatteessa tehdä useampi käyttäjä.
+</p>
+
+<p>
+  Tekstimuodossa kuvattuna tietokantataulut ovat seuraavat. Koska sovellus haluttiin englanninkielisenä, myös tietokannan termistö on englanniksi.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  Task((pk) id, name)
+  User((pk) id, name)
+  TaskAssignment((pk) id, (fk) task_id -&gt; Task, (fk) user_id -&gt; User, boolean completed)
+  Category((pk) id, name)
+  TaskCategory((pk) id, (fk) task_id -&gt; Task, (fk) category_id -&gt; Category)
+<% end %>
+
+<p>
+  Sovellus rakennetaan askeleittain. Toteutetaan ensin tehtävien lisääminen ja listaaminen. Tämän jälkeen lisätään mahdollisuus käyttäjien lisäämiseen ja listaamiseen. Tätä seuraa tehtävien lisääminen käyttäjälle, jonka jälkeen toteutetaan tehtävien suorittaminen.
+</p>
+
+<p>
+  Alustava sovelluksen kansiorakenne eriyttää aihealuetta kuvaavat käsitteet, tietokannan käsittelyyn tarvittavat luokat sekä html-sivut. Alla kansiorakenne puuna kuvattuna.
+</p>
+
+<pre>
+kayttaja@kone:~/kansio$ tree
+.
+├── pom.xml
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── tikape
+│   │   │       └── tasks
+│   │   │           ├── dao
+│   │   │           │   ├── Dao.java
+│   │   │           │   └── TaskDao.java
+│   │   │           ├── database
+│   │   │           │   └── Database.java
+│   │   │           ├── domain
+│   │   │           │   └── Task.java
+│   │   │           └── TaskApplication.java
+│   │   └── resources
+│   │       └── templates
+│   │           └── tasks.html
+│   └── test
+│       └── java
+└── tasks.db
+</pre>
+
+<p>
+  Sovelluksen pom.xml-tiedoston sisältö on seuraava. Riippuvuus <code>slf4j-simple</code> lisää sovellukseen muiden kirjastojen debug-viestien tulostamisen.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+  &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+  &lt;project xmlns="http://maven.apache.org/POM/4.0.0" 
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                               http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;tikape&lt;/groupId&gt;
+    &lt;artifactId&gt;tasks&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;properties&gt;
+      &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+      &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+      &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+    &lt;dependencies&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
+        &lt;artifactId&gt;spark-core&lt;/artifactId&gt;
+        &lt;version&gt;2.6.0&lt;/version&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
+        &lt;artifactId&gt;spark-template-thymeleaf&lt;/artifactId&gt;
+        &lt;version&gt;2.5.5&lt;/version&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;org.xerial&lt;/groupId&gt;
+        &lt;artifactId&gt;sqlite-jdbc&lt;/artifactId&gt;
+        &lt;version&gt;3.20.0&lt;/version&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+        &lt;artifactId&gt;slf4j-simple&lt;/artifactId&gt;
+        &lt;version&gt;1.7.25&lt;/version&gt;
+      &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+  &lt;/project&gt;
+<% end %>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tehtävän lisääminen sovellukseen
+<% end %>
+
+<p>
+  Toteutetaan ensin tehtävien listaaminen ja lisääminen.
+</p>
+
+<p>
+  Yleisesti ottaen, laajempaa sovellusta rakennettaessa sovelluksen polut kannattaa toteuttaa kuvaamaan käsiteltäviä asioita. Luodaan tehtäviä varten web-sovellukseen polku <code>/tasks</code>, mistä tehtävät löytyvät. Sovelluksen tehtävien käsittelyyn liittyvä "rajapinta" tulee olemaan seuraavanlainen.
+</p>
+
+<ul>
+  <li>Tiedon hakeminen palvelimen osoitteesta <code>/tasks</code> listaa kaikki tehtävät.</li>
+  <li>Tiedon lähettäminen palvelimen osoitteeseen <code>/tasks</code> luo uuden tehtävän.</li>
+</ul>
+
+<p>
+  Luodaan näkymää varten sivu <code>tasks.html</code>, jonka avulla käyttäjälle listataan tehtävät sekä mahdollistetaan tehtävien lisääminen. Sivu tulee projektin kansioon <code>src/main/resources/templates</code>. Sivulla on sekä lista tehtäviä että lomake. 
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+  &lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+  &lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+    &lt;head&gt;
+      &lt;title&gt;Tasks&lt;/title&gt;
+      &lt;meta charset="utf-8" /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+      &lt;h1&gt;Tasks&lt;/h1&gt;
+
+      &lt;ul&gt;
+        &lt;li th:each="task : ${tasks}"&gt;
+          &lt;span th:text="${task.name}"&gt;Task&lt;/span&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+
+      &lt;h2&gt;Add new task&lt;/h2&gt;
+
+      &lt;form method="POST" action="/tasks"&gt;
+        &lt;input type="text" name="name"/&gt;&lt;br/&gt;
+        &lt;input type="submit" value="Add!"/&gt;
+      &lt;/form&gt;
+    &lt;/body&gt;
+  &lt;/html&gt;
+<% end %>
+
+<p>
+  Luodaan tämän jälkeen ongelma-aluetta kuvaava luokka Task. Ongelma-aluetta tai aihealuetta (domain) kuvaavat luokat kannattaa sovelluksen rakenteen asetetaan pakkaukseen <code>domain</code>. Esimerkissämme sovellus rakentuu pakkaukseen <code>tikape.tasks</code>, jolloin käsitteistöä kuvaavat luokat asetetaan pakkaukseen <code>tikape.tasks.domain</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+package tikape.tasks.domain;
+
+public class Task {
+
+    private Integer id;
+    private String name;
+
+    public Task(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+<% end %>
+
+<p>
+  Materiaalin kolmannessa osassa loimme tietokanta-abstraktion sekä harjoittelimme data access object-luokkien toteuttamista. Luodaan käyttöömme tarvittavat luokat tietokannassa olevien tehtävien käsittelyyn.
+</p>
+
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.database;
+
+  import java.sql.Connection;
+  import java.sql.DriverManager;
+  import java.sql.SQLException;
+
+  public class Database {
+
+      private String databaseAddress;
+
+      public Database(String databaseAddress) throws ClassNotFoundException {
+          this.databaseAddress = databaseAddress;
+      }
+
+      public Connection getConnection() throws SQLException {
+          return DriverManager.getConnection(databaseAddress);
+      }
+  }
+<% end %>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.dao;
+
+  import java.sql.Connection;
+  import java.sql.PreparedStatement;
+  import java.sql.ResultSet;
+  import java.sql.SQLException;
+  import java.util.ArrayList;
+  import java.util.List;
+  import tikape.tasks.database.Database;
+  import tikape.tasks.domain.Task;
+
+  public class TaskDao implements Dao&lt;Task, Integer&gt; {
+
+      private Database database;
+
+      public TaskDao(Database database) {
+          this.database = database;
+      }
+
+      @Override
+      public Task findOne(Integer key) throws SQLException {
+          throw new UnsupportedOperationException("Not supported yet.");
+      }
+
+      @Override
+      public List&lt;Task&gt; findAll() throws SQLException {
+          List&lt;Task&gt; tasks = new ArrayList&lt;&gt;();
+
+          try (Connection conn = database.getConnection();
+                ResultSet result = conn.prepareStatement("SELECT id, name FROM Task").executeQuery()) {
+
+              while (result.next()) {
+                  tasks.add(new Task(result.getInt("id"), result.getString("name")));
+              }
+          }
+
+          return tasks;
+      }
+
+      @Override
+      public Task saveOrUpdate(Task object) throws SQLException {
+          // simply support saving -- disallow saving if task with 
+          // same name exists
+          Task byName = findByName(object.getName());
+
+          if (byName != null) {
+              return byName;
+          }
+
+          try (Connection conn = database.getConnection()) {
+              PreparedStatement stmt = conn.prepareStatement("INSERT INTO TASK (name) VALUES (?)");
+              stmt.setString(1, object.getName());
+              stmt.executeUpdate();
+          }
+
+          return findByName(object.getName());
+      }
+
+      private Task findByName(String name) throws SQLException {
+          try (Connection conn = database.getConnection()) {
+              PreparedStatement stmt = conn.prepareStatement("SELECT id, name FROM Task WHERE name = ?");
+              stmt.setString(1, name);
+
+              ResultSet result = stmt.executeQuery();
+              if (!result.next()) {
+                  return null;
+              }
+
+              return new Task(result.getInt("id"), result.getString("name"));
+          }
+      }
+
+      @Override
+      public void delete(Integer key) throws SQLException {
+          throw new UnsupportedOperationException("Not supported yet.");
+      }
+  }
+<% end %>
+
+
+<p>
+  Luodaan vielä tietokanta sekä tietokantaan tehtävää kuvaava taulu. Luodaan nämä sovelluksen juureen tiedostoon nimeltä <code>tasks.db</code>. 
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Task (
+      id integer PRIMARY KEY,
+      name varchar(255)
+  );
+<% end %>
+
+<p>
+  Nyt palat ovat paikallaan. Käytössämme ovat (1) html-sivu, (2) käsitettä kuvaava luokka, (3) tietokanta-abstraktio ja dao-toteutus, ja (4) tietokantataulu. Luodaan lopulta web-sovelluksen käynnistävä luokka <code>TaskApplication</code>. Sovellus käsittelee pyyntöjä osoitteeseen <code>/tasks</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks;
+
+  import java.util.HashMap;
+  import spark.ModelAndView;
+  import spark.Spark;
+  import spark.template.thymeleaf.ThymeleafTemplateEngine;
+  import tikape.tasks.dao.TaskDao;
+  import tikape.tasks.database.Database;
+  import tikape.tasks.domain.Task;
+
+  public class TaskApplication {
+
+      public static void main(String[] args) throws Exception {
+          Database database = new Database("jdbc:sqlite:tasks.db");
+          TaskDao tasks = new TaskDao(database);
+
+          Spark.get("/tasks", (req, res) -> {
+              HashMap map = new HashMap&lt;&gt;();
+              map.put("tasks", tasks.findAll());
+
+              return new ModelAndView(map, "tasks");
+          }, new ThymeleafTemplateEngine());
+
+          Spark.post("/tasks", (req, res) -> {
+              Task task = new Task(-1, req.queryParams("name"));
+              tasks.saveOrUpdate(task);
+
+              res.redirect("/tasks");
+              return "";
+          });
+      }
+  }
+<% end %>
+
+<p>
+  Sovellus tukee nyt tehtävien lisäämistä ja listaamista. 
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Käyttäjien lisääminen sovellukseen
+<% end %>
+
+<p>
+  Lisätään seuraavaksi käyttäjät sovellukseen. Käyttäjien käsittelyyn liittyvä rajapinta tulee olemaan seuraavanlainen web-sovelluksen käyttäjän näkökulmasta.
+</p>
+
+<ul>
+  <li>Tiedon hakeminen palvelimen osoitteesta <code>/users</code> listaa kaikki käyttäjät.</li>
+  <li>Tiedon lähettäminen palvelimen osoitteeseen <code>/users</code> luo uuden käyttäjän.</li>
+</ul>
+
+<p>
+  Käyttäjien toiminnallisuus ja niihin liittyvä ohjelmakoodi vastaa hyvin pitkälti tehtävien lisäämiseen ja listaamiseen liittyvää ohjelmakoodia. Voimme käytännössä copy-pasteta edellisen osan askeleet -- noudatetaan tässä <a href="http://wiki.c2.com/?ThreeStrikesAndYouRefactor" target="_blank" norel>Three Strikes And You Refactor</a>-periaatetta. Kopioimme siis seuraavat tiedostot sekä muokkaamme niitä sopivasti:
+</p>
+
+<ul>
+  <li>
+    tasks.html sivun muotoon users.html
+  </li>
+  <li>
+    Task.java-luokan luokaksi User.java
+  </li>
+  <li>
+    TaskDao.java-luokan luokaksi UserDao.java
+  </li>
+</ul>
+
+<p>
+  Käyttäjää kuvaavan tietokantataulun nimeksi tulee <code>User</code> -- tietokantataulun luomiskomento on seuraava.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE User (
+      id integer PRIMARY KEY,
+      name varchar(255)
+  );
+<% end %>
+
+<p>
+  Lisätään tämän jälkeen luokan <code>TaskApplication</code> main-metodiin käyttäjien käsittelyyn tarvittavat rivit.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  public static void main(String[] args) throws Exception {
+
+      Database database = new Database("jdbc:sqlite:tasks.db");
+      TaskDao tasks = new TaskDao(database);
+      UserDao users = new UserDao(database);
+
+      Spark.get("/tasks", (req, res) -&gt; {
+          HashMap map = new HashMap&lt;&gt;();
+          map.put("tasks", tasks.findAll());
+
+          return new ModelAndView(map, "tasks");
+      }, new ThymeleafTemplateEngine());
+
+      Spark.post("/tasks", (req, res) -&gt; {
+          Task task = new Task(-1, req.queryParams("name"));
+          tasks.saveOrUpdate(task);
+
+          res.redirect("/tasks");
+          return "";
+      });
+
+      Spark.get("/users", (req, res) -&gt; {
+          HashMap map = new HashMap&lt;&gt;();
+          map.put("users", users.findAll());
+
+          return new ModelAndView(map, "users");
+      }, new ThymeleafTemplateEngine());
+
+      Spark.post("/users", (req, res) -&gt; {
+          User user = new User(-1, req.queryParams("name"));
+          users.saveOrUpdate(user);
+
+          res.redirect("/users");
+          return "";
+      });
+  }
+
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tehtävien lisääminen käyttäjille
+<% end %>
+
+<p>
+  Lisätään seuraavaksi sovellukseen mahdollisuus tehtävien lisäämiseen käyttäjille. Toteutetaan toiminnallisuus siten, että tehtävä näkyy tehtävälistauksessa vain jos tehtävää ei ole lisätty käyttäjälle. Lisätään tämän jälkeen käyttäjille henkilökohtainen sivu, missä näkyy käyttäjälle määritellyt tehtävät. 
+</p>
+
+<p>
+  Luodaan erillinen taulu <code>TaskAssignment</code> tehtävien käyttäjille lisäämistä varten. Taulu TaskAssignment on liitostaulu tehtävän ja käyttäjän välillä, jonka lisäksi taulu pitää kirjaa siitä, onko tehtävä tehty.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE TaskAssignment (
+      id integer PRIMARY KEY,
+      task_id integer,
+      user_id integer,
+      completed boolean,
+      FOREIGN KEY (task_id) REFERENCES Task(id),
+      FOREIGN KEY (user_id) REFERENCES User(id)
+  );
+<% end %>
+
+<p>
+  Tietokannan koko rakenne on tällä hetkellä seuraava:
+</p>
+
+<% partial 'partials/sample_output' do %>
+  sqlite> .schema
+  CREATE TABLE Task (
+      id integer PRIMARY KEY,
+      name varchar(255)
+  );
+  CREATE TABLE User (
+      id integer PRIMARY KEY,
+      name varchar (255)
+  );
+  CREATE TABLE TaskAssignment (
+      id integer PRIMARY KEY,
+      task_id integer,
+      user_id integer,
+      completed boolean,
+      FOREIGN KEY (task_id) REFERENCES Task(id),
+      FOREIGN KEY (user_id) REFERENCES User(id)
+  );
+<% end %>
+
+<p>
+  Määritellään polku tehtävän lisäämiseen käyttäjälle muotoon <code>/tasks/<em>taskId</em></code>, missä taskId viittaa tietyn tehtävän avaimeen. Polkuun tulee lähettää kenttä <code>userId</code>, jonka arvon tulee olla tehtävään määrättävän käyttäjän tunnus.
+</p>
+
+<p>
+  Luodaan ensin luokat <code>TaskAssignment</code> ja <code>TaskAssignmentDao</code>. Jälkimmäinen mahdollistaa vain yksittäisen TaskAssignment-olion tallentamisen.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.domain;
+
+  public class TaskAssignment {
+
+      private Integer id;
+      private Integer taskId;
+      private Integer userId;
+      private Boolean completed;
+
+      public TaskAssignment(Integer id, Integer taskId, Integer userId, Boolean completed) {
+          this.id = id;
+          this.taskId = taskId;
+          this.userId = userId;
+          this.completed = completed;
+      }
+
+      public Integer getId() {
+          return this.id;
+      }
+  
+      public Integer getTaskId() {
+          return taskId;
+      }
+
+      public Integer getUserId() {
+          return userId;
+      }
+
+      public Boolean getCompleted() {
+          return completed;
+      }
+  }
+<% end %>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.dao;
+
+  import java.sql.Connection;
+  import java.sql.PreparedStatement;
+  import java.sql.SQLException;
+  import java.util.List;
+  import tikape.tasks.database.Database;
+  import tikape.tasks.domain.TaskAssignment;
+
+  public class TaskAssignmentDao implements Dao&lt;TaskAssignment, Integer&gt; {
+
+      private Database database;
+
+      public TaskAssignmentDao(Database database) {
+          this.database = database;
+      }
+
+      @Override
+      public TaskAssignment findOne(Integer key) throws SQLException {
+          throw new UnsupportedOperationException("Not supported yet.");
+      }
+
+      @Override
+      public List&lt;TaskAssignment&gt; findAll() throws SQLException {
+          throw new UnsupportedOperationException("Not supported yet.");
+      }
+
+      @Override
+      public TaskAssignment saveOrUpdate(TaskAssignment object) throws SQLException {
+          try (Connection conn = database.getConnection()) {
+              PreparedStatement stmt = conn.prepareStatement(
+                  "INSERT INTO TaskAssignment (task_id, user_id, completed) VALUES (?, ?, 0)");
+              stmt.setInt(1, object.getTaskId());
+              stmt.setInt(2, object.getUserId());
+              stmt.executeUpdate();
+          }
+
+          return null;
+      }
+
+      @Override
+      public void delete(Integer key) throws SQLException {
+          throw new UnsupportedOperationException("Not supported yet.");
+      }
+  }
+<% end %>
+
+<p>
+  Toteutetaan näkymä muokkaamalla sivua <code>tasks.html</code> siten, että jokaisen listattavan tehtävän kohdalla on lista käyttäjistä. Jos listasta valitsee käyttäjän ja valitsee "Assign task!", tehtävä tulee lisätä kyseiselle käyttäjälle. 
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+  &lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+  &lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+    &lt;head&gt;
+      &lt;title&gt;Tasks&lt;/title&gt;
+      &lt;meta charset="utf-8" /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+      &lt;h1&gt;Tasks&lt;/h1&gt;
+
+      &lt;ul&gt;
+        &lt;li th:each="task : ${tasks}"&gt;
+          &lt;span th:text="${task.name}"&gt;Task&lt;/span&gt;
+          &lt;form th:action="@{~/tasks/{id}(id=${task.id})}" method="post"&gt;
+            &lt;select name="userId"&gt;
+              &lt;option th:each="user: ${users}" th:value="${user.id}" th:text="${user.name}"&gt;
+                user
+              &lt;/option&gt;
+            &lt;/select&gt;
+            &lt;input type="submit" value="Assign task!"/&gt;
+          &lt;/form&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+
+      &lt;h2&gt;Add new task&lt;/h2&gt;
+
+      &lt;form method="POST" action="/tasks"&gt;
+        &lt;input type="text" name="name"/&gt;&lt;br/&gt;
+        &lt;input type="submit" value="Add!"/&gt;
+      &lt;/form&gt;
+    &lt;/body&gt;
+  &lt;/html&gt;
+<% end %>
+
+<p>
+  Lomakkeen määrittely siten, että jokaisella tehtävällä on oma tunnuksensa ja lomakkeensa onnistuu Thymeleafin syntaksin avulla. Syntaksista lisää Thymeleafin dokumentaatiossa osoitteessa <a href="http://www.thymeleaf.org/doc/articles/standardurlsyntax.html"  target="_blank" norel>http://www.thymeleaf.org/doc/articles/standardurlsyntax.html</a>.
+</p>
+
+<p>
+  Tehtävien listaamiseen käytettävää metodia tulee nyt muokata siten, että se antaa käyttäjät Thymeleafin käyttöön.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Spark.get("/tasks", (req, res) -> {
+      HashMap map = new HashMap<>();
+      map.put("tasks", tasks.findAll());
+      map.put("users", users.findAll());
+
+      return new ModelAndView(map, "tasks");
+  }, new ThymeleafTemplateEngine());
+<% end %>
+
+<p>
+  Luodaan seuraavaksi uusi metodi käyttäjien lisäämiseen. Metodi käsittelee pyyntöjä polkuun, jossa on muuttuva osa. Muuttuvan osan arvoon pääsee käsiksi Sparkin avulla. Metodissa otetaan käyttöön sekä muuttuva polun osa (eli tehtävän pääavain) että pyynnössä tuleva käyttäjän tunnus. Näiden perusteella luodaan uusi rivi tietokantatauluun TaskAssignment.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  // polkuun määriteltävä parametri merkitään kaksoispisteellä ja 
+  // parametrin nimellä. Parametrin arvoon pääsee käsiksi kutsulla
+  // req.params
+  Spark.post("/tasks/:id", (req, res) -> {
+      Integer taskId = Integer.parseInt(req.params(":id"));
+      Integer userId = Integer.parseInt(req.queryParams("userId"));
+  
+      TaskAssignment ta = new TaskAssignment(-1, taskId, userId, Boolean.FALSE);
+      taskAssignments.saveOrUpdate(ta);
+
+      res.redirect("/tasks");
+      return "";
+  });
+<% end %>
+
+<p>
+  Muokataan lopulta vielä tehtävien listaamiseen käytettävää metodia siten, että se näyttää listauksessa vain ne tehtävät, joita ei ole vielä asetettu kenenkään käyttöön. Luodaan tätä varten luokkaan TaskDao uusi metodi, joka hakee ne tehtävät, joiden pääavain ei esiinny taulussa TaskAssignment.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  public List&lt;Task&gt; findAllNotAssigned() throws SQLException {
+      List&lt;Task&gt; tasks = new ArrayList&lt;&gt;();
+
+      try (Connection conn = database.getConnection();
+          ResultSet result = conn.prepareStatement(
+              "SELECT id, name FROM Task WHERE id NOT IN (SELECT task_id FROM TaskAssignment)"
+              ).executeQuery()) {
+
+          while (result.next()) {
+              tasks.add(new Task(result.getInt("id"), result.getString("name")));
+          }
+      }
+
+      return tasks;
+  }
+<% end %>
+
+<p>
+  Polkuun /tasks tehtävän pyynnön käsittelyä muokataan siten, että kaikki tehtävät hakevan metodin sijaan kutsutaan yllä kuvattua metodia.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Spark.get("/tasks", (req, res) -> {
+      HashMap map = new HashMap&lt;&gt;();
+      map.put("tasks", tasks.findAllNotAssigned());
+      map.put("users", users.findAll());
+
+      return new ModelAndView(map, "tasks");
+  }, new ThymeleafTemplateEngine());
+<% end %>
+
+<p>
+  Nyt tehtävät poistuvat tehtävälistauksesta sitä mukaa kun niitä määrätään käyttäjälle.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Henkilökohtainen tehtäväsivu
+<% end %>
+
+<p>
+  Toteutetaan seuraavaksi käyttäjille henkilökohtaiset tehtävät listaava sivu. Sivu tulee toimimaan osoitteessa <code>/users/<em>id</em></code>, missä id on käyttäjän pääavain. Tehdään tätä varten ensin sivu, mikä sisältää käyttäjän nimen sekä käyttäjälle määrätyt tehtävät.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+  &lt;head&gt;
+    &lt;title&gt;User's tasks&lt;/title&gt;
+    &lt;meta charset="utf-8" /&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;h1 th:text="${user.name}"&gt;Name of the user&lt;/h1&gt;
+
+    &lt;h2&gt;Current tasks&lt;/h2&gt;
+    
+    &lt;ul&gt;
+      &lt;li th:each="task : ${tasks}"&gt;
+        &lt;span th:text="${task.name}"&gt;Task&lt;/span&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt;
+<% end %>
+
+<p>
+  Luodaan TaskDao-luokalle metodi, joka hakee käyttäjään liittyvät tehtävät. Haetaan vain ne käyttäjälle kuuluvat tehtävät, joita ei ole vielä tehty. Kyselyä kannattaa hahmotella ensin komentorivin kautta -- alla kuvattu mahdollinen kyselyn rakennusprosessi.
+</p>
+
+<% partial 'partials/sample_output' do %>
+  sqlite> SELECT name FROM Task, TaskAssignment
+              WHERE Task.id = TaskAssignment.task_id AND TaskAssignment.user_id = 1;
+  Write
+  sqlite> SELECT id, name FROM Task, TaskAssignment
+              WHERE Task.id = TaskAssignment.task_id AND TaskAssignment.user_id = 1;
+  Error: ambiguous column name: id
+  sqlite> SELECT Task.id, Task.name FROM Task, TaskAssignment
+              WHERE Task.id = TaskAssignment.task_id AND TaskAssignment.user_id = 1;
+  1|Write
+  sqlite> SELECT Task.id, Task.name FROM Task, TaskAssignment
+              WHERE Task.id = TaskAssignment.task_id AND TaskAssignment.user_id = 1
+                  AND TaskAssignment.completed = false;
+  Error: no such column: false
+  sqlite> SELECT Task.id, Task.name FROM Task, TaskAssignment
+              WHERE Task.id = TaskAssignment.task_id AND TaskAssignment.user_id = 1
+                  AND TaskAssignment.completed = 0;
+  1|Write
+  sqlite> 
+<% end %>
+
+
+<p>
+  TaskDao-luokalle luotava uusi metodi on seuraavanlainen.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  public List&lt;Task&gt; findNonCompletedForUser(Integer userId) throws SQLException {
+      String query = "SELECT Task.id, Task.name FROM Task, TaskAssignment\n"
+                     + "              WHERE Task.id = TaskAssignment.task_id "
+                     + "                  AND TaskAssignment.user_id = ?\n"
+                     + "                  AND TaskAssignment.completed = 0";
+
+      List&lt;Task&gt; tasks = new ArrayList&lt;&gt;();
+
+      try (Connection conn = database.getConnection()) {
+          PreparedStatement stmt = conn.prepareStatement(query);
+          stmt.setInt(1, userId);
+          ResultSet result = stmt.executeQuery();
+
+          while (result.next()) {
+              tasks.add(new Task(result.getInt("id"), result.getString("name")));
+          }
+      }
+
+      return tasks;
+  }
+<% end %>
+
+<p>
+  Käyttäjäkohtaiseen osoitteeseen tulevat pyynnöt käsittelevä metodi ottaa pyynnön polusta tarkasteltavan käyttäjän tunnuksen. Tämän jälkeen käyttäjän tiedot haetaan tietokannasta, mitä seuraa yllä kuvatun metodin kutsuminen. Lopulta käyttäjän tiedot annetaan Thymeleafille sekä yllä kuvatulle <code>user.html</code>-sivulle.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Spark.get("/users/:id", (req, res) -> {
+      HashMap map = new HashMap&lt;&gt;();
+      Integer userId = Integer.parseInt(req.params(":id"));
+      map.put("user", users.findOne(userId));
+      map.put("tasks", tasks.findNonCompletedForUser(userId));
+
+      return new ModelAndView(map, "user");
+  }, new ThymeleafTemplateEngine());
+<% end %>
+
+<p>
+  Luokan UserDao metodi <code>findOne</code> tulee täydentää sopivasti. Alkuperäisessä versiossamme jätimme metodin toteuttamatta.
+</p>
+
+<p>
+  Tällä hetkellä käyttäjäkohtaiseen sivuun ei pääse vielä käsiksi. Muokataan käyttäjien listaussivua <code>users.html</code> siten, että jokainen sivulla esiintyvä käyttäjän nimi on samalla linkki käyttäjän sivuun.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
+
+  &lt;head&gt;
+    &lt;title&gt;Users&lt;/title&gt;
+    &lt;meta charset="utf-8" /&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;h1&gt;Users&lt;/h1&gt;
+
+    &lt;ul&gt;
+      &lt;li th:each="user : ${users}"&gt;
+        &lt;a th:href="@{~/users/{id}(id=${user.id})}"&gt;
+          &lt;span th:text="${user.name}"&gt;User&lt;/span&gt;
+        &lt;/a&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;h2&gt;Add new user&lt;/h2&gt;
+
+    &lt;form method="POST" action="/users"&gt;
+      &lt;input type="text" name="name"/&gt;&lt;br/&gt;
+      &lt;input type="submit" value="Add!"/&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+<% end %>
+
+<p>
+  Nyt sovelluksessa näkyvästä käyttäjien listauksesta pääsee käsiksi yksittäisen käyttäjän näkymään sekä hänelle määrättyihin tehtäviin.
+</p>
+
+<% partial 'partials/exercise', locals: { name: 'Sanitettitarkastuksia' } do %>
+
+  <p>
+    Tehtävien lisääminen käyttäjälle toteutettiin edellä kuvatussa sovelluksessa tietokantaa käyttäville sovelluksille harmittavan yleisellä tavalla. Kun käyttäjälle lisätään tehtävä, kyseistä tehtävää ei enää näytetä sivulla, missä tehtäviä voi lisätä käyttäjille. Mikään ei kuitenkaan estä ilkeämielistä käyttäjää leikkimästä selainta ja tekemästä pyyntöjä palvelimelle.
+  </p>
+  
+  <p>
+    Voit kokeilla tätä myös itse -- linux/unix/mac -komentorivillä seuraava komento lisää käyttäjälle, jonka pääavain on 2 tehtävän, jonka pääavain on 1.
+  </p>
+  
+  <pre>
+kayttaja@kone:~/kansio$ curl --data "userId=2" http://localhost:4567/tasks/1
+  </pre>
+
+  <p>
+    Yllä kuvatun komennon voi ajaa tällä hetkellä halutessaan vaikkapa miljoona kertaa, jolloin TaskAssignment-tauluun päätyy miljoona riviä.
+  </p>
+
+  <p>
+    Korjaa tilanne. Muokkaa sovellusta siten, että jokainen tehtävä voi olla määrättynä korkeintaan yhdelle käyttäjälle.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/exercise', locals: { name: 'Tehtävien merkkaaminen tehdyksi' } do %>
+
+  <p>
+    Tehtäväpohjan mukana tulee edellä kuvattu sovellus. Lisää tehtävään toiminnallisuus, minkä avulla käyttäjäkohtaiselta sivulta voi merkitä tehtäviä tehdyksi.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Kategorioiden lisääminen
+<% end %>
+
+
+<p>
+  Lisätään seuraavaksi mahdollisuus kategorioiden lisäämiseen ja listaamiseen. Luodaan kategorioita varten ensin tietokantataulu <code>Category</code>.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Category (
+      id integer PRIMARY KEY,
+      name varchar(255)
+  );
+<% end %>
+
+<p>
+  Kategorioiden lisäämiseen ja listaamiseen tarvittava toiminnallisuus vastaa lähes täysin aiemmin toteutettuja tehtävien ja käyttäjien toiminnallisuuksia. Three Strikes And You Refactor -periaatteen mukaan kahdesti toistuva ohjelmakoodi ei ole ongelma, mutta jos sama koodi toistuu kolmessa eri paikassa tulee ohjelmaa refaktoroida selkeämmäksi. Otetaan tässä askeleita ohjelman selkeyttämiseksi.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Toisteisuuden vähentäminen samankaltaisista domain-luokista
+<% end %>
+
+<p>
+  Tarkastellaan ensin kategoriaa kuvaavan luokan luomista. Sekä kategorialla, tehtävällä että käyttäjällä on tunnus ja nimi. Luodaan abstrakti yliluokka <code>AbstractNamedObject</code>, joka sisältää nimen ja tunnuksen sekä niihin liittyvät getterit.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.domain;
+
+  public abstract class AbstractNamedObject {
+
+      private Integer id;
+      private String name;
+
+      public AbstractNamedObject(Integer id, String name) {
+          this.id = id;
+          this.name = name;
+      }
+
+      public Integer getId() {
+          return id;
+      }
+
+      public String getName() {
+          return name;
+      }
+  }
+<% end %>
+
+<p>
+  Nyt luokat kategoria, tehtävä ja käyttäjä voi toteuttaa perimällä luokan AbstractNamedObject. Alla kategoriaa kuvaava luokka.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.domain;
+
+  public class Category extends AbstractNamedObject {
+
+      public Category(Integer id, String name) {
+          super(id, name);
+      }
+  }
+<% end %>
+
+<p>
+  Käyttäjien ja tehtävien kuvaamiseen käytettävät luokat muutetaan vastaavaan muotoon.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Toisteisuuden vähentäminen samankaltaisista DAO-luokista
+<% end %>
+
+<p>
+  Toteutetaan seuraavaksi kategorioiden käsittelyyn tarvittava tietokanta-abstraktio <code>CategoryDao</code>. Tämäkin luokka olisi vahvasti copy-pastea edellisistä luokista.
+</p>
+
+<p>
+  Toteutetaan ensin luokka <code>AbstractNamedObjectDao</code>, joka toteuttaa rajapinnan Dao. Luokka kapseloi niiden tietokantataulujen käsittelyyn liittyvää toiminnallisuutta, joissa on id ja nimi. Toteutus tehdään niin, että abstrakti luokka saa konstruktorin parametrina tietokannan lisäksi käsiteltävän tietokantataulun nimen, jota voi käyttää kyselyiden muodostamisessa.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+    protected Database database;
+    protected String tableName;
+
+    public AbstractNamedObjectDao(Database database, String tableName) {
+        this.database = database;
+        this.tableName = tableName;
+    }
+<% end %>
+
+<p>
+  Tehdään luokasta sellainen, että sen voi toteuttaa vain niille luokille, jotka perivät luokan <code>AbstractNamedObject</code>. Luokan "otsake" on tällöin seuraavaa muotoa:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  public abstract class AbstractNamedObjectDao&lt;T extends AbstractNamedObject&gt;
+          implements Dao&lt;T, Integer&gt; {
+<% end %>
+
+<p>
+  Luokka käsittelee geneeristä tyyppiä olevia olioita, joilla on id ja nimi. Tarvitsemme tavan olioiden luomiseen tietokannalta saaduista riveistä. Luodaan abstraktille luokalle abstrakti metodi <code>createFromRow</code>, joka palauttaa geneeristä tyyppiä olevan olion, ja joka saa parametrinaan resultSet-olion. Jokaisen luokan, joka perii luokan <code>AbstractNamedObject</code> tulee periä ja toteuttaa tämä metodi.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  public abstract T createFromRow(ResultSet resultSet) throws SQLException;
+<% end %>
+
+<p>
+  Voimme nyt tehdä muista luokan metodeista yleiskäyttöisiä. Metodi findAll kysyy tietoa tietokantataulusta, jonka perivä luokka määrittelee. Kun tietokantakyselyn tuloksia käydään läpi, konkreettisten tulosten luomiseen käytetään luokkakohtaista metodia <code>createFromRow</code>. Metodin <code>findAll</code> rakenne on seuraavanlainen.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  @Override
+  public List&lt;T&gt; findAll() throws SQLException {
+      List&lt;T&gt; tasks = new ArrayList&lt;&gt;();
+
+      try (Connection conn = database.getConnection();
+          ResultSet result = conn.prepareStatement("SELECT id, name FROM " + tableName).executeQuery()) {
+
+          while (result.next()) {
+              tasks.add(createFromRow(result));
+          }
+      }
+
+      return tasks;
+  }
+<% end %>
+
+<p>
+  Koko luokan AbstractNamedObjectDao toteutus on seuraava.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.dao;
+
+  import java.sql.Connection;
+  import java.sql.PreparedStatement;
+  import java.sql.ResultSet;
+  import java.sql.SQLException;
+  import java.util.ArrayList;
+  import java.util.List;
+  import tikape.tasks.database.Database;
+  import tikape.tasks.domain.AbstractNamedObject;
+
+  public abstract class AbstractNamedObjectDao&lt;T extends AbstractNamedObject&gt;
+          implements Dao&lt;T, Integer&gt; {
+
+      protected Database database;
+      protected String tableName;
+
+      public AbstractNamedObjectDao(Database database, String tableName) {
+          this.database = database;
+          this.tableName = tableName;
+      }
+
+      @Override
+      public T findOne(Integer key) throws SQLException {
+          try (Connection conn = database.getConnection()) {
+              PreparedStatement stmt = conn.prepareStatement("SELECT id, name FROM " + tableName + " WHERE id = ?");
+              stmt.setInt(1, key);
+
+              try (ResultSet rs = stmt.executeQuery()) {
+                  rs.next();
+                  return createFromRow(rs);
+              }
+
+          } catch (SQLException e) {
+              System.err.println("Error when looking for a row in " + tableName + " with id " + key);
+              e.printStackTrace();
+              return null;
+          }
+      }
+
+      @Override
+      public List&lt;T&gt; findAll() throws SQLException {
+          List&lt;T&gt; tasks = new ArrayList&lt;&gt;();
+
+          try (Connection conn = database.getConnection();
+              ResultSet result = conn.prepareStatement("SELECT id, name FROM " + tableName).executeQuery()) {
+
+              while (result.next()) {
+                  tasks.add(createFromRow(result));
+              }
+          }
+
+          return tasks;
+      }
+
+      @Override
+      public T saveOrUpdate(T object) throws SQLException {
+          // simply support saving -- disallow saving if task with 
+          // same name exists
+          T byName = findByName(object.getName());
+
+          if (byName != null) {
+              return byName;
+          }
+
+          try (Connection conn = database.getConnection()) {
+              PreparedStatement stmt = conn.prepareStatement("INSERT INTO " + tableName + " (name) VALUES (?)");
+              stmt.setString(1, object.getName());
+              stmt.executeUpdate();
+          }
+
+          return findByName(object.getName());
+      }
+
+      private T findByName(String name) throws SQLException {
+          try (Connection conn = database.getConnection()) {
+              PreparedStatement stmt = conn.prepareStatement("SELECT id, name FROM " + tableName + " WHERE name = ?");
+              stmt.setString(1, name);
+
+              try (ResultSet result = stmt.executeQuery()) {
+                  if (!result.next()) {
+                      return null;
+                  }
+
+                  return createFromRow(result);
+              }
+          }
+      }
+
+      @Override
+      public void delete(Integer key) throws SQLException {
+          throw new UnsupportedOperationException("Not supported yet.");
+      }
+
+      public abstract T createFromRow(ResultSet resultSet) throws SQLException;
+  }
+<% end %>
+
+<p>
+  Nyt omien Dao-luokkiemme toteutukset ovat hieman suoraviivaisempia. Alla on kuvattuna luokka liittyvä tietokanta-abstraktio <code>CategoryDao</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  package tikape.tasks.dao;
+
+  import java.sql.ResultSet;
+  import java.sql.SQLException;
+  import tikape.tasks.database.Database;
+  import tikape.tasks.domain.Category;
+
+  public class CategoryDao extends AbstractNamedObjectDao&lt;Category&gt; {
+
+      public CategoryDao(Database database, String tableName) {
+          super(database, tableName);
+      }
+
+      @Override
+      public Category createFromRow(ResultSet resultSet) throws SQLException {
+          return new Category(resultSet.getInt("id"), resultSet.getString("name"));
+      }
+  }
+<% end %>
+
+<p>
+  Esimerkin jatkaminen jätetään omalle vastuulle. Seuraavana olisi näkymän kopiointi sekä TaskApplication-luokan muokkaaminen siten, että sovelluksessa pääsee käsiksi kategorioihin.
+</p>
+
+<% partial 'partials/exercise', locals: { name: 'Tehtävien kategoriat' } do %>
+
+  <p>
+    Tehtäväpohjassa tulee edellä kuvattu sovellus. Toteuta sovellukseen mahdollisuus kategorioiden määrittelyyn tehtäville. Kategorioiden määrittelyn tulee tapahtua tehtäväsivun kautta -- jokaisen tehtävän kohdalla tulee olla lista kategorioista. Kategorian lisääminen tehtävälle ei poista tehtävää tehtäväsivulta.
+  </p>
+
+  <p>
+    Kategorioiden listaamissivulla (osoitteessa /categories) tulee näyttää myös kategorioihin liittyvät tehtävät, joita ei ole vielä tehty.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Web-sovelluksen siirtäminen verkkoon
+<% end %>
+
+<p>
+  Web-sovelluksemme on tähän mennessä toiminut vain paikallisella koneella, missä kehitystyötä on tehty. Tutustutaan tässä Heroku-nimisen pilvipalvelun käyttöön ja siirretään Web-sovellus verkkoon kaikkien nähtäväksi.
+</p>
+
+<p>
+  Herokulla on aiheeseen liittyen myös oma opas, johon kannattaa tutustua <a href="https://devcenter.heroku.com/articles/getting-started-with-java" target="_blank">täällä</a>.
+</p>
+  
+<p>
+  Tarvitset sovelluksen siirtoon (1) <a href="https://signup.heroku.com/dc" target="_blank">tunnuksen Heroku-palveluun</a> sekä (2) <a href="https://toolbelt.heroku.com/" target="_blank">Heroku Toolbeltin</a>.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Alkutoimet
+<% end %>
+
+<p>
+  Herokuun siirrettävät sovellukset tarvitsevat muutamia muutoksia:
+</p>
+
+<ol>
+
+  <li>
+    <p><strong>Procfile-tiedoston lisääminen</strong>. Sovelluksen juuripolkuun tulee lisätä tiedosto <code>Procfile</code>, jonka sisällä on sovelluksen käynnistämisessä käytettävä komento.</p>
+
+    <pre>
+web:    java -cp target/classes:target/dependency/* tikape.Main
+    </pre>
+
+    <p>Komennon osa <code>tikape.Main</code> kuvaa pääohjelmaluokkaa, jonka kautta sovellus tulee käynnistää. Jos pääohjelmaluokkasi on toisessa pakkauksessa (ei tikape) tai pääohjelmaluokan nimi on jotain muuta (ei Main), tulee tätä muokata. Heroku käyttää tätä komentoa sovelluksen käynnistykseen.</p>
+  </li>
+
+  <li>
+    <p><strong>Maven-liitännäiset ohjelman kääntöprosessin automatisointiin</strong>. Sovelluksen <code>pom.xml</code>-tiedostoon tulee lisätä seuraavat rivit. Rivit lisätään esimerkiksi <code>&lt;/properties&gt;</code>-rivin jälkeen.</p>
+
+    <pre class="sh_xml">
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.5.1&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.8&lt;/source&gt;
+                    &lt;target&gt;1.8&lt;/target&gt;
+                    &lt;optimize&gt;true&lt;/optimize&gt;
+                    &lt;debug&gt;true&lt;/debug&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.4&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;id&gt;copy-dependencies&lt;/id&gt;
+                        &lt;phase&gt;package&lt;/phase&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+    </pre>
+  </li>
+
+  <li>
+    <p><strong>Sovelluksen käynnistäminen Herokun määräämässä portissa</strong>. Jokainen web-sovellus käynnistettään tiettyyn porttiin, jonka se varaa käyttöönsä. Heroku pyörittää useampia sovelluksia samalla palvelinkoneella, joten sille pitää antaa mahdollisuus portin asetukseen.</p>
+
+    <p>Portin asetus tapahtuu <em>ympäristömuuttujan</em> avulla, jonka Heroku antaa sovellukselle sovellusta käynnistettäessä. Käytännössä pääohjelmaluokkaan, joka käynnistää web-palvelimen, tulee lisätä seuraavat rivit -- lisää ne main-metodin alkuun.</p>
+
+    <pre class="sh_java">
+        // asetetaan portti jos heroku antaa PORT-ympäristömuuttujan
+        if (System.getenv("PORT") != null) {
+            port(Integer.valueOf(System.getenv("PORT")));
+        }
+    </pre>
+  </li>
+</ol>
+
+<p>
+  Ylläolevien muutosten avulla sovelluksen siirtäminen verkkoon onnistuu.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Heroku toolbeltin asennus
+<% end %>
+
+<p>
+  Asenna <a href="https://toolbelt.heroku.com/" target="_blank">heroku toolbelt</a>. Ohjeita löytyy esimerkiksi osoitteessa <a href="https://devcenter.heroku.com/articles/heroku-command" target="_blank">https://devcenter.heroku.com/articles/heroku-command</a>.
+</p>
+
+<p>
+  Jos sinulla ei ole koneeseen pääkäyttäjän oikeuksia (root), asennuksen pitäisi silti olla mahdollista jos koneelle on ennestään asennettu muutama Herokun vaatima ohjelmapaketti. Joudut kuitenkin tekemään <a href="http://geek.co.il/2015/06/19/fix-another-curlsh-bogus-installation-heroku">asennuksen hieman toisin</a>.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Sovelluksen luominen Herokuun
+<% end %>
+
+<p>
+  Sovelluksen luomiseen Herokuun tarvitaan kaksi askelta. Ensimmäisessä askeleessa luodaan projektista git-repositorio (tätä ei tarvitse tehdä jos sovellus on jo git-versionhallinnassa), jonka jälkeen luodaan herokuun sijainti johon sovellus kopioidaan.
+</p>
+
+<ol>
+  <li><p><strong>Projekti git-repositorioksi</strong> -- projektin luominen git-repositorioksi tapahtuu ajamalla komento <code>git init</code> projektin juurikansiossa (kansio, jossa löytyy tiedosto <code>pom.xml</code>). Jos sovellus on jo esimerkiksi githubissa, ei tätä tarvitse tehdä.</p></li>
+
+  <li><p><strong>Heroku-projektin luominen</strong> -- suorita juurikansiossa komento <code>heroku create</code>. Tämä luo sovellukselle sijainnin herokuun, johon sovelluksen voi lähettää.</p></li>
+
+</ol>
+
+<p>
+  Mahdollisissa ongelmatilanteissa kannattaa ensimmäiseksi katsoa mitä viestejä Herokun <a href="https://devcenter.heroku.com/articles/logging">lokitiedostoon</a> on päätynyt.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Sovelluksen lähetys Herokuun
+<% end %>
+
+<p>
+  Sovelluksen lähetys herokuun sisältää tyypillisesti neljä askelta. Ensin poistamme turhat käännetyt lähdekooditiedostot, jotta ne eivät häiritse herokun toimintaa. Tämän jälkeen lisäämme tiedostot versionhallintaan, sitoudumme niiden lähettämiseen, ja siirrämme ne herokuun.
+</p>
+
+<ol>
+
+  <li>
+    <strong>Turhien lähdekooditiedostojen poistaminen</strong> -- suorita projektin juurikansiossa komento <code>mvn clean</code>, joka poistaa projektista käännetyt lähdekooditiedostot (kansio target).
+  </li>
+
+  <li>
+    <strong>Tiedostojen lisääminen versionhallintaan</strong> -- suorita projektin juurikansiossa komento <code>git add .</code>, joka lisää kaikki projektin tiedostot versionhallintaan. Huom! Varmista, että target-kansio ei pääse lipsahtamaan versionhallintaan tai Herokuun.
+  </li>
+
+  <li>
+    <strong>Tiedostojen lähettämiseen sitoutuminen</strong> -- suorita projektin juurikansiossa komento <code>git commit -m "viesti"</code>, joka sitouttaa lähetykseen juuri lisätyt tiedostot.
+  </li>
+
+  <li>
+    <strong>Tiedostojen siirtäminen herokuun</strong> -- suorita projektin juurikansiossa komento <code>git push heroku master</code>, joka lähettää tiedostot herokuun.
+  </li>
+  
+</ol>
+
+<p>
+  Nyt sovelluksesi on verkossa kaikkien nähtävillä. 
+</p>
+
+
+<%= partial 'partials/quiz', locals: { id: '59e1b97acb6e1200045bf6c3' } %>
+
