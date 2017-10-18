@@ -261,7 +261,7 @@ selectid order from detail
 
       @Override
       public Asiakas findOne(Integer key) throws SQLException {
-          if (asiakkaatAvaimilla.containsKey(key)) {
+          if (!asiakkaatAvaimilla.containsKey(key)) {
               Asiakas asiakas = super.findOne(key);
               asiakkaatAvaimilla.put(key, asiakas);
           }
