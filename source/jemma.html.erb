@@ -1,0 +1,207 @@
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan riippuvuudet
+<% end %>
+
+
+<p>Sovellukseen lisätään pääsy kahteen tietokantaan. Yksi on paikallisessa testauksessa ja kehitystyössä käyttämämme <a href="https://www.sqlite.org/" target="_blank"><code>SQLite</code></a>, ja toinen on Herokun käyttämä <a href="http://www.postgresql.org/" target="_blank"><code>PostgreSQL</code></a>. Niiden käyttämiseen tarvitaan JDBC-ajurit, jotka tulee lisätä sovelluksen <code>pom.xml</code>-tiedostoon.</p>
+
+<pre class="sh_xml">
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.xerial&lt;/groupId&gt;
+            &lt;artifactId&gt;sqlite-jdbc&lt;/artifactId&gt;
+            &lt;version&gt;3.8.11.2&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+            &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+            &lt;version&gt;9.4-1201-jdbc4&lt;/version&gt;
+        &lt;/dependency&gt;
+</pre>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan osoitteen lukeminen ja käyttö Herokussa
+<% end %>
+
+<p>Heroku tarjoaa sovelluksen portin lisäksi myös JDBC-osoitteen ympäristömuuttujana. Kun luomme käyttöömme Database-oliota sovelluksen alussa, tulee tietokantaosoite valita sen mukaan, että onko ympäristömuuttujaa olemassa.</p>
+
+<pre class="sh_java">
+        // käytetään oletuksena paikallista sqlite-tietokantaa
+        String jdbcOsoite = "jdbc:sqlite:kanta.db";
+        // jos heroku antaa käyttöömme tietokantaosoitteen, otetaan se käyttöön
+        if (System.getenv("DATABASE_URL") != null) {
+            jdbcOsoite = System.getenv("DATABASE_URL");
+        } 
+
+        Database db = new Database(jdbcOsoite);
+</pre>
+
+<p>Nyt käytössämme on tietokantaosoite. Paikallisella koneella voimme jatkossakin käyttää SQLite-tietokantamoottoria, mutta Herokussa käytämme herokun määräämää tietokannanhallintajärjestelmää.</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan luominen sijaintikohtaisesti
+<% end %>
+
+<p>Muokataan tämän jälkeen Database-luokkaa siten, että se sisältää tietokantataulujen luomiseen tarvittavat komennot, jotka suoritetaan sovelluksen käynnistyessä. PostgreSQL-komennot poikkeavat hieman SQLitestä, joten tehdään nämä erillisinä. Tiedämme, että käytössä on PostgreSQL-tietokanta, jos tietokannan osoitteessa on sana "postgre".</p>
+
+<p>Alla on kuvattuna tietokantaluokan toiminnallisuus, joka toimii sekä Herokussa että paikallisesti. Luokassa luodaan tasan yksi tietokantataulu.</p>
+
+<pre class="sh_java">
+package tikape.db;
+
+import java.sql.*;
+import java.util.*;
+import java.net.*;
+
+public class Database {
+
+    private String databaseAddress;
+
+    public Database(String databaseAddress) throws Exception {
+        this.databaseAddress = databaseAddress;
+
+        init();
+    }
+
+    private void init() {
+        List&lt;String&gt; lauseet = null;
+        if (this.databaseAddress.contains("postgres")) {
+            lauseet = postgreLauseet();
+        } else {
+            lauseet = sqliteLauseet();
+        }
+
+        // "try with resources" sulkee resurssin automaattisesti lopuksi
+        try (Connection conn = getConnection()) {
+            Statement st = conn.createStatement();
+
+            // suoritetaan komennot
+            for (String lause : lauseet) {
+                System.out.println("Running command &gt;&gt; " + lause);
+                st.executeUpdate(lause);
+            }
+
+        } catch (Throwable t) {
+            // jos tietokantataulu on jo olemassa, ei komentoja suoriteta
+            System.out.println("Error &gt;&gt; " + t.getMessage());
+        }
+    }
+
+    public Connection getConnection() throws SQLException {
+        if (this.databaseAddress.contains("postgres")) {
+            try {
+                URI dbUri = new URI(databaseAddress);
+
+                String username = dbUri.getUserInfo().split(":")[0];
+                String password = dbUri.getUserInfo().split(":")[1];
+                String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+
+                return DriverManager.getConnection(dbUrl, username, password);
+            } catch (Throwable t) {
+                System.out.println("Error: " + t.getMessage());
+                t.printStackTrace();
+            }
+        }
+
+        return DriverManager.getConnection(databaseAddress);
+    }
+
+    private List&lt;String&gt; postgreLauseet() {
+        ArrayList&lt;String&gt; lista = new ArrayList&lt;&gt;();
+
+        // tietokantataulujen luomiseen tarvittavat komennot suoritusjärjestyksessä
+        lista.add("DROP TABLE Tuote;");
+        // heroku käyttää SERIAL-avainsanaa uuden tunnuksen automaattiseen luomiseen
+        lista.add("CREATE TABLE Tuote (id SERIAL PRIMARY KEY, nimi varchar(255));");
+        lista.add("INSERT INTO Tuote (nimi) VALUES ('postgresql-tuote');");
+
+        return lista;
+    }
+
+    private List&lt;String&gt; sqliteLauseet() {
+        ArrayList&lt;String&gt; lista = new ArrayList&lt;&gt;();
+
+        // tietokantataulujen luomiseen tarvittavat komennot suoritusjärjestyksessä
+        lista.add("CREATE TABLE Tuote (id integer PRIMARY KEY, nimi varchar(255));");
+        lista.add("INSERT INTO Tuote (nimi) VALUES ('sqlite-tuote');");
+
+        return lista;
+    }
+}
+</pre>
+
+<p>Ylläolevassa esimerkissä tarjotaan yhteyden muodostaminen joko PostgreSQL-tietokantaan tai SQLite-tietokantaan riippuen yhteydestä. Tämän lisäksi komento yrittää myös luoda tietokantataulua -- sekä PostgreSQL:n tapauksessa myös poistaa sen. Metodeja <code>postgreLauseet</code> ja <code>sqliteLauseet</code> kannattanee muokata omaan tarkoitukseen sopivaksi.</p>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokanta osana DAO-toiminnallisuutta
+<% end %>
+
+<p>Nyt tietokannan voi ottaa osaksi tietokantaa abstrahoivaa Dao-luokkaa.</p>
+
+<pre class="sh_java">
+// pakkausmäärittely ja importit
+
+import java.sql.*;
+import java.util.*;
+import tikape.db.Database;
+import tikape.dom.Tuote;
+
+public class TuoteDao implements Dao&lt;Tuote, Integer&gt; {
+
+    private Database database;
+
+    public TuoteDao(Database database) {
+        this.database = database;
+    }
+
+    @Override
+    public Tuote findOne(Integer key) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            PreparedStatement s = conn.prepareStatement("SELECT * FROM Tuote WHERE id = ?");
+            s.setInt(1, key);
+            ResultSet rs = s.executeQuery();
+            
+            // tee jotain tuloslistalla
+            
+        }
+        
+        return null;
+    }
+
+    //    ....
+</pre>
+
+
+<p>Lopulta pääohjelmassa toiminnallisuus näyttää esimerkiksi seuraavanlaiselta:</p>
+
+<pre class="sh_java">
+        if (System.getenv("PORT") != null) {
+            port(Integer.valueOf(System.getenv("PORT")));
+        }
+
+        String jdbcOsoite = "jdbc:sqlite:kanta.db";
+        if (System.getenv("DATABASE_URL") != null) {
+            jdbcOsoite = System.getenv("DATABASE_URL");
+        }
+        
+        Database db = new Database(jdbcOsoite);
+        TuoteDao tuoteDao = new TuoteDao(db);
+        
+        
+        get("/tuote/:id", (req, res) -&gt; {
+            HashMap map = new HashMap&lt;&gt;();
+            
+            map.put("tuote", tuoteDao.findOne(Integer.parseInt(req.params("id"))));
+
+            return new ModelAndView(map, "sivu");
+        }, new ThymeleafTemplateEngine());
+</pre>
+
+
+<p>
+  TODO:
+</p>
