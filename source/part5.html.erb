@@ -1640,7 +1640,7 @@ public class Main {
 Spark.post("/opiskelijat", (req, res) -&gt; {
     String nimi = req.queryParams("nimi");
     nimet.add(nimi);
-    response.redirect("/opiskelijat");
+    res.redirect("/opiskelijat");
     return "";
 });
 <% end %>
