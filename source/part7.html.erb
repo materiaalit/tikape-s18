@@ -136,11 +136,11 @@ OK
 
 <% partial 'partials/sample_output' do %>
 kaupunki: helsinki
-few clouds, temperature 15.770000000000039 celcisus
+few clouds, temperature 15.770000000000039 celcius
 kaupunki: turku
-Sky is Clear, temperature 16.0 celcisus
+Sky is Clear, temperature 16.0 celcius
 kaupunki: vladivostok
-scattered clouds, temperature 11.360000000000014 celcisus
+scattered clouds, temperature 11.360000000000014 celcius
 kaupunki:
 <% end %>
 
@@ -172,7 +172,7 @@ public class WeatherService {
         double temperature = getTemperatureFrom(weatherData);
         String desc = getDescriptionFrom(weatherData);
 
-        System.out.println(desc + ", temperature "+temperature+ " celcisus");
+        System.out.println(desc + ", temperature "+temperature+ " celcius");
     }
 
     // metodi joka hakee tiedot joko Redisistä tai internetistä
@@ -799,11 +799,11 @@ RETURN p
 </p>
 
 <p>
-  Todellisuudessa tilanne on kuitenkin se, että palvelut toimivat verkossa, joka ei ole koskaan täysin luetettava. Tämä tarkoittaa sitä, että skaalautuvaa järjestelmää suunnitteleva joutuu käytännössä tekemään kompromissin Consistencyn ja Availabilityn välillä. 
+  Todellisuudessa tilanne on kuitenkin se, että palvelut toimivat verkossa, joka ei ole koskaan täysin luotettava. Tämä tarkoittaa sitä, että skaalautuvaa järjestelmää suunnitteleva joutuu käytännössä tekemään kompromissin Consistencyn ja Availabilityn välillä. 
 </p>
 
 <p>
-  Jos järjestelmä vaatii lineaarisen toiminnan (kuten esimerkiksi pankki), mutta järjestelmän toiminta tulee hajauttaa useammalle koneelle, tulee järjestelmän olla vastaamatta pyyntöihin virhetilanteissa -- järjestelmä ei voi olla aina saaatavilla. Vastaavasti, jos järjestelmän tulee olla aina saatavilla (esimerkiksi sosiaalisen median palvelu) ja järjestelmän toiminta tulee hajauttaa useammalle koneelle, tulee järjestelmälle antaa mahdollisuus lähettää palvelun käyttäjille myös vanhentunutta tietoa.
+  Jos järjestelmä vaatii lineaarisen toiminnan (kuten esimerkiksi pankki), mutta järjestelmän toiminta tulee hajauttaa useammalle koneelle, tulee järjestelmän olla vastaamatta pyyntöihin virhetilanteissa -- järjestelmä ei voi olla aina saatavilla. Vastaavasti, jos järjestelmän tulee olla aina saatavilla (esimerkiksi sosiaalisen median palvelu) ja järjestelmän toiminta tulee hajauttaa useammalle koneelle, tulee järjestelmälle antaa mahdollisuus lähettää palvelun käyttäjille myös vanhentunutta tietoa.
 </p>
 
 <% partial 'partials/hint', locals: { name: 'BASE' } do %>
