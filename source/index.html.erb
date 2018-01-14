@@ -7,22 +7,18 @@
 <% end %>
 
 <p>
-  Tämä materiaali on tarkoitettu Helsingin yliopiston tietojenkäsittelytieteen laitoksen kurssille Tietokantojen perusteet (5 op). Kurssilla oletetaan, että osallistuja tuntee Helsingin yliopiston kurssien Ohjelmoinnin perusteet (5 op) ja Ohjelmoinnin jatkokurssi (5 op) sisällön. Kurssilla käytetään ohjelmointikielenä em. kursseilla opittua Java-kieltä.
+  Tämä materiaali on tarkoitettu Helsingin yliopiston tietojenkäsittelytieteen laitoksen kevään 2018 kurssille Tietokantojen perusteet (TKT10004, 5 op). Kurssilla oletetaan, että osallistuja tuntee Helsingin yliopiston kurssien Ohjelmoinnin perusteet (TKT10002, 5 op) ja Ohjelmoinnin jatkokurssi (TKT10003, 5 op) sisällön. Kurssilla käytetään ohjelmointikielenä em. kursseilla opittua Java-kieltä.
 </p>
-
-<p>
-  Materiaalissa näkyvät aikataulut liittyvät luentomuotoiseen kurssiin. Helsingin yliopiston avoimen yliopiston verkkokurssin määräajat kerrotaan kurssin MOODLE-alustalla.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Osaamistavoitteet ja kurssin sisältö
-<% end %>
 
 <p>
   Tietokantojen perusteet -kurssilla tutustutaan tietokantojen suunnitteluun. Tämä kattaa ongelma-alueen (tai järjestelmän) tietosisällön mallintamisen (käsiteanalyysi, luokkakaaviot), tiedon esittämisen (luokkakaaviot, relaatiokaaviot), tiedon tallentamisen ja tiedon hakemisen (SQL-kieli). Kurssilla tutustutaan lisäksi tiedon tallentamiseen liittyvään lainsäädäntöön sekä henkilötietolakiin, tietokantojen historiaan, tietokantaa käyttävien sovellusten luomiseen sekä tietokannan toiminnan kannalta oleellisiin käsitteisiin kuten indeksit, transaktiot ja eheys. Kurssin pääpaino on relaatiotietokannoissa, mutta kurssilla tutustutaan pintapuolisesti myös muihin tietokantajärjestelmiin. Kurssiin kuuluu luentojen ja harjoitustehtävien lisäksi pienryhmissä tehtävä laajempi harjoitustyö, jossa suunnitellaan ja toteutetaan tietokantaa käyttävä web-sovellus.
 </p>
 
+<p>
+  <em>
+    Alla kuvatut osaamistavoitteet päivittyvät kurssin edetessä..
+  </em>
+</p>
 
 <table class="table">
   <tr>
@@ -41,38 +37,43 @@
       Tuntee olio-ohjelmoinnin peruskäsitteet kurssien Ohjelmoinnin perusteet (TKT-10002) ja Ohjelmoinnin jatkokurssi (TKT-10003) laaajuudessa.
     </td>
   </tr>
+
   <tr>
     <td>
       1
     </td>
     <td>
-      Tuntee käsitteet digitalisaatio, tietokannanhallintajärjestelmä ja tietokanta. Ymmärtää tietokantojen roolin digitalisaatiossa. Tuntee ongelmia, joita tietokannanhallintajärjestelmät pyrkivät ratkaisemaan. Osaa luoda luokkakaavion annetun ohjelman lähdekoodista ja osaa luoda annetussa luokkakaaviossa kuvatut luokat. Ymmärtää luokkien, olioiden ja reaalimaailman käsitteiden suhteen. Osaa käsitellä tietoa ohjelmallisesti.
+      Tuntee käsitteet digitalisaatio, tietokannanhallintajärjestelmä ja tietokanta. Ymmärtää tietokantojen roolin digitalisaatiossa. Tuntee ongelmia, joita tietokannanhallintajärjestelmät pyrkivät ratkaisemaan. Ymmärtää että tietoa voidaan käsitellä ja esittää erilaisilla abstraktiotasoilla ja tuntee termeinä käsitteellisen abstraktiotason, rakenteellisen abstraktiotason sekä fyysisen abstraktiotason. Osaa määritellä luokkia ja yhteyksiä sisältävän UML-luokkakaavion. Osaa luoda luokkakaavion annetun ohjelman lähdekoodista ja osaa luoda annetussa luokkakaaviossa kuvatut luokat. Osaa käsitellä tietoa ohjelmallisesti. Tuntee käsiteanalyysin askeleet. Osaa luoda ongelma-alueen kuvauksesta luokkakaavion. 
     </td>
   </tr>
+  
   <tr>
     <td>
       2
     </td>
     <td>
-      Ymmärtää että tietoa voidaan käsitellä erilaisilla abstraktiotasoilla. Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.
+      Osaa luoda ongelma-alueen kuvauksesta luokkakaavion ja luokkakaaviosta tietokantakaavion. Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.
     </td>
   </tr>
+
   <tr>
     <td>
       3
     </td>
     <td>
-      Tuntee luokkakaavioissa esiintyvät assosiaatiot yhden suhde yhteen, yhden suhde moneen ja monen suhde moneen. Osaa luoda annetusta luokkakaaviosta relaatiokaavion, ja osaa muuntaa luokkakaavion assosiaatiot tarvittaessa tietokannalle sopivampaan muotoon. Tuntee käsitteet pääavain ja viiteavain. Osaa luoda SQL-kielellä useampia tietokantatauluja sisältävän tietokannan, lisätä tietokantaan tietoa, ja tehdä tietokantaan kyselyitä. Osaa hakea useammasta tietokantataulusta tietoa JOIN-kyselyiden avulla. Osaa luoda ohjelman, joka hyödyntää useamman tietokantataulun sisältävää tietokantaa ja tuntee data access object (DAO) -suunnittelumallin.
+      Osaa luoda annetusta luokkakaaviosta relaatiokaavion, ja osaa muuntaa luokkakaavion assosiaatiot tarvittaessa tietokannalle sopivampaan muotoon. Tuntee käsitteet pääavain ja viiteavain. Osaa luoda SQL-kielellä useampia tietokantatauluja sisältävän tietokannan, lisätä tietokantaan tietoa, ja tehdä tietokantaan kyselyitä. Osaa hakea useammasta tietokantataulusta tietoa JOIN-kyselyiden avulla. Osaa luoda ohjelman, joka hyödyntää useamman tietokantataulun sisältävää tietokantaa ja tuntee data access object (DAO) -suunnittelumallin.
     </td>
   </tr>
+
   <tr>
     <td>
       4
     </td>
     <td>
-      Tuntee käsiteanalyysin askeleet. Osaa luoda ongelma-alueen kuvauksesta luokkakaavion sekä johtaa siitä relaatiokaavion. Tietää käsitteet tietokannan normalisointi ja tietokannan denormalisointi. Tuntee tietokannan normalisointiin liittyvät ensimmäisen, toisen ja kolmannen normaalimuodon. Osaa perustella noudattaako annettu tietokanta em. normaalimuotoja. Osaa esittää tietoa XML ja HTML-kielellä.
+      Tietää käsitteet tietokannan normalisointi ja tietokannan denormalisointi. Tuntee tietokannan normalisointiin liittyvät ensimmäisen, toisen ja kolmannen normaalimuodon. Osaa perustella noudattaako annettu tietokanta em. normaalimuotoja. Osaa esittää tietoa XML ja HTML-kielellä.
     </td>
   </tr>
+
   <tr>
     <td>
       5
@@ -81,6 +82,7 @@
       Osaa tehdä SQL-kielellä yhteenvetokyselyitä. Osaa luoda yhtä tietokantataulua käyttävän ja muokkaavan web-sovelluksen, jota voi käyttää selaimella. Tuntee sekvenssikaaviot.
     </td>
   </tr>
+
   <tr>
     <td>
       6
@@ -89,6 +91,7 @@
       Tuntee käsitteet indeksi, transaktio ja tietokannan eheys. Osaa luoda useampaa tietokantataulua käyttävän ja muokkaavan web-sovelluksen. Osaa siirtää web-sovelluksen verkkoon, missä se on kaikkien nähtävillä.
     </td>
   </tr>
+
   <tr>
     <td>
       7
@@ -97,14 +100,20 @@
       Tuntee pinnallisesti muutamia NoSQL- ja NewSQL-tietokantoja. Tuntee skaalautuvuuteen liittyvän CAP-teoreeman. Tuntee uuden GDPR-lainsäädännön oleellisimmat vaikutukset tietokantojen suunnitteluun ja henkilötietojen tallennukseen.
     </td>
   </tr>
+  
 </table>
 
-<% partial 'partials/material_sub_heading' do %>
-  Työskentelytavat ja aikataulu
+
+<% partial 'partials/material_heading' do %>
+  Kurssin suorittaminen ja aikataulu
 <% end %>
 
 <p>
-  Kurssin suorittaminen perustuu vahvasti itse- ja ryhmäopiskeluun. Opiskelun tueksi kurssilla on viikoittaiset harjoitusryhmät, joihin ilmoittaudutaan WebOodin kautta. Harjoitusryhmissä käydään sekä viikon tehtäviä läpi että harjoitellaan oleellisimpia kurssin asioita. Kurssilla on viikoittaiset luennot perjantaisin klo 12:15-14:00 Exactumin salissa B123 (ei luentoja 6.10. ja 13.10.).
+  Kurssiin kuuluu viikoittaisia tehtäviä, viikoittaiset harjoitusryhmät, ryhmätyö sekä tentti.
+</p>
+
+<p>
+  Kurssin suorittaminen perustuu vahvasti itse- ja ryhmäopiskeluun. Opiskelun tueksi kurssilla on viikoittaiset harjoitusryhmät, joihin ilmoittaudutaan WebOodin kautta. Harjoitusryhmissä käydään sekä viikon tehtäviä läpi että harjoitellaan oleellisimpia kurssin asioita. Kurssilla on viikoittaiset luennot tiistaisin klo 10:15-12:00 salissa CK112. 
 </p>
 
 <p>
@@ -112,195 +121,19 @@
 </p>
 
 <ul>
-  <li>Keskiviikko 12-14, Elina Lassila (elina.lassila at helsinki.fi)</li>
-  <li>Keskiviikko 14-16, Elina Lassila</li>
-  <li>Torstai 10-12, Heikki Ahonen (heikki.a.ahonen at helsinki.fi)</li>
-  <li>Torstai 14-16, Terho Uotila (ttuotila at cc.helsinki.fi)</li>
-  <li>Torstai 16-18, Terho Uotila</li>
-  <li>Perjantai 10-12, Hossein Bahmanpour (hossein.bahmanpour at helsinki.fi)</li>
-</ul>
-
-<p>
-  Ensimmäisen viikon harjoitusryhmien tehtävät tehdään paikan päällä. Seuraavien viikkojen harjoitusryhmiä varten tulee myös kotona tehtäviä tehtäviä. Kurssilla on lisäksi ryhmätyö, ryhmät muodostetaan kurssin kolmannella viikolla harjoitustilaisuuksissa.
-</p>
-
-<p>
-  Kurssilla on sekä itsenäisesti tehtäviä ohjelmointitehtäviä että harjoitustilaisuuksiin tuotavia tehtäviä. Aikataulu tehtävien palauttamiseen on seuraava.
-</p>
-
-<ul>
-  <li>
-    <strong>Itsenäisesti tehtävät ohjelmointitehtävät</strong>. Huom! Muuttunut! Tehtävät palautetaan TMC:n kautta. Ensimmäisen osan ohjelmointitehtävät tulee olla palautettuna 18.9. klo 23:55 mennessä, toisen osan ohjelmointitehtävät tulee olla palautettuna 25.9. klo 23:55 mennessä jne.
-  </li>
-  <li>
-    <strong>Harjoitusryhmiin tuotavat ja harjoitusryhmissä tehtävät tehtävät</strong>. Harjoitusryhmiin tuotavat tehtävät tulee tehdä ennen oman ryhmä kokoontumista. Harjoitusryhmissä tehtävät tehtävät tehdään harjoitusryhmissä.
-  </li>
-  <li>
-    <strong>Kurssiin liittyvä harjoitustyö</strong> palautetaan kahdessa osassa. Ensimmäinen osa sisältää työn suunnitelman (palautetaan 10.10. klo 23:55 mennessä) ja toinen osa konkreettisen työn (palautetaan 29.10. klo 23:55 mennessä). Huom, muuttunut!
-  </li>
+  <li>Tiistai 12-14, Arto Hellas</li>
+  <li>Tiistai 14-16, Terho Uotila</li>
+  <li>Keskiviikko 12-14, Ville-Veikko Saari</li>
+  <li>Keskiviikko 16-18, Terho Uotila</li>
+  <li>Torstai 12-14, Dan Lindholm (vain ruotsin kieltä samanaikaisesti suorittaville)</li>
+  <li>Perjantai 10-12, Dan Lindholm</li>
+  <li>Perjantai 12-14, Ville-Veikko Saari</li>
 </ul>
 
 <p>
   <strong>
-    Tietokantojen perusteiden kurssikoe järjestetään maanantaina 23.10. klo 16:00 Exactumin saleissa A111 ja CK112. Kokeeseen saa tuoda mukanaan käsin kirjoitetun kaksipuolisen A4-kokoisen "lunttilapun".
+    Huom! Harjoitusryhmät kokoontuvat jo kurssin ensimmäisellä viikolla!
   </strong>
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Tehtävät
-<% end %>
-
-<p>
-  <em>
-    Huomaa, että tämä lista ei koske Helsingin yliopiston Avoimen yliopiston verkkokurssia. Verkkokurssin tehtävät listataan MOODLEssa.
-  </em>
-</p>
-
-<p>
-  <strong>
-    Kotona tehtävät paikan päälle tuotavat tehtävät
-  </strong>
-</p>
-
-<ul>
-  <li>
-    <a href="https://docs.google.com/document/d/1paG7mnlO9b3Z45UhbsPAPFIm7Om5KNZWvmVh1qmjvSw/edit?usp=sharing" target="_blank" norel>Viikko 2</a> tuodaan 13-15.9. järjestettäviin harjoitusryhmiin.
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1sEh_IvlKyd1NCdQeD35SSwDVtjoKTwiNCkorPIZRpTM/edit?usp=sharing" target="_blank">Viikko 3</a> tuodaan 20-22.9. järjestettäviin harjoitusryhmiin.
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/18kdzUkbf6cj7WQSSVqU6ikTD2YgXzM3qU1kIPSyPa6Y/edit?usp=sharing" target="_blank">Viikko 4</a> tuodaan 27-29.9. järjestettäviin harjoitusryhmiin.
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1toE7gUwyJuZAc-XRcLidHlwNi_aGIHK7L8G5G-7oCIw/edit?usp=sharing" target="_blank">Viikko 5</a> tuodaan 4-6.10. järjestettäviin harjoitusryhmiin.
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1VmXlYfhdVrkVKAQnr9tYoszfl0Rs5XfkoCOP3MOZTzo/edit?usp=sharing" target="_blank" norel>Viikko 6</a> tuodaan 11-13.10. järjestettäviin harjoitusryhmiin.
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1HnJP7T8ybOfdYuo0eulvgU_xEPItdW9xjEvuZGG77MM/edit?usp=sharing" target="_blank" norel>Viikko 7</a> tuodaan 18-20.10. järjestettäviin harjoitusryhmiin.
-  </li>
-</ul>
-
-<p>
-  <strong>
-    Kotona tehtävät ohjelmointitehtävät
-  </strong>
-</p>
-
-<ul>
-  <li>
-    Osan 1 ohjelmointitehtävät, palautus 18.9. klo 23:55 mennessä.
-  </li>
-  <li>
-    Osan 2 ohjelmointitehtävät, palautus 25.9. klo 23:55 mennessä.
-  </li>
-  <li>
-    Osan 3 ohjelmointitehtävät, palautus 2.10. klo 23:55 mennessä.
-  </li>
-  <li>
-    Osan 4 ohjelmointitehtävät, palautus 9.10. klo 23:55 mennessä.
-  </li>
-  <li>
-    Osan 5 ohjelmointitehtävät, palautus 16.10. klo 23:55 mennessä.
-  </li>
-  <li>
-    Osan 6 ohjelmointitehtävät, palautus 23.10. klo 23:55 mennessä.
-  </li>
-  <li>
-    Osan 7 ohjelmointitehtävät, palautus 30.10. klo 23:55 mennessä (vaikuttavat arvosteluun bonuspisteinä).
-  </li>
-</ul>
-
-<p>
-  <strong>
-    Harjoitusryhmissä läsnä tehtävät tehtävät
-  </strong>
-</p>
-
-<p>
-  Tehtävät julkaistaan harjoitustilaisuuksissa. 
-</p>
-  
-<ul>
-  <li>
-    <a href="https://docs.google.com/document/d/1P6_U0YCRkYAUBsXwbZ5L0Mxsn8RC4RZl1FGIYd2r9vc/edit?usp=sharing"  target="_blank" norel>Viikko 1</a>
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1k17YiEPWVcDVYEDaAPSvtityyU_NiCHvm3-_AC1uhn4/edit?usp=sharing" target="_blank">Viikko 2</a>
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1H-0Na2xxGcneCpLOmx8feNYa04V-ll5b3AHHPFMUR_0/edit?usp=sharing" target="_blank">Viikko 3</a>
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1_u1HkV0ySx9_FObMxZ8pegqlJfRAVMzLL8TzZF-LveQ/edit?usp=sharing" target="_blank">Viikko 4</a>
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1EuGUR4vfXE91qRyezP8aHXOk9hVE11QfXeuZlqC8WXU/edit?usp=sharing" target="_blank">Viikko 5</a>
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1dJxM9TfQtBObOvwEzpg920zpzdng04g8KN0TIC2JqMw/edit?usp=sharing" target="_blank">Viikko 6</a>
-  </li>
-  <li>
-    <a href="https://docs.google.com/document/d/1l4538HrwH6-Csoa7mYWhRqMM720AJa3zi8_XFKljTa0/edit?usp=sharing" target="_blank">Viikko 7</a>
-  </li>
-</ul>
-
-<p>
-  Harjoitustyön ensimmäisen osan ohjeet löytyvät neljännen viikon tehtävistä. Toisen osan tehtävänanto löytyy <a href="https://docs.google.com/document/d/1n9NpJeM18IFOZrKg9ll13LXk37deQ2-Dh45nvaMoCQo/edit?usp=sharing" target="_blank">tämän osan takaa</a>. Harjoitustyö palautetaan sekä Artolle (arto.hellas@cs.helsinki.fi) että ryhmän ohjaajalle. Tarkemmat palautusohjeet edeltävästä dokumentista. Muistattehan antaa vertaispalautetta ryhmäläisistä kummankin harjoitystyön osan jälkeen.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Tukiväylät
-<% end %>
-
-<p>
-  Kurssilla on maanantaisin klo 14-16 järjestettävä kyselytuntimuotoinen paja, joka kokoontuu luokassa C221.
-</p>
-
-<p>
-  Verkon yli nopein tapa avun kysymiseen on kurssin keskustelukanava <code>#tikape</code>, johon pääsee helpointen kanavan Matrix-huoneen kautta: <a href="https://riot.im/app/#/room/#_ircnet_#tikape:irc.snt.utwente.nl"  target="_blank" rel="noopener">https://riot.im/app/#/room/#tikape:matrix.org</a>. Jos et pidä modernista teknologiasta, voit myös liityä huoneeseen Ircnetin kautta seuraamalla näitä ohjeita: <a href="http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/" target="_blank" rel="noopener">http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/</a> (valitse kanavaksi #tikape).
-</p>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Yhteistyö
-<% end %>
-
-<p>
-  Hyvä yhteistyö keskittyy jokaisen osapuolen oppimiseen ja parantaa oppimistuloksia. Yhteistyö on kurssin tehtäviä pohtiessa sallittua ja suositeltavaa. 
-</p>
-
-<p>
-  Kurssilla noudatetaan <a href="http://courses.cs.washington.edu/courses/cse100/99au/syllabus.htm#OTHER" target="_blank">Gilligan's Island -sääntöä</a>:
-</p>
-
-<p><em>
-
-  <strong>The Gilligan's Island Rule</strong>: You are free to meet with fellow students(s) and discuss an assignment with them. Writing on a board or shared piece of paper during the meeting is acceptable; however, you should not take any written (electronic or otherwise) record away from the meeting. Everything that you derive from the collaboration should be in your head. After the meeting, engage in at least a half-hour of mind-numbing activity (like watching an episode of Gilligan's Island), before starting to work on the assignment. This will assure that you are able to reconstruct what you learned from the meeting by yourself.
-
-</em></p>
-
-<p>
-  Jos teet tehtäviä yhdessä muiden kanssa, sinun tulee tehdä ja palauttaa omat ratkaisusi itse. Pidä yhteistyörupeaman jälkeen ainakin puolen tunnin tauko, jolloin teet jotain täysin muuta (esim. katsot jakson Gilligan's Islandia tai Salattuja elämiä), ja aloita omien tehtäviesi työstäminen vasta sitten. Kirjoita myös tehtävien palautuksen yhteyteen kommenteissa niiden kurssikavereidesi nimet, joiden kanssa teit yhteistyötä.
-</p>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Opintovilpistä
-<% end %>
-
-<p>
-  Kurssilla seurataan Helsingin yliopiston opintokäytäntöjä. Plagiarismi ja opintovilppi, eli esimerkiksi netissä olevien tai kaverilta saatujen vastausten kopiointi ja niiden palauttaminen omana työnä on kurssilla kiellettyä. 
-</p>
-
-<p>
-  Todettu opintovilppi johtaa kurssisuorituksen hylkäämiseen ja toistuva opintovilppi voi johtaa opinto-oikeuden määräaikaiseen menettämiseen.  Lue lisää osoitteesta <a href="http://blogs.helsinki.fi/alakopsaa/opiskelijalle/"  target="_blank" >http://blogs.helsinki.fi/alakopsaa/opiskelijalle/</a>.
 </p>
 
 <% partial 'partials/material_sub_heading' do %>
@@ -354,20 +187,18 @@
       Harjoitustyö
     </td>
     <td>
-      15 pistettä
+      15 pistettä (6 + 9 pistettä)
     </td>
   </tr>
 </table>
-
 
 <p>
   Täydet pisteet viikoittaisista harjoitustehtävistä saa tekemällä niistä vähintään 90%. Aktiivisesta läsnäolosta luennoilla saa lisäksi puolikkaan pisteen luentokertaa kohden (korkeintaan 2 pistettä).
 </p>
 
 <p>
-  Kurssin arvosana muodostuu perusteella seuraavasti.
+  Kurssin arvosana muodostuu seuraavasti.
 </p>
-
 
 <table class="table">
   <tr>
@@ -429,27 +260,267 @@
 </table>
 
 
+
+<% partial 'partials/material_sub_heading' do %>
+  Tehtävät
+<% end %>
+
+<p>
+  Kurssin tehtäviä julkaistaan kurssin edetessä. Tehtävät tulee palauttaa viikoittain annettuun määräaikaan mennessä. Suunnittelu- ja käsitetehtävät palautetaan aina maanantaisin klo 23:59 mennessä. Ohjelmointitehtävät palautetaan perjantaisin klo 23:59 mennessä.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th>
+      Aihealue
+    </th>
+    <th>
+      Suunnittelu- ja käsitetehtävät
+    </th>
+    <th>
+      Ohjelmointitehtävät
+    </th>
+  </tr>
+  <tr>
+    <td>
+      Osa 1
+    </td>
+    <td>
+      22.1.2018 klo 23:59
+    </td>
+    <td>
+      26.1.2018 klo 23:59
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Osa 2
+    </td>
+    <td>
+      29.1.2018 klo 23:59
+    </td>
+    <td>
+      2.2.2018 klo 23:59
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Osa 3
+    </td>
+    <td>
+      5.2.2018 klo 23:59
+    </td>
+    <td>
+      9.2.2018 klo 23:59
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      Osa 4
+    </td>
+    <td>
+      12.2.2018 klo 23:59
+    </td>
+    <td>
+      16.2.2018 klo 23:59
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Osa 5
+    </td>
+    <td>
+      19.2.2018 klo 23:59
+    </td>
+    <td>
+      23.2.2018 klo 23:59
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Osa 6
+    </td>
+    <td>
+      26.2.2018 klo 23:59
+    </td>
+    <td>
+      2.3.2018 klo 23:59
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Osa 7
+    </td>
+    <td>
+      5.2.2018 klo 23:59
+    </td>
+    <td>
+      9.3.2018 klo 23:59
+    </td>
+  </tr>
+  
+</table>
+
+<p>
+  Huomaathan, että viimeiset palautusajat määritellään suomen ajassa olevan tehtäväpalvelimen kellon mukaan. Mikäli palautuksesi on myöhässä kyseisestä kellosta, sitä ei hyväksytä. Sähköpostitse tapahtuvia tehtäväpalautuksia ei hyväksytä.
+</p>
+
+<p>
+  Seitsemännen osan suunnittelu- ja käsitetehtävät sekä ohjelmointitehtävät vaikuttavat arvosteluun bonuspisteinä. Niillä voi paikata esimerkiksi väliin jäänyttä viikkoa. 
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Harjoitustyö
+<% end %>
+
+<p>
+  Kurssiin kuuluu kahdessa osassa tehtävä harjoitustyö. Harjoitustyön ensimmäisessä osassa harjoitellaan käsiteanalyysiä sekä tietokannan luomista annetusta aihealueesta. Toisessa osassa toteutetaan hieman laajempi tietokantaa käyttävä web-sovellus, joka tulee verkkoon kaikkien nähtäville. Harjoitustöihin kuuluu myös muiden töiden vertaisarviointi.
+</p>
+
+<p>
+  Harjoitustyöt tehdään joko ryhmässä (suositeltu) tai yksin. Harjoitustöiden ryhmät luodaan toisen viikon harjoitusryhmissä. Harjoitustöiden aikataulu on seuraava:
+</p>
+
+<ul>
+  <li>
+    Harjoitustyön ensimmäinen osa julkaistaan 23.1. ja palautetaan 6.2. mennessä. Ensimmäisen osan vertaisarviot tulee tehdä 13.2. mennessä.
+  </li>
+  <li>
+    Harjoitustyön toinen osa julkaistaan 6.2. ja palautetaan 27.2. mennessä. Toisen osan vertaisarviot tulee tehdä 6.3. mennessä.
+  </li>
+</ul>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tukiväylät
+<% end %>
+
+<p>
+  Kurssilla järjestetään harjoitustilaisuuksien lisäksi kyselytuntimuotoisia pajoja, jotka kokoontuvat maanantaisin ja perjantaisin. Lisää tietoa näistä myöhemmin. 
+</p>
+
+<p>
+  Verkon yli nopein tapa avun kysymiseen on kurssin keskustelukanava <code>#tikape</code>, johon pääsee helpointen kanavan Matrix-huoneen kautta: <a href="https://riot.im/app/#/room/#_ircnet_#tikape:irc.snt.utwente.nl"  target="_blank" rel="noopener">https://riot.im/app/#/room/#tikape:matrix.org</a>. Jos et pidä modernista teknologiasta, voit myös liityä huoneeseen Ircnetin kautta seuraamalla näitä ohjeita: <a href="http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/" target="_blank" rel="noopener">http://mooc.fi/courses/general/ohjelmointi/tukikanavat/irc/ohjeet/</a> (valitse kanavaksi #tikape).
+</p>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Yhteistyö
+<% end %>
+
+<p>
+  Hyvä yhteistyö keskittyy jokaisen osapuolen oppimiseen ja parantaa oppimistuloksia. Yhteistyö on kurssin tehtäviä pohtiessa sallittua ja suositeltavaa. 
+</p>
+
+<p>
+  Kurssilla noudatetaan <a href="http://courses.cs.washington.edu/courses/cse100/99au/syllabus.htm#OTHER" target="_blank">Gilligan's Island -sääntöä</a>:
+</p>
+
+<p><em>
+
+  <strong>The Gilligan's Island Rule</strong>: You are free to meet with fellow students(s) and discuss an assignment with them. Writing on a board or shared piece of paper during the meeting is acceptable; however, you should not take any written (electronic or otherwise) record away from the meeting. Everything that you derive from the collaboration should be in your head. After the meeting, engage in at least a half-hour of mind-numbing activity (like watching an episode of Gilligan's Island), before starting to work on the assignment. This will assure that you are able to reconstruct what you learned from the meeting by yourself.
+
+</em></p>
+
+<p>
+  Jos teet tehtäviä yhdessä muiden kanssa, sinun tulee tehdä ja palauttaa omat ratkaisusi itse. Pidä yhteistyörupeaman jälkeen ainakin puolen tunnin tauko, jolloin teet jotain täysin muuta (esim. katsot jakson Gilligan's Islandia tai Salattuja elämiä), ja aloita omien tehtäviesi työstäminen vasta sitten. Kirjoita myös tehtävien palautuksen yhteyteen kommenteissa niiden kurssikavereidesi nimet, joiden kanssa teit yhteistyötä.
+</p>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Opintovilpistä
+<% end %>
+
+<p>
+  Kurssilla seurataan Helsingin yliopiston opintokäytäntöjä. Plagiarismi ja opintovilppi, eli esimerkiksi netissä olevien tai kaverilta saatujen vastausten kopiointi ja niiden palauttaminen omana työnä on kurssilla kiellettyä. 
+</p>
+
+<p>
+  Todettu opintovilppi johtaa kurssisuorituksen hylkäämiseen ja toistuva opintovilppi voi johtaa opinto-oikeuden määräaikaiseen menettämiseen.  Lue lisää osoitteesta <a href="http://blogs.helsinki.fi/alakopsaa/opiskelijalle/"  target="_blank" >http://blogs.helsinki.fi/alakopsaa/opiskelijalle/</a>.
+</p>
+
+
 <% partial 'partials/material_heading' do %>
   Kurssin työvälineet ja tunnukset
 <% end %>
 
 <p>
-  Kurssille tarvitset TMC-tunnukset sekä NetBeans with TMC:n. Jos näitä ei ole vielä käytössäsi, ohjeet löytyvät ohjelmoinnin perusteiden johdannosta osoitteesta <a href="https://materiaalit.github.io/ohjelmointi-s17/" target="_blank" norel>materiaalit.github.io/ohjelmointi-s17</a> kohdasta "Tunnukset ja työvälineet". Käytä TMC-tunnuksenasi opiskelijanumeroasi.
-</p>
-
-<p>
-  Valitse palvelin ja kurssi TMC:stä seuraavasti.
+  Kurssille tarvitset TMC-tunnukset, NetBeans with TMC:n sekä SQLiten. Näiden lisäksi 
 </p>
 
 <ul>
-  <li>Jos suoritat ensimmäisessä periodissa olevaa luentomuotoista kurssia, valitse palvelimeksi <code>https://tmc.mooc.fi/org/hy/courses/245</code> ja kurssiksi <code>hy-tikape-s17</code></li>
-  <li>Jos suoritat koko syksyn mittaista verkkokurssia Helsingin yliopiston avoimen yliopiston kautta, valitse palvelimeksi <code>https://tmc.mooc.fi/org/hy/courses/246</code> ja kurssiksi <code>hy-tikape-s17-avoin</code></li>
+  <li>
+    Ohjeet TMC-tunnusten sekä NetBeans with TMC:n asentamiseen löytyy osoitteesta <a href="https://materiaalit.github.io/tmc-asennus/netbeans/"  target="_blank">https://materiaalit.github.io/tmc-asennus/netbeans/</a>.
+  </li>
+  <li>
+    SQLite löytyy osoitteesta <a href="https://www.sqlite.org/" target="_blank">https://www.sqlite.org/</a>. Netistä löytyy iso lista oppaita SQLiten asentamiseen hakusanoilla "how to install sqlite" -- esimerkiksi osoitteessa <a href="http://www.sqlitetutorial.net/download-install-sqlite/" target="_blank">http://www.sqlitetutorial.net/download-install-sqlite/</a> oleva opas on ok Windowsin käyttäjille.
+  </li>
 </ul>
 
 <p>
-  Tässä materiaalissa näkyvät aikataulut liittyvät luentomuotoiseen kurssiin. Helsingin yliopiston avoimen yliopiston verkkokurssin määräajat kerrotaan kurssin MOODLE-alustalla.
-</p> 
+  Ohjelmointitehtävissä käytetään <a href="https://maven.apache.org/" target="_blank">Maven</a>ia ohjelmointiprojektien käyttämien kirjastojen hallintaan. Mavenin käyttöön on liittynyt muutamia haasteita, joihin liittyen tähän on lisätty korjausehdotuksia:
+</p>
 
+
+<% partial 'partials/material_sub_heading' do %>
+  Maveniin liittyviä ongelmia ja ratkaisuja
+<% end %>
+
+<p>
+  Mavenin käyttöönottoon on liittynyt kurssilla ongelmia. Tässä lyhyt ongelmanratkaisuopas.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Linux ja Mac
+<% end %>
+
+<p>
+  Ongelma: Maven-binäärin suoritusoikeudet puuttuvat. Mavenin virhe on (esimerkiksi) muotoa.
+</p>
+
+<pre>
+Cannot run program
+  /Applications/tmcbeans.app/Contents/Resources/tmcbeans/java/maven/bin/mvn"
+  (in directory "/Users/[nimi]/NetBeansProjects/hy-[kurssi]/[tehtava]"):
+  error=13,
+  Permission denied
+</pre>
+
+<p>
+  Ratkaisu: lisää maven-binäärille suoritusoikeudet. Suorita terminaalissa (pääte) komento.
+</p>
+
+<pre>
+chmod +x /Applications/tmcbeans.app/Contents/Resources/tmcbeans/java/maven/bin/mvn
+</pre>
+
+<p>
+  Huomaa, että edellä polku on sama kuin virheviestin "Cannot run program"-polku.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Windows
+<% end %>
+
+<p>
+  Ongelma: Ympäristömuuttuja <code>JAVA_HOME</code> ei ole asetettu. Käytännössä Maven yrittää etsiä Javaa, mutta ei löydä sitä.
+</p>
+
+<p>
+  Ratkaisu: Lisää Windowsiin JAVA_HOME ympäristömuuttuja (esim.) osoitteessa <a href="https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html" target="_blank" norel>https://confluence.atlassian.com/doc/setting-the-java_home-variable-in-windows-8895.html</a> olevia ohjeita seuraamalla. Huomaa, että kansion tulee olla jdk, ei jre.
+</p>
+
+  
 
 
 <% partial 'partials/material_heading' do %>
@@ -486,7 +557,7 @@
 </p>
 
 
-<%= partial 'partials/quiz', locals: { id: '59b13f92714bcf0004c28481' } %>
+<%= partial 'partials/quiz', locals: { id: '5a5b5d0ea67e62000427b3ec' } %>
 
 
 <% partial 'partials/material_heading' do %>

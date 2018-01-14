@@ -46,7 +46,7 @@ class LoginModal {
 	
     const user = client.getUser();
 
-    fetch(`https://ab-studio.testmycode.io/api/v0/ab_studies/affirmation_s17_tikape/group?oauth_token=${user.accessToken}`).then(function(response) {
+    fetch(`https://ab-studio.testmycode.io/api/v0/ab_studies/affirmation_k18_tikape/group?oauth_token=${user.accessToken}`).then(function(response) {
       return response.json();
     }).then(function(data) {
       if(parseInt(data.group) == 1) {

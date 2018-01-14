@@ -2,57 +2,33 @@
   title: Osa 2
   exercise_page: true
   quiz_page: true
-  published: true
+  published: false
 ---
 
 
 <% partial 'partials/hint', locals: { name: 'Toisen osan oppimistavoitteet' } do %>
 
   <p>
-    Ymmärtää että tietoa voidaan käsitellä erilaisilla abstraktiotasoilla. Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.    
+    Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.    
   </p>
   
 <% end %>
 
 
+<% partial 'partials/hint', locals: { name: 'Perintä ja luokkakaaviosta tietokantakaavioksi' } do %>
 
-<% partial 'partials/material_heading' do %>
-  Erilaiset näkymät tietoon 
+  <p>
+    Perintä käsitellään tietokantakaaviossa yhden suhde yhteen -tyyppisenä yhteytenä. Kun perintänä merkittyä yhteyttä muunnetaan tietokantakaavioksi, lisätään perivään käsitteeseen viiteavain, joka viittaa perittävään käsitteeseen. Edellinen opiskelija-henkilö -esimerkki muuntuu seuraavanlaiseksi tietokantakaavioksi.
+  </p>
+
+  
+  <figure>
+    <img src="/img/opiskelija-perii-henkilon-tietokantakaavio.png" alt="[Henkilo|(pk) id: Integer; nimi:String;syntymäaika:Date;email:String], [Opiskelija|(pk) id: Integer; (fk) henkilo_id: Henkilo; opiskelijanumero:String], [Henkilo]-[Opiskelija]"/>
+    <p>&nbsp;</p>
+  </figure>
+
 <% end %>
 
-<p>
-  Edellisessä osassa tietoa tarkasteltiin sen tallennustavan kautta. Käsittelimme menetelmiä tallentaa ja lukea tietoa tiedostosta. Tietokannanhallintajärjestelmän toteutuksen ja tarjoaman käsittelyn näkökulmasta esimerkkimme liittyivät fyysiseen toteutukseen, eli miten ja missä muodossa tieto lopulta tallennetaan.
-</p>
-
-<p>
-  Tietokannanhallintajärjestelmistä ja tallennettavasta tiedosta puhuttaessa tietoa käsitellään tyypillisesti kolmella eri abstraktiotasolla: käsitteellisellä abstraktiotasolla, rakenteellisella abstraktiotasolla ja fyysisellä abstraktiotasolla.
-</p>
-
-<p>
-  <strong>Käsitteellinen abstraktiotaso</strong> (conceptual level) on kuvaus tietokantaan tallennettavista käsitteistä ja niiden yhteyksistä. Käsitteellisellä abstraktiotasolla kuvaus esiintyy esimerkiksi tekstidokumenteissa, puheissa, tai vaikkapa multimediaesityksissä. 
-</p>
-
-<p>
-  Pankin tallennustoiminnallisuudesta kertova asiakas saattaa kertoa tileistä ja niiden omistajista seuraavaa: <em>Tileillä on omistajia, joista jokainen yksilöidään henkilöturvatunnuksen avulla</em>. Em. kuvaus sisältää käsitteet <em>tili</em>, <em>omistaja</em> ja <em>henkilöturvatunnus</em>. Tämän lisäksi käsitteisiin liittyy suhteita, jotka osittain ilmenevät kuvaksesta ja osittain vaativat aihealueen ymmärrystä. Esimerkiksi tili ja omistaja ovat erillisiä käsitteitä ja niiden välinen yhteys kuvaa omistajuutta. Omistajan ja henkilöturvatunnuksen välinen yhteys on taas riippuvainen olemassaolosta -- Omistajan henkilöturvatunnusta ei ole olemassa ilman omistajaa. Omistajalla on henkilöturvatunnus.
-</p>
-
-<p>
-  Käsitteiden nimeäminen kuvaavammiksi on myös mahdollista. Edeltävässä kuvauksessa ollut käsite <em>omistaja</em> kannattaisi todennäköisesti nimetä uudelleen henkilöksi.
-</p>
-
-
-<p>
-  <strong>Rakenteellinen abstraktiotaso</strong> (logical level, structural level) on kuvaus tietokantaan tallennettavan tiedon rakenteesta. Se voi olla esimerkiksi luokkakaavio, tietokantakaavio (palaamme näihin myöhemmin kurssilla) tai SQL-kielellä tehdyt tietokantataulujen luomislauseet.
-</p>
-
-<p>
-  Edeltävän esimerkin perusteella voisi puhua kahdesta taulusta: <code>Taulu Tili</code> ja <code>Taulu Henkilo</code>. Henkilöä kuvaavaan tauluun kuuluisi myös henkilöturvatunnus, jolloin taulu merkittäisiin esimerkiksi muodossa <code>Taulu Henkilo(henkiloturvatunnus)</code>. Tämän lisäksi henkilön ja tilin suhdetta kuvattaisiin jollain tavalla -- esimerkiksi "Henkilöllä on yksi tai useampi tili".
-</p>
-
-<p>
-  <strong>Fyysinen abstraktiotaso</strong> (physical level, internal level) kuvaa konkreettista tiedon tallentamistapaa kiintolevylle. Tämä sisältää tiedon tietokantaa kuvaavan tai kuvaavien tiedostojen sijainnista, käytettävistä tietorakenteista, ymym. Fyysinen abstraktiotaso on tyypillisesti järjestelmäkohtainen ja riippuu myös ainakin osittain tallennettavan tiedon muodosta. 
-<p>
-  
 
 <% partial 'partials/material_heading' do %>
   Structured Query Language (SQL)
