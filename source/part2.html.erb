@@ -1,33 +1,594 @@
 ---
   title: Osa 2
   exercise_page: true
-  quiz_page: true
-  published: false
+  quiz_page: false
+  published: true
 ---
 
 
 <% partial 'partials/hint', locals: { name: 'Toisen osan oppimistavoitteet' } do %>
 
   <p>
-    Osaa luoda SQL-kielellä yhden tietokantataulun sisältävän tietokannan, lisätä tietokantatauluun tietoa ja tehdä kyselyitä tietokantatauluun. Osaa luoda ohjelman, joka kommunikoi tietokannanhallintajärjestelmän kanssa valmiin rajapinnan kautta. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä.    
+    Osaa luoda luokkakaaviosta relaatiokaavion ja osaa muuntaa luokkakaavion assosiaatiot tarvittaessa tietokannalle sopivampaan muotoon. Tuntee käsitteen oliokaavio. Tuntee käsitteet relaatio, relaatiomalli, pääavain ja viiteavain. Osaa luoda SQL-kielellä useampia tietokantatauluja sisältävän tietokannan, lisätä tietokantaan tietoa ja hakea tietokannasta tietoa. Tekee kyselyitä yhteen tietokantatauluun.
   </p>
   
 <% end %>
 
 
-<% partial 'partials/hint', locals: { name: 'Perintä ja luokkakaaviosta tietokantakaavioksi' } do %>
 
+
+<% partial 'partials/material_heading' do %>
+  Luokkakaavio ja olioiden väliset yhteydet
+<% end %>
+
+<p>
+  Tässä luvussa kerrataan hieman edellisen osan luokkakaavioihin liittyvää materiaalia. <strong>Luokkakaavio</strong> on kuvaus tarkasteltavan ongelman käsitteistä sekä käsitteiden välisistä yhteyksistä. Luokkakaavio voi sisältää myös käsitteisiin liittyvät attribuutit. Ohjelmistokehityksessä luokkakaavio kuvaa järjestelmän luokkarakennetta, eli mitä luokkia ohjelmassa on, minkälaisia luokat ovat ja miten luokat liittyvät toisiinsa.
+</p>
+
+<p>
+  Alla on kuvattuna erään tilausjärjestelmän luokkakaavio. Tilausjärjestelmässä on asiakkaita, jotka voivat tehdä tilauksia. Tilauksiin liittyy joukko annoksia, joihin taas liittyy raaka-aineet sekä ravintola. Sama annos voi olla useammassa tilauksessa, ja useampi tilaus voi sisältää saman annoksen -- annos on toisaalta aina tietyn ravintolan tarjoama. Jokaisen annoksen kohdalla listataan annokseen kuuluvat raaka-aineet -- sama raaka-aine voi esiintyä useammassa annoksessa, ja yhdessä annoksessa voi olla useampia raaka-aineita.
+</p>
+
+<figure>
+  <img src="/img/ravintola/luokkakaavio.png" alt="[Asiakas|nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+						  [Ravintola|nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+						  [Annos|nimi:String;koko:String;hinta:double]
+						  [Tilaus|aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+						  [RaakaAine|nimi:String]
+						  
+						  [Asiakas]1-*[Tilaus]
+						  [Tilaus]*-*[Annos]
+						  [Annos]*-*[RaakaAine]
+						  [Ravintola]1-*[Annos]"/>
+  <figcaption>
+    Tilausjärjestelmän luokkakaavio
+  </figcaption>
+</figure>
+
+<p>
+  Jokaisen luokkakaaviossa olevan käsitteen kohdalle on merkitty käsitteeseen kuuluvat attribuutit sekä niiden tietotyypit. Esimerkiksi asiakkaalla on nimi, puhelinnumero, katuosoite, postinumero sekä postitoimipaikka. Edellisistä postinumero tallennetaan numerona, muut tallennetaan merkkijonona. Tilaukseen liittyy aika, kuljetustapa, tieto tilauksen vastaanottamisesta sekä tieto tilauksen toimittamisesta. Aika tallennetaan Date-tyyppisenä tietona, kuljetustapa on merkkijono (esim. "kuljetus" tai "nouto"), ja tieto tilauksen vastaanottamisesta sekä toimittamisesta on tallennettu totuusavoisena muuttujana.
+</p>
+
+<p>
+  Tarkastellaan yllä olevassa luokkakaaviossa olevia yhteystyyppejä eli käsitteiden välisiä suhteita hieman tarkemmin.
+</p>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Yhden suhde moneen
+<% end %>
+
+<p>
+  Kahden käsitteen välillä on yhden suhde moneen (<code>1-N</code>) -yhteys, jos ensimmäisen käsitteen ilmentymään voi liittyä monta toisen käsitteen ilmentymää, mutta yhteen toisen käsitteen ilmentymään voi liittyä vain yksi ensimmäisen käsitteen ilmentymä.
+</p>
+
+
+<p>
+  Yllä olevassa esimerkissä tällainen suhde on esimerkiksi asiakkaan ja tilauksen välillä. Käytännössä yksittäinen asiakas -- esimerkiksi <em>Anna Asiakas</em> -- voi tehdä monta tilausta, mutta jokainen tehty tilaus liittyy täsmälleen yhteen asiakkaaseen. Sama tilaus ei voi liittyä samaan aikaan <em>Anna Asiakkaaseen</em> sekä <em>Essi Esimerkkiin</em>.
+</p>
+
+
+<figure>
+  <img src="/img/ravintola/asiakas-tilaus.png" alt="[Asiakas|nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+						    [Tilaus|aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+						    [Asiakas]1-*[Tilaus]"/>
+  <figcaption>
+    Yhden suhde moneen. Yllä yhteen asiakkaaseen voi liittyä monta tilausta, mutta yksi tilaus liittyy aina täsmälleen yhteen asiakkaaseen. Yhden suhde moneen merkitään luokkakaavioon piirrettyyn viivaan tähdellä ja numerolla 1. Tähti tulee yhteyden siihen päähän, joita voi olla monta, ja ykkönen siihen päähän, joita voi olla vain yksi. 
+  </figcaption>
+</figure>
+
+
+<p>
+  Yhdestä moneen yhteystyyppi edellyttää sen käsitteen ilmentymän olemassaoloa, johon liittyy monta toisen käsitteen ilmentymää. Käytännössä  tilauksen luominen edellyttää tilaukseen liittyvän asiakkaan olemassaoloa. Toisin sanoen, tilausta ei voi luoda ilman, että sille olisi asiakas.
+</p>
+
+<p>
+  Java-lähdekoodina luokka asiakas kuvattaisiin (esimerkiksi) seuraavasti.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  public class Asiakas {
+      String nimi;
+      String puhelinnumero;
+      String katuosoite;
+      Integer postinumero;
+      String postitoimipaikka;
+
+      List&lt;Tilaus&gt; tilaukset;
+
+      public Asiakas(String nimi, String puh, String katu, Integer postiNro, String paikka) {
+          this.nimi = nimi;
+          this.puhelinnumero = puh;
+          this.katuosoite = katu;
+          this.postinumero = postiNro;
+          this.postitoimipaikka = paikka;
+          this.tilaukset = new ArrayList&lt;&gt;();
+      }
+  }    
+<% end %>
+
+<p>
+  Luokalla olisi lisäksi tarvittavat importit sekä metodeja mm. tilausten lisäämiseen.
+</p>
+
+<p>
+  Vastaavasti luokka tilaus kuvattaisiin lähdekoodina (esimerkiksi) seuraavasti. Alla tilaukseen on lisätty alkuperäisessä laajemmassa luokkakaaviossa näkyneet tuotteet.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  public class Tilaus {
+      Asiakas asiakas;
+      Date aika;
+      String kuljetustapa;
+      Boolean vastaanotettu;
+      Boolean toimitettu;
+  
+      List&lt;Annos&gt; annokset;
+  
+      public Tilaus(Asiakas asiakas, String kuljetustapa) {
+          this.asiakas = asiakas;
+          this.kuljetustapa = kuljetustapa;
+          this.aika = new Date();
+          this.vastaanotettu = false;
+          this.toimitettu = false;
+      }
+  }
+<% end %>
+
+<p>
+  Luokalla olisi -- taas -- lisäksi tarvittavat importit sekä metodeja tilauksen tilan muokkaamiseen. Jonkun vastuulla olisi esimerkiksi merkitä tilaus vastaanotetuksi kun tilauksen tekeminen aloitetaan, jonka lisäksi tilauksen toimituksen (tai noudon) yhteydessä tilaus tulisi merkitä toimitetuksi.
+</p>
+
+<p>
+  Yleisemmin ottaen voi todeta, että jos käsitteen ilmentymään liittyy monta toista käsitettä, merkitään se Java-luokassa listalla tai muulla tietorakenteella. Jos käsitteen ilmentymään liittyy taas vain yksi toinen käsite, merkitään se Java-luokassa yksittäisenä muuttujana joka viittaa toiseen luokkaan (käsitteeseen).
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Monen suhde moneen
+<% end %>
+
+<p>
+  Kahden käsitteen välillä on monen suhde moneen (<code>N-N</code>) -yhteys, jos ensimmäisen käsitteen ilmentymään voi liittyä monta toisen käsitteen ilmentymää, ja toisen käsitteen ilmentymään voi liittyä monta ensimmäisen käsitteen ilmentymää.
+</p>
+
+<p>
+  Yllä olevassa esimerkissä tällainen suhde on esimerkiksi annoksen ja raaka-aineen välillä. Käytännössä yksittäinen annos -- esimerkiksi <em>Poronkäristys</em> -- voi sisältää montaa eri raaka-ainetta kuten <em>perunaa</em>, <em>puolukkaa</em> ja <em>poroa</em>. Toisaalta, yksittäinen raaka-aine kuten <em>peruna</em> voi sisältyä moneen eri annokseen.
+</p>
+
+
+
+<figure>
+  <img src="/img/ravintola/annos-raaka_aine.png" alt="[Annos|nimi:String;koko:String;hinta:double]
+						      [RaakaAine|nimi:String]
+						      [Annos]*-*[RaakaAine]"/>
+  <figcaption>
+    Monen suhde moneen. Yllä annokseen voi liittyä montaa eri raaka-ainetta, ja yksi raaka-aine voi esiintyä useammassa eri annoksessa. Monen suhde moneen merkitään luokkakaavioon piirrettyyn viivaan kahdella tähdellä, missä viivan kummassakin päässä on tähti. 
+  </figcaption>
+</figure>
+
+
+
+
+
+
+<% partial 'partials/hint', locals: { name: 'Yhden suhde yhteen' } do %>
+  
+  <p>
+    Yhteystyyppien yhden suhde moneen ja monen suhde moneen lisäksi on myös yhteystyyppi yhden suhde yhteen. Kahden käsitteen välillä on yhden suhde yhteen (<code>1-1</code>) -yhteys, jos ensimmäisen käsitteen ilmentymään voi liittyä vain yksi toisen käsitteen ilmentymä, ja toisen käsitteen ilmentymään voi liittyä vain yksi ensimmäisen käsitteen ilmentymä.
+  </p>
+  
+  <p>
+    Edellisessä tilausjärjestelmän luokkakaaviossa tätä yhteystyyppiä ei näkynyt. Eräs esimerkki tällaisesta yhteystyypistä voisi olla kuljettajien ja kuljetusvälineiden välinen -- ehkäpä hieman teennäinen -- yhteys. Yhdellä kuljettajalla voi olla käytössään vain yksi kuljetusväline, ja yksi kuljetusväline voi olla vain yhden kuljettajan käytössä. Vastaavan esimerkin voisi rakentaa myös lainaesineiden kautta -- esimerkiksi yhdellä opiskelijalla voi olla vain yksi laite lainassa ylläpidolta, ja ylläpito voi lainata tietyn laitteen vain yhdelle opiskelijalle.
+  </p>
+  
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Yhteysrajoitteet ja oliot
+<% end %>
+
+<p>
+  Tarkastellaan edellä kuvattuja yhteystyyppejä yhdestä moneen ja monesta moneen olioiden näkökulmasta. <strong>oliokaavio</strong>na. Oliokaavioita käytetään ohjelmien tilan muutosten tarkasteluun ohjelman suorituksen aikana. Keskiössä ovat ohjelman käsittelemät oliot, olioiden muuttujien arvot sekä viitteet olioiden välillä. Valmiit kokoelmaluokat (esim. ArrayList) sivuutetaan siten, että viitteet piirretään olioiden välille.
+</p>
+
+<p>
+  Oletetaan, että käytössämme on edellä kuvatut luokat <code>Annos</code> ja <code>RaakaAine</code>.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  RaakaAine kk = new RaakaAine("Kesäkurpitsa");
+  RaakaAine jl = new RaakaAine("Jauheliha");
+  RaakaAine juusto = new RaakaAine("Emmentaljuusto");
+
+  Annos vuoka = new Annos("Jauheliha-kesäkurpitsavuoka", "iso", 3);
+  Annos paistos = new Annos("Jauheliha-kesäkurpitsapaistos", "sopiva", 4);
+
+  vuoka.lisaaRaakaAineet(kk, jl, juusto);
+  paistos.lisaaRaakaAine(kk, jl, juusto);
+<% end %>
+
+<p>
+  Ohjelman tila suorituksen lopussa piirretään oliokaaviona seuraavasti. Jokainen olio merkitään omana laatikkonaan, mikä sisältää sekä olion nimen ja tyypin että oliomuuttujat. Oliomuuttujien arvot merkitään myös oliokaavioon. Alla olevasta oliokaaviosta näkee, että annoksen ja raaka-aineen välillä on monesta moneen yhteys -- annoksella voi olla monta raaka-ainetta ja raaka-aine voi liittyä useampaan annokseen.
+</p>
+
+<figure>
+  <img src="/img/oliokaavio-1.png" alt="[kk:RaakaAine|nimi=Kesäkurpitsa], [jl:RaakaAine|nimi=Jauheliha], [juusto:RaakaAine|nimi=Emmentaljuusto], [vuoka:Annos|nimi=Jauheliha-kesäkurpitsavuoka;koko=iso;hinta=3], [paistos:Annos|nimi=Jauheliha-kesäkurpitsapaistos;koko=sopiva;hinta=4], [vuoka:annos]-[kk:RaakaAine], [vuoka:annos]-[jl:RaakaAine], [vuoka:annos]-[juusto:RaakaAine], [paistos:annos]-[kk:RaakaAine], [paistos:annos]-[jl:RaakaAine], [paistos:annos]-[juusto:RaakaAine]"/>
+  <figcaption>
+    <p>
+      Edellä kuvatun raaka-aineita ja annoksia käsittelevän ohjelman tila suorituksen lopussa.
+  </figcaption>
+</figure>
+
+<p>
+  Tarkastellaan seuraavaksi Asiakkaan ja Tilauksen välistä yhteyttä oliokaaviona. Oletetaan, että oliokaaviona piirretään alla kuvatun ohjelman lopputilanne.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Asiakas kusti = new Asiakas("Kusti", "...", "...", 33100, "Tampere");
+  Asiakas pukki = new Asiakas("JP", "...", "...", 99999, "Korvatunturi");
+
+  Tilaus t1 = new Tilaus(kusti, "polkupyörä");
+  Tilaus t2 = new Tilaus(pukki, "helikopteri");
+  Tilaus t3 = new Tilaus(pukki, "helikopteri");
+
+  t1.vastaanotettu = true;
+  t3.vastaanotettu = true;
+<% end %>
+
+<figure>
+  <img src="/img/oliokaavio-2.png" alt="[kusti:Asiakas|nimi=Kusti;puhelinnumero=...;katuosoite=...;postinumero=33100;postitoimipaikka=Tampere]
+					[pukki:Asiakas|nimi=JP;puhelinnumero=...;katuosoite=...;postinumero=99999;postitoimipaikka=Korvatunturi]
+					[t1:Tilaus|aika=1516562032;kuljetustapa=polkupyörä;vastaanotettu=true;toimitettu=false]
+					[t2:Tilaus|aika=1516563032;kuljetustapa=helikopteri;vastaanotettu=false;toimitettu=false]
+					[t3:Tilaus|aika=1516564032;kuljetustapa=helikopteri;vastaanotettu=true;toimitettu=false]
+					[kusti:Asiakas]-[t1:Tilaus]
+					[pukki:Asiakas]-[t2:Tilaus]
+					[pukki:Asiakas]-[t3:Tilaus]"/>
+  <figcaption>
+    <p>
+      Edellä kuvatun asiakkaiden ja tilausten yhteyksiä käsittelevän ohjelman tila suorituksen lopussa.
+  </figcaption>
+</figure>
+
+<p>
+  Yllä olevaa oliokaaviota tarkasteltaessa huomaamme, ettei jokaiseen tilaukseen liittyy vain yksi asiakas, mutta asiakkaalla voi olla useampia tilauksia.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Miten oliokaaviot liittyvät tietokantoihin?' } do %>
+  
+  <p>
+    Oliokaavioiden avulla näytetään ohjelman suorituksen aikainen olioiden tila, joka kertoo olioiden muuttujien arvoista. Tietokannanhallintajärjestelmien tehtävänä on tallentaa ja ylläpitää tietoa -- esimerkiksi olioiden tilaa. Ymmärtämällä miten olioiden tila voidaan esittää, löydämme ehkäpä selkeän kytköksen tietokantojen sisältämän tiedon esittämiselle.
+  </p>
+  
+<% end %>
+
+
+
+
+<% partial 'partials/material_heading' do %>
+  Luokkakaaviosta relaatiokaavioksi (eli tietokantakaavioksi)
+<% end %>
+
+<p>
+  <strong>Tietokantakaavio</strong> (myös relaatiokaavio) on kuvaus tietokantatauluista sekä tietokantatauluihin liittyvistä tiedoista. Relaatiokaavion perusteella luodaan tietokantataulujen luomiseen tarvittavat kyselyt. Tutustutaan ensin termiin <em>relaatio</em> ja harjoitellaan sen jälkeen luokkakaavion muuntamista relaatiokaavioksi. 
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Relaatiomalli
+<% end %>
+
+<p>
+  Relaatiomallin perusajatus on tallennettavan tiedon jakaminen käsitteisiin sekä käsitteiden välisiin yhteyksiin. Jokaista käsitettä vastaa relaatiotietokannassa taulu, ja jokaiselle käsitteen ominaisuudelle eli attribuutille on taulussa oma sarake. Jokainen taulun rivi vastaa yhtä käsitteen ilmentymää, ja tietokantatauluja määriteltäessä taululle määritellään tyypillisesti myös <em>avain</em>, jonka perusteella kukin rivi -- eli käsitteen ilmentymä -- voidaan yksilöidä.
+</p>
+
+<p>
+  Relaatiomallille on myös hieman formaalimpi määritelmä, johon tutustutaan seuraavaksi. Noudatamme tässä Edgar Coddin vuonna 1970 julkaistun artikkelin <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.98.5286&rep=rep1&type=pdf" target="_blank" norel>"A Relational Model of Data for Large Shared Data Banks"</a> esitysasua.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Relaatio
+<% end %>
+
+<p>
+  Olkoon <em>S<sub>1</sub>, S<sub>2</sub>, ..., S<sub>n</sub></em> arvojoukkoja, joiden sisältämät arvot eivät ole välttämättä täysin erillisiä. Relaatio <em>R</em> on joukko <em>n</em> alkion kokoisia monikkoja. Jokaisen relaatiossa R olevan monikon ensimmäisen arvon tulee kuulua joukkoon <em>S<sub>1</sub></em>, toisen arvon kuulua joukkoon <em>S<sub>2</sub></em> jne.
+</p>
+
+<p>
+  Relaatio <em>R</em> on siis osajoukko joukkojen <em>S<sub>1</sub>, S<sub>2</sub>, ..., S<sub>n</sub></em> välisestä karteesisesta tulosta <em>S<sub>1</sub> &#10799; S<sub>2</sub> &#10799; ... &#10799; S<sub>n</sub></em>.
+</p>
+
+<p>
+  Relaatio esitetään tyypillisesti taulukkona, jolla on seuraavat ominaisuudet:
+</p>
+
+<ul>
+  <li>Jokainen taulukon rivi kuvaa yhtä relaation R monikkoa.</li>
+  <li>Taulukon rivien järjestyksellä ei ole väliä.</li>
+  <li>Jokainen taulukon rivi on erilainen.</li>
+  <li>Sarakkeiden järjestyksellä kuvataan relaation arvojoukkoja; ensimmäisen sarakkeen arvot tulevat arvojoukosta S<sub>1</sub>, toisen sarakkeen arvojoukosta S<sub>2</sub> jne..</li>
+  <li>Jokaiselle sarakkeelle annetaan nimi, joka kuvaa kunkin arvojoukon mahdollisia arvoja.</li> 
+</ul>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Pääavain, viittaaminen ja viiteavain
+<% end %>
+
+<p>
+  Jokaisella relaatiolla on tyypillisesti yksi arvojoukko tai arvojoukkojen yhdistelmä, joiden arvojen perusteella voidaan yksilöidä relaation monikko (eli taulukon rivi). Tällaista arvojoukkoa tai arvojoukkojen yhdistelmää kutsutaan <em>pääavaimeksi</em>. Oleellinen ominaisuus relaatioissa on myös saman tai toisen relaation arvoihin <em>viittaaminen</em>. Tämä tapahtuu <em>viiteavaimen</em> avulla. Relaatiossa R oleva arvojoukko tai arvojoukkojen yhdistelmä, joka ei ole relaation R pääavain, mutta sisältää jonkun relaation pääavaimia, on viiteavain.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Joukko-operaatiot ja kyselyt
+<% end %>
+
+<p>
+  Relaatiot ovat joukkoja, joten niitä voi käsitellä joukko-opin operaatioiden avulla. Tällä kurssilla näihin ei syvennytä tarkemmin, mutta teemasta kiinnostuneiden kannattanee lukea klassikkoteos <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.98.5286&rep=rep1&type=pdf" target="_blank">"A Relational Model of Data for Large Shared Data Banks"</a>.
+</p>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Muunnos luokkakaaviosta relaatiokaavioksi
+<% end %>
+
+<p>
+  Muunnos luokkakaaviosta relaatiokaavioksi tapahtuu seuraavia askeleita noudattaen:
+</p>
+
+<ul>
+  <li>
+    Askel 1: määrittele jokaiselle luokkakaavion käsitteelle käsitteen ilmentymän yksilöivä pääavain.
+  </li>
+  <li>
+    Askel 2: monen suhden moneen -yhteyksien käsittely lisäämällä yhteyteen liitostaulu, mikä muuntaa yhteydet yhden suhde moneen -muotoisiksi
+  </li>
+  <li>
+    Askel 3: yhden suhde moneen -yhteyksien käsittely lisäämällä "moneen"-yhteyden päädyssä olevaan tauluun viiteavain
+  </li>
+</ul>
+
+<p>
+  Tarkastellaan edellä kuvattuja askeleita ja muunnetaan aiemmin käsitelty tilausjärjestelmän luokkakaavio tietokantakaavioksi.
+</p>
+
+
+<figure>
+  <img src="/img/ravintola/luokkakaavio.png" alt="[Asiakas|nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+						  [Ravintola|nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+						  [Annos|nimi:String;koko:String;hinta:double]
+						  [Tilaus|aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+						  [RaakaAine|nimi:String]
+						  
+						  [Asiakas]1-*[Tilaus]
+						  [Tilaus]*-*[Annos]
+						  [Annos]*-*[RaakaAine]
+						  [Ravintola]1-*[Annos]"/>
+  <figcaption>
+    Tietokantakaavioksi muunnettava tilausjärjestelmän luokkakaavio.
+  </figcaption>
+</figure>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Käsitteen yksilöivän pääavaimen määrittely
+<% end %>
+
+<p>
+  Ensimmäisessä askeleessa määrittelemme jokaiselle käsitteelle pääavaimen (primary key). <strong>Pääavain</strong> yksilöi käsitteen ilmentymän. Pääavaimella on muutamia ominaisuuksia: sen täytyy olla uniikki (sama arvo ei saa esiintyä samassa taulussa useampaan kertaan) ja se ei saa olla tyhjä. Pääavaimeksi valitaan (nykyään) tyypillisesti juokseva numero. Käytössämme olevissa relaatiokaaviossa pääavain merkitään merkinnällä (pk). 
+</p>
+
+<p>
+  Alla tilausjärjestelmän luokkakaavioon on merkitty pääavaimet.
+</p>
+
+
+<figure>
+  <img src="/img/ravintola/luokkakaavio-paaavaimilla.png" alt="[Asiakas|(pk) id:Integer; nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+							       [Ravintola|(pk) id:Integer;nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+							       [Annos|(pk) id:Integer;nimi:String;koko:String;hinta:double]
+							       [Tilaus|(pk) id:Integer;aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+							       [RaakaAine|(pk) id:Integer;nimi:String]
+							       
+							       [Asiakas]1-*[Tilaus]
+							       [Tilaus]*-*[Annos]
+							       [Annos]*-*[RaakaAine]
+							       [Ravintola]1-*[Annos]"/>
+  <figcaption>
+    Tilausjärjestelmän luokkakaavion muunnos relaatiokaavioksi, askel 1. Ensimmäisessä askeleessa jokaiseen käsitteeseen määritellään pääavain, jonka perusteella kukin käsitteen ilmentymä voidaan yksilöidä. Tässä käytetään numeerista tunnusta, eli esimerkiksi uutta asiakasta luodessa asiakkaan tunnus on numero, joka ei ole vielä yhdenkään muun asiakkaan käytössä (numerot merkitään tyypillisesti juoksevasti 1...n).
+  </figcaption>
+</figure>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Monen suhde moneen -yhteyksien käsittely 
+<% end %>
+
+<p>
+  Askeleessa kaksi käsitellään monen suhde moneen -yhteydet.
+</p>
+
+<p>
+  Monen suhde moneen -yhteydet muunnetaan yhden suhde moneen -tyyppisiksi lisäämällä monen suhde moneen -yhteyksille niin kutsuttu liitostaulu. Liitostaulun avulla saadaan selville mikä käsitteen ilmentymä liittyy mihinkin toisen käsitteen ilmentymään.
+</p>
+
+<p>
+  Käytännössä muunnos tapahtuu seuraavasti. Alla olevassa kuvassa on monen suhde moneen -yhteys käsitteiden Annos ja Raaka-aine välillä. Käsitteille annos ja raaka-aine on jo määritelty pääavaimet.
+</p>
+
+<figure>
+  <img src="/img/ravintola/annos-raaka_aine-paaavaimilla.png" alt="[Annos|(pk) id:Integer;nimi:String;koko:String;hinta:double]
+								   [RaakaAine|(pk) id:Integer;nimi:String]
+								   [Annos]*-*[RaakaAine]"/>
+  <figcaption>
+    Monen suhde moneen -yhteys annoksen ja raaka-aineen välillä. Käsitteille annos ja raaka-aine on määritelty pääavaimet askeleessa yksi. 
+  </figcaption>
+</figure>
+
+<p>
+  Luodaan käsitteiden välille liitostaulu AnnosRaakaAine. Liitostaulusta AnnosRaakaAine on yhden suhde moneen -yhteys käsitteisiin Annos ja Raaka-aine. Käytännössä yksi AnnosRaakaAine-käsitteen ilmentymä yksilöi aina yksittäisen annos - raaka-aine -parin.
+</p>
+
+
+<figure>
+  <img src="/img/ravintola/annos-raaka_aine-paaavaimilla-liitostaulu.png" alt="[Annos|(pk) id:Integer;nimi:String;koko:String;hinta:double]
+									       [RaakaAine|(pk) id:Integer;nimi:String]
+									       [AnnosRaakaAine]
+									       [Annos]1-*[AnnosRaakaAine]
+									       [AnnosRaakaAine]*-1[RaakaAine]"/>
+  <figcaption>
+    Monen suhde moneen -yhteys annoksen ja raaka-aineen välillä muunnettu liitostaulun avulla kahdeksi yhden suhde moneen -yhteydeksi. Taulu (tai käsite) AnnosRaakaAine pitää kirjaa kuhunkin annokseen liittyvistä raaka-aineista.
+  </figcaption>
+</figure>
+
+
+
+<p>
+  Jokainen monesta moneen suhde käsitellään yksitellen. Kun kaikki monen suhde moneen -yhteydet on käsitelty, kaavio on seuraavanlainen.  
+</p>
+
+
+
+<figure>
+  <img src="/img/ravintola/luokkakaavio-paaavaimilla-monesta-moneen-poistettu.png" alt="[Asiakas|(pk) id:Integer;nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+											[Ravintola|(pk) id:Integer;nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+											[Annos|(pk) id:Integer;nimi:String;koko:String;hinta:double]
+											[Tilaus|(pk) id:Integer;aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+											[RaakaAine|(pk) id:Integer;nimi:String]
+											[AnnosRaakaAine]
+											[TilausAnnos]
+											
+											[Asiakas]1-*[Tilaus]
+											[Tilaus]1-*[TilausAnnos]
+											[TilausAnnos]*-1[Annos]
+											[Annos]1-*[AnnosRaakaAine]
+											[AnnosRaakaAine]*-1[RaakaAine]
+											[Ravintola]1-*[Annos]"/>
+  <figcaption>
+    Tilausjärjestelmän muunnos relaatiokaavioksi, askel 2. Toisessa askeleessa jokainen monesta moneen -yhteys on pilkottu osiin lisäämällä yhteyteen liitostaulu. Liitostaulut yhdistävät monesta moneen -yhteyden käsitteet yhdestä moneen -yhteydellä.
+  </figcaption>
+</figure>
+
+
+
+
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Yhden suhde moneen -yhteyksien käsittely 
+<% end %>
+
+<p>
+  Yhden suhde moneen -yhteydet käsitellään lisäämällä yhteyden tähdellä merkittyyn käsitteeseen <em>viiteavain</em>, joka viittaa käsitteeseen, joka on merkitty yhteydessä ykkösellä. <strong>Viiteavain</strong> viittaa toisen käsitteen pääavaimeen. Viiteavain siis yksilöi (toisen) käsitteen ilmentymän, johon nykyinen käsite viittaa. Käytössämme olevissa relaatiokaaviossa pääavain merkitään merkinnällä (fk), jonka lisäksi viiteavaimen nimi ja tyyppi kertoo minkä käsitteen pääavaimeen viiteavain viittaa.
+</p>
+
+
+
+
+<figure>
+  <img src="/img/ravintola/asiakas-tilaus-paaavaimilla.png" alt="[Asiakas|(pk) id:Integer;nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+								 [Tilaus|(pk) id:Integer;aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+								 [Asiakas]1-*[Tilaus]"/>
+  <figcaption>
+    Yhden suhde moneen. Yllä yhteen asiakkaaseen voi liittyä monta tilausta, mutta yksi tilaus liittyy aina täsmälleen yhteen asiakkaaseen.
+  </figcaption>
+</figure>
+
+
+<p>
+  Yllä oleva yhden suhde moneen yhteys käsitellään lisäämällä Tilaus-käsitteeseen viiteavain, joka viittaa asiakkaaseen. Tämän viiteavaimen perusteella jokaisesta tilauksesta saa selville tilaukseen liittyvän asiakkaan.
+</p>
+
+
+
+<figure>
+  <img src="/img/ravintola/asiakas-tilaus-paaavaimilla-ja-viiteavaimilla.png" alt="[Asiakas|(pk) id:Integer;nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+										   [Tilaus|(pk) id:Integer;(fk) asiakas_id:Asiakas;aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+										   [Asiakas]1-*[Tilaus]"/>
+  <figcaption>
+    Yhden suhde moneen. Yllä yhteen asiakkaaseen voi liittyä monta tilausta, mutta yksi tilaus liittyy aina täsmälleen yhteen asiakkaaseen.
+  </figcaption>
+</figure>
+
+
+<p>
+  Jokainen yhdestä moneen suhde käsitellään yksitellen. Kun kaikki yhdestä moneen -yhteydet on käsitelty, kaavio on seuraavanlainen.  
+</p>
+
+
+
+<figure>
+  <img src="/img/ravintola/luokkakaavio-paaavaimilla-ja-viiteavaimilla.png" alt="[Asiakas|(pk) id:Integer;nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+										 [Ravintola|(pk) id:Integer;nimi:String;puhelinnumero:String;katuosoite:String;postinumero:Integer;postitoimipaikka:String]
+										 [Annos|(pk) id:Integer;(fk) ravintola_id:Ravintola;nimi:String;koko:String;hinta:double]
+										 [Tilaus|(pk) id:Integer;(fk) asiakas_id:Asiakas;aika:Date;kuljetustapa:String;vastaanotettu:Boolean;toimitettu:Boolean]
+										 [RaakaAine|(pk) id:Integer;nimi:String]
+										 [AnnosRaakaAine|(fk) annos_id:Annos;(fk) raaka_aine_id:RaakaAine]
+										 [TilausAnnos|(fk) tilaus_id:Tilaus;(fk) annos_id:Annos]
+										 
+										 [Asiakas]1-*[Tilaus]
+										 [Tilaus]1-*[TilausAnnos]
+										 [TilausAnnos]*-1[Annos]
+										 [Annos]1-*[AnnosRaakaAine]
+										 [AnnosRaakaAine]*-1[RaakaAine]
+										 [Ravintola]1-*[Annos]"/>
+  <figcaption>
+    Tilausjärjestelmän muunnos relaatiokaavioksi, askel 3. Kolmannessa askeleessa jokaiseen yhdestä moneen -yhteyteen on lisätty viiteavain. Viiteavain lisätään päätyyn, jossa on yhteyden tähti.
+  </figcaption>
+</figure>
+
+
+<p>
+  Edellä kuvatun tietokantakaavion voi kuvata myös tekstimuodossa seuraavasti. Pääavaimet merkitään etuliitteellä <code>(pk)</code>, jonka lisäksi niille kerrotaan tyyppi. Viiteavaimet merkitään etuliitteellä <code>(fk)</code>, jonka lisäksi niihin merkitään viitatun tietokantakaavion nimi, esim <code>(fk) tilaus_id -&gt; Tilaus</code>.
+</p>
+
+<ul>
+  <li>Asiakas((pk) id:Integer, nimi:String, puhelinnumero:String, katuosoite:String, postinumero:Integer, postitoimipaikka:String)</li>
+  <li>Ravintola((pk) id:Integer, nimi:String, puhelinnumero:String, katuosoite:String, postinumero:Integer, postitoimipaikka:String)</li>
+  <li>Annos((pk) id:Integer, (fk) ravintola_id -&gt; Ravintola, nimi:String, koko:String, hinta:double)</li>
+  <li>Tilaus((pk) id:Integer, (fk) asiakas_id -&gt; Asiakas, aika:Date, kuljetustapa:String, vastaanotettu:Boolean, toimitettu:Boolean)</li>
+  <li>RaakaAine((pk) id:Integer, nimi:String)</li>
+  <li>AnnosRaakaAine((fk) annos_id - &gt; Annos, (fk) raaka_aine_id -&gt; RaakaAine)</li>
+  <li>TilausAnnos((fk) tilaus_id - &gt; Tilaus, (fk) annos_id -&gt; Annos)</li>
+</ul>
+
+
+<% partial 'partials/hint', locals: { name: 'Menikö oikein?' } do %>
+  
+  <p>
+    Luokkakaavion muunnos relaatiokaavioksi tapahtuu kolmen askeleen kautta. Voit tarkastella relaatiokaavion toimivuutta poistamalla kaikki yhteyksiä kuvaavat viivat.
+  </p>
+  
+  <p>
+    Piirrä tämän jälkeen viivat takaisin viiteavainten perusteella. Viiteavaimen sisältävän käsitteen päätyyn päätyyn tulee aina tähti ja viivan toiseen päätyyn numero 1. Jos viiteavaimia seuraamalla tapahtunut piirtäminen tuottaa saman kaavion kuin mikä askelia seuraamalla saatu lopputulos oli, on kaavio melko suurella todennäköisyydellä kunnossa.
+  </p>
+  
+<% end %>
+
+
+
+
+
+<% partial 'partials/hint', locals: { name: 'Perintä ja luokkakaaviosta tietokantakaavioksi' } do %>
+  
   <p>
     Perintä käsitellään tietokantakaaviossa yhden suhde yhteen -tyyppisenä yhteytenä. Kun perintänä merkittyä yhteyttä muunnetaan tietokantakaavioksi, lisätään perivään käsitteeseen viiteavain, joka viittaa perittävään käsitteeseen. Edellinen opiskelija-henkilö -esimerkki muuntuu seuraavanlaiseksi tietokantakaavioksi.
   </p>
-
+  
   
   <figure>
     <img src="/img/opiskelija-perii-henkilon-tietokantakaavio.png" alt="[Henkilo|(pk) id: Integer; nimi:String;syntymäaika:Date;email:String], [Opiskelija|(pk) id: Integer; (fk) henkilo_id: Henkilo; opiskelijanumero:String], [Henkilo]-[Opiskelija]"/>
     <p>&nbsp;</p>
   </figure>
-
+  
 <% end %>
+
 
 
 <% partial 'partials/material_heading' do %>
@@ -35,19 +596,19 @@
 <% end %>
 
 <p>
-  Materiaalin ensimmäisen osan esimerkeissä tarkasteltiin tietokoneen kiintolevyllä sijaitsevan tiedon käsittelyä ohjelmallisesti -- käytännössä esimerkki käsitteli <strong>fyysistä näkymää tiedon tallennukseen</strong>. Esimerkeissä määritettiin tiedon rakenne sekä muuttujien maksimipituus: jos muuttujan todellinen arvo ei vastaa maksimipituutta, tyhjä tila täytetään välilyönneillä. Tällä tavoin ohjelmoija voi olettaa, että tiettyyn muuttujaan liittyvä arvo alkaa aina samasta kohtaa. Laajemmin ajatellen, ohjelmoija tietää myös, että samaisen muuttujan arvo on samassa kohdassa jokaiselle tallennetulle tietueelle (tai oliolle).
+  Materiaalin ensimmäisen osan esimerkeissä tarkasteltiin tietokoneen kiintolevyllä sijaitsevan tiedon käsittelyä ohjelmallisesti -- käytännössä esimerkki käsitteli <strong>fyysistä näkymää tiedon tallennukseen</strong>. Esimerkeissä määritettiin tiedon rakenne sekä muuttujien maksimipituus: jos muuttujan todellinen arvo ei vastaa maksimipituutta, tyhjä tila täytetään esimerkiksi välilyönneillä. Tällä tavoin ohjelmoija voi olettaa, että tiettyyn muuttujaan liittyvä arvo alkaa aina samasta kohtaa. Laajemmin ajatellen, ohjelmoija tietää myös, että samaisen muuttujan arvo on samassa kohdassa jokaiselle tallennetulle tietueelle (tai oliolle).
 </p>
 
 <p>
-  Ensimmäisen viikon esimerkeissä tiedon käsittelijän tai tiedon hakijan tulee tuntea käsite indeksi sekä osata hyödyntää indeksiä tiedon hakemisessa. Samalla, jos tiedon hakija haluaa vaikkapa useamman muuttujan arvon, tulee ohjelmaa sekä siinä käytettyjä indeksejä päivittää sopivasti.
+  Ensimmäisen osan esimerkeissä tiedon käsittelijän tai tiedon hakijan tulee tuntea käsite indeksi sekä osata hyödyntää indeksiä tiedon hakemisessa. Samalla, jos tiedon hakija haluaa vaikkapa useamman muuttujan arvon, tulee ohjelmaa sekä siinä käytettyjä indeksejä päivittää sopivasti. <em>Ohjelmallisessa tiedon käsittelyssä tulee siis osata ohjelmointia.</em>
 </p>
 
 <p>
-  Kun tietokantoja käytetään osana jokapäiväistä työtä, edellä kuvattu tiedon käsittely ei ole kovin mielekästä. Se vaatii käytännössä ohjelmointiosaamista sekä ymmärrystä tallennetusta tiedosta ja tiedon fyysisestä esitysmuodosta. Tiedon fyysinen esitysmuoto vaihtelee tallennettavan tiedon mukaan, joten tiedon käsittelyyn tarvitaan parempi ratkaisu. Tätä ongelmaa ja työläyttä ratkaisemaan on luotu useampia korkeamman abstraktiotason esitystapoja, joita käytetään tietokannassa olevan tiedon hakemiseen ja tiedon muokkaamiseen.
+  Kun tietokantoja käytetään osana jokapäiväistä työtä, ei oletus "jokaisen tietokantaa käyttävän tulee osata ohjelmoida" ole kovin mielekäs. Tämä käytännössä vaatisi jokaiselta ohjelmointiosaamista sekä ymmärrystä tallennetusta tiedosta ja tiedon fyysisestä esitysmuodosta. Tiedon fyysinen esitysmuoto vaihtelee tallennettavan tiedon mukaan, joten tiedon käsittelyyn tarvitaan parempi ratkaisu. Tätä ongelmaa ja työläyttä ratkaisemaan on luotu useampia korkeamman abstraktiotason esitystapoja, joita käytetään tietokannassa olevan tiedon hakemiseen ja tiedon muokkaamiseen.
 </p>
 
 <p>
-  Tällä kurssilla keskitytään Structured Query Language (<strong>SQL</strong>) -kieleen. Structured Query Language (jatkossa SQL) on 1980-luvulla standardoitu kieli tietokantakyselyiden tekemiseen. SQL-kielen avulla voidaan määritellä tallennettavan tiedon muoto, luoda ja muokata tietokantatauluja, lisätä tietoa tietokantatauluihin, muokata tietokantatauluissa olevaa tietoa sekä hakea tietoa tietokannoista. Merkittävä osa tällä hetkellä käytössä olevista tietokannanhallintajärjestelmistä mahdollistaa SQL-kielellä tehtyjen kyselyiden käyttämisen tietokannanhallintajärjestelmässä olevien tietokantojen ja tietokantataulujen käsittelyyn. Voidaan ajatella, että SQL-kielellä tehdyt kyselyt ovat kuvattu <em>käsitteellisellä abstraktiotasolla</em>, eli SQL-kieltä käytettäessä tiedon lopulliseen esitysmuotoon kiintolevyllä ei oteta kantaa.
+  Tällä kurssilla keskitytään Structured Query Language (<strong>SQL</strong>) -kieleen. Structured Query Language (jatkossa SQL) on 1980-luvulla standardoitu kieli tietokantakyselyiden tekemiseen. SQL-kielen avulla voidaan määritellä tallennettavan tiedon muoto, luoda ja muokata tietokantatauluja, lisätä tietoa tietokantatauluihin, muokata tietokantatauluissa olevaa tietoa sekä hakea tietoa tietokannoista. Merkittävä osa tällä hetkellä käytössä olevista tietokannanhallintajärjestelmistä mahdollistaa SQL-kielellä tehtyjen kyselyiden käyttämisen tietokannanhallintajärjestelmässä olevien tietokantojen ja tietokantataulujen käsittelyyn. Voidaan ajatella, että SQL-kielellä tehdyt kyselyt ovat kuvattu <em>rakenteellisella abstraktiotasolla</em>, eli SQL-kieltä käytettäessä tiedon lopulliseen esitysmuotoon kiintolevyllä ei oteta kantaa.
 </p>
 
 <p>
@@ -114,9 +675,8 @@
 
 
 
-
 <% partial 'partials/material_sub_heading' do %>
-  Tietokantataulun luominen
+  Tietokantataulun luominen: CREATE TABLE
 <% end %>
 
 <p>
@@ -131,8 +691,6 @@
       <em>sarakkeen 3 tiedot</em>
   )
 <% end %>
-
-
 
 <% partial 'partials/material_sub_sub_heading' do %>
   Tietotyypit
@@ -171,7 +729,6 @@
   </ul>
   
 <% end %>
-
 
 
 <% partial 'partials/material_sub_sub_heading' do %>
@@ -233,9 +790,214 @@
 </table>
 
 
+<% partial 'partials/material_sub_heading' do %>
+  Pää- ja viiteavaimet
+<% end %>
+
+<p>
+  Edellisessä luvussa muunnettiin luokkakaavio relaatiokaavioksi kolmea askelta seuraamalla. Relaatiokaavio kuvaa tietokannan tauluja, ja taulut voidaan luoda SQL-kielisillä lauseilla. Relaatiokaavion voi kuvata tekstimuodossa seuraavasti.
+</p>
+
+<p>
+  Taulu ((pk) paaavaimen_nimi: PaaavaimenTyyppi, (fk) viiteavaimen_nimi: ViitattuTaulu, sarake:SarakeTyyppi, sarake:SarakeTyyppi, ...)
+</p>
+
+<p>
+  Tilausjärjestelmän relaatiokaavion voi kuvata tekstimuodossa seuraavasti.
+</p>
+
+<ul>
+  <li>Asiakas((pk) id:Integer, nimi:String, puhelinnumero:String, katuosoite:String, postinumero:Integer, postitoimipaikka:String)</li>
+  <li>Ravintola((pk) id:Integer, nimi:String, puhelinnumero:String, katuosoite:String, postinumero:Integer, postitoimipaikka:String)</li>
+  <li>Annos((pk) id:Integer, (fk) ravintola_id -&gt; Ravintola, nimi:String, koko:String, hinta:double)</li>
+  <li>Tilaus((pk) id:Integer, (fk) asiakas_id -&gt; Asiakas, aika:Date, kuljetustapa:String, vastaanotettu:Boolean, toimitettu:Boolean)</li>
+  <li>RaakaAine((pk) id:Integer, nimi:String)</li>
+  <li>AnnosRaakaAine((fk) annos_id - &gt; Annos, (fk) raaka_aine_id -&gt; RaakaAine)</li>
+  <li>TilausAnnos((fk) tilaus_id - &gt; Tilaus, (fk) annos_id -&gt; Annos)</li>
+</ul>
+
+
+<p>
+  Kun relaatiokaavion perusteella luodaan tietokantataulut, tulee taulut luoda järjestyksessä joka varmistaa viitattavien taulujen olemassaolon. Ensin luodaan taulut, joissa on vain pääavaimia (ei viiteavaimia), ja vasta sitten taulut, joissa on viiteavaimia. Eräs sopiva luontijärjestys edellisille tauluille on seuraava.
+</p>
+
+
+<ul>
+  <li>Asiakas((pk) id:Integer, nimi:String, puhelinnumero:String, katuosoite:String, postinumero:Integer, postitoimipaikka:String)</li>
+  <li>Ravintola((pk) id:Integer, nimi:String, puhelinnumero:String, katuosoite:String, postinumero:Integer, postitoimipaikka:String)</li>
+  <li>RaakaAine((pk) id:Integer, nimi:String)</li>
+  <li>Annos((pk) id:Integer, (fk) ravintola_id -&gt; Ravintola, nimi:String, koko:String, hinta:double)</li>
+  <li>Tilaus((pk) id:Integer, (fk) asiakas_id -&gt; Asiakas, aika:Date, kuljetustapa:String, vastaanotettu:Boolean, toimitettu:Boolean)</li>
+  <li>AnnosRaakaAine((fk) annos_id - &gt; Annos, (fk) raaka_aine_id -&gt; RaakaAine)</li>
+  <li>TilausAnnos((fk) tilaus_id - &gt; Tilaus, (fk) annos_id -&gt; Annos)</li>
+</ul>
+
+
+
 
 <% partial 'partials/material_sub_sub_heading' do %>
-  Tietokantataulun poistaminen
+  Pääavaimen määrittely CREATE TABLE -lauseessa
+<% end %>
+
+<p>
+  Pääavain on taulukohtainen tunniste, joka on uniikki jokaiselle taulun riville. Tämän lisäksi sen arvo ei saa olla tyhjä (<em>null</em>) millään rivillä. Pääavaimeksi valitaan joko olemassaoleva attribuutti (tällöin attribuutin tulee olla muuttumaton), tai sitä varten luodaan uusi attribuutti.
+</p>
+
+<p>
+  Pääavain määritellään tietokantataulun luonnin yhteydessä lisäämällä sarakkeen tyypin perään rajoite <code>PRIMARY KEY</code>. Tämä tarkoittaa sitä, että rivin arvon tulee olla on uniikki, ja että se ei saa koskaan olla tyhjä. Luodaan tietokantataulut Asiakas ja RaakaAine siten, että niissä on määriteltynä pääavain.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Asiakas (
+      id integer PRIMARY KEY,
+      nimi varchar(200),
+      puhelinnumero varchar(20),
+      katuosoite varcar(50),
+      postinumero integer,
+      postitoimipaikka varchar(20)
+  )
+<% end %>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE RaakaAine (
+      id integer PRIMARY KEY,
+      nimi varchar(200)
+  )
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Viiteavaimen määrittely CREATE TABLE -lauseessa
+<% end %>
+
+
+<p>
+  Viiteavaimet ovat tietokantatauluissa sarakkeita, joissa olevat arvot viittaavat toisissa tauluissa oleviin pääavaimiin. Tietokantataulua määriteltäessä viiteavaimet listataan sarakkeiden määrittelyn jälkeen. Jokaisen viiteavaimen yhteydessä kerrotaan sekä luotavan taulun sarake -- eli sarake, joka on viiteavain -- että taulu ja sarake, johon viiteavaimella viitataan.
+</p>
+
+<p>
+  Viiteavaimen määrittely tapahtuu CREATE TABLE -lauseen loppuun asetettavan määäreen <code>FOREIGN KEY(<em>sarake</em>) REFERENCES <em>ViitattavaTaulu(viitattavaSarake)</em></code> avulla. Viiteavaimia voidaan määritellä useampia.
+</p>
+
+<p>
+  Oletetaan, että käytössämme on edellisessä alikuvussa määriteltytietokantataulu Asiakas. Nyt voimme luoda taulun Tilaus, jossa on viittaus tauluun Asiakas.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Tilaus (
+      id integer PRIMARY KEY,
+      asiakas_id integer,
+      aika date,
+      kuljetustapa varchar(40),
+      vastaanotettu boolean,
+      toimitettu boolean,
+      FOREIGN KEY (asiakas_id) REFERENCES Asiakas(id)
+  );
+<% end %>
+
+<p>
+  Viiteavaimet ovat siis sarakkeita siinä missä muutkin sarakkeet, mutta niille määritellään erikseen tieto siitä, ette ne ovat viiteavaimia sekä tieto siitä, että mihin tauluun ja sarakkeeseen kukin viiteavain viittaa. Taulussa käytettävien viiteavainten määrä ei ole rajattu -- voi olla, että niitä ei ole yhtäkään, tai niitä voi olla useita.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'SQLite ja viiteavaimet' } do %>
+  
+  <p>
+    Toistaiseksi käytössämme olevan SQLiten versiossa viiteavaimiin liittyvät tarkistukset -- eli tietokannanhallintajärjestelmän tekemä varmistus viitattavan rivin olemassaolosta -- ovat oletuksena poissa päältä. Tarkastukset saadaan päälle seuraavalla komennolla.
+  </p>
+
+  <pre class="sh_sql">PRAGMA foreign_keys = ON;</pre>
+
+<% end %>
+
+
+<% partial 'partials/hint', locals: { name: 'Useampi arvo pääavaimena' } do %>
+
+  <p>
+    Jokaisella taululla voi olla vain yksi määritelty pääavain. Joskus haluamme, että pääavain liittyy useampaan sarakkeeseen, jolloin sarakkeiden yhdistelmän tulee olla uniikki. Voimme esimerkiksi haluta rajoittaa annokseen määriteltäviä raaka-aineita siten, että kukin raaka-aine saa esiintyä kussakin annoksessa korkeintaan kerran. Tämä onnistuu määrittelemällä taululle AnnosRaakaAine pääavain, joka sisältää sekä annostunnuksen että raaka-aineen
+  </p>
+
+  <% partial 'partials/sql_highlight' do %>
+    CREATE TABLE AnnosRaakaAine (
+        annos_id integer,
+        raaka_aine_id integer,
+        FOREIGN KEY (annos_id) REFERENCES Annos(id),
+        FOREIGN KEY (raaka_aine_id) REFERENCES RaakaAine(id),
+        PRIMARY KEY (annos_id, raaka_aine_id)
+    )
+  <% end %>
+
+<% end %>
+
+
+<p>
+  Tilausjärjestelmämme tietokannan CREATE TABLE -lauseet kokonaisuudessaan.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Asiakas (
+      id integer PRIMARY KEY,
+      nimi varchar(200),
+      puhelinnumero varchar(20),
+      katuosoite varcar(50),
+      postinumero integer,
+      postitoimipaikka varchar(20)
+  );
+
+  CREATE TABLE Ravintola (
+      id integer PRIMARY KEY,
+      nimi varchar(200),
+      puhelinnumero varchar(20),
+      katuosoite varcar(50),
+      postinumero integer,
+      postitoimipaikka varchar(20)
+  );
+
+  CREATE TABLE RaakaAine (
+      id integer PRIMARY KEY,
+      nimi varchar(200)
+  );
+
+  CREATE TABLE Annos (
+      id integer PRIMARY KEY,
+      ravintola_id integer,
+      nimi varchar(200),
+      koko varchar(30),
+      hinta double,
+      FOREIGN KEY (ravintola_id) REFERENCES Ravintola(id)
+  );
+
+  CREATE TABLE Tilaus (
+      id integer PRIMARY KEY,
+      asiakas_id integer,
+      aika date,
+      kuljetustapa varchar(40),
+      vastaanotettu boolean,
+      toimitettu boolean,
+      FOREIGN KEY (asiakas_id) REFERENCES Asiakas(id)
+  );
+
+  CREATE TABLE AnnosRaakaAine (
+      annos_id integer,
+      raaka_aine_id integer,
+      FOREIGN KEY (annos_id) REFERENCES Annos(id),
+      FOREIGN KEY (raaka_aine_id) REFERENCES RaakaAine(id)
+  );
+
+  CREATE TABLE TilausAnnos (
+      tilaus_id integer,
+      annos_id integer,
+      FOREIGN KEY (tilaus_id) REFERENCES Tilaus(id),
+      FOREIGN KEY (annos_id) REFERENCES Annos(id)
+  );
+<% end %>
+
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokantataulun poistaminen: DROP TABLE
 <% end %>
 
 <p>
@@ -247,8 +1009,12 @@ DROP TABLE Henkilo
 <% end %>
 
 <p>
-  Huomaathan, että tietokantataulun poistaminen poistaa myös kaiken tietokantataulussa olevan datan.
+  Huomaathan, että tietokantataulun poistaminen poistaa myös kaiken tietokantataulussa olevan datan. Komennosta löytyy myös versio, joka poistaa tietokantataulun vain jos kyseinen taulu on olemassa. 
 </p>
+
+<% partial 'partials/sql_highlight' do %>
+  DROP TABLE IF EXISTS Henkilo
+<% end %>
 
 
 <% partial 'partials/hint', locals: { name: 'Olemassaolevien tietokantataulujen listaaminen' } do %>
@@ -287,7 +1053,7 @@ DROP TABLE Henkilo
 
 
 <% partial 'partials/material_sub_heading' do %>
-  Tiedon lisääminen tietokantatauluun
+  Tiedon lisääminen tietokantatauluun: INSERT INTO
 <% end %>
 
 <p>
@@ -326,8 +1092,61 @@ INSERT INTO Henkilo (syntymavuosi, nimi)
 
 
 
+<% partial 'partials/material_sub_sub_heading' do %>
+  Pää- ja viiteavaimet tietoa lisättäessä
+<% end %>
+
+
+<p>
+  Tietyt tietokannanhallintajärjestelmät tarjoavat tuen automaattiselle pääavaimen arvojen luomiselle. Esimerkiksi SQLite luo automaattisesti kokonaislukutyyppiselle sarakkeelle arvoja, jos sarake on määritelty pääavaimeksi, ja ohjelmoija ei tauluun tietoa lisätessään arvoja erikseen määrittele. Vastaava toiminnallisuus löytyy myös useista muista tietokannanhallintajärjestelmistä -- tutustu esimerkiksi <a href="https://mariadb.com/kb/en/mariadb/auto_increment/" target="_blank">MariaDB:n dokumentaatioon asiasta</a>.
+</p>
+
+<p>
+  Automaattista pääavaimen arvojen luomista hyödynnetään SQLitessä automaattisesti, jos INSERT-kyselyissä ei määritellä pääavaimelle arvoa. Seuraavilla lisäyskyselyillä tauluun RaakaAine lisättäviin riveihin lisätään automaattisesti lisättävät rivit yksilöivät pääavaimet.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  INSERT INTO RaakaAine (nimi) VALUES ('Banaani');
+  INSERT INTO RaakaAine (nimi) VALUES ('Bataatti');
+  INSERT INTO RaakaAine (nimi) VALUES ('Peruna');
+  INSERT INTO RaakaAine (nimi) VALUES ('Porkkana');
+<% end %>
+
+
+<p>
+  Tiedon lisääminen tauluun Tilaus tapahtuu INSERT INTO -lauseen avulla. Nyt, koska taulussa Tilaus on viiteavain, tulee viitattavan asiakkaan tunnus olla tiedossa ennalta. Jos oletamme, että tilauksen tehnyt asiakkaan pääavaimen arvo on 7, onnistuu tilauksen lisääminen tietokantaan seuraavasti.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  INSERT INTO Tilaus (asiakas_id, aika, kuljetustapa, vastaanotettu, toimitettu) VALUES (7, now(), 'nouto', false, false);
+<% end %>
+
+<p>
+  Yllä käytetty kutsu <code>now()</code> hakee järjestelmän ajan ja asetttaa sen lisättävän rivin sarakkeen aika arvoksi.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Miten tiedän lisätyn rivin pääavaimen?' } do %>
+  
+  <p>
+    Lisätyn rivin pääavaimen saa selville SQL-kyselyllä. Kun lisäämme uuden rivin, saa lisätyn rivin pääavaimen selville SELECT -lauseella, johon tutustumme kohta tarkemmin. Alla esimerkki RaakaAine-tauluun liittyen.
+  </p>
+
+  <% partial 'partials/sql_highlight' do %>
+    INSERT INTO RaakaAine (nimi) VALUES ('Banaani');
+    SELECT id FROM RaakaAine WHERE nimi = 'Banaani';
+  <% end %>
+
+  <p>
+    Ensimmäinen lause lisää raaka-aineen, ja toisella selvitetään raaka-aineen tunnus.
+  </p>
+
+<% end %>
+
+
+
 <% partial 'partials/material_sub_heading' do %>
-  Tiedon hakeminen tietokantataulusta
+  Tiedon hakeminen tietokantataulusta: SELECT
 <% end %>
 
 <p>
@@ -455,7 +1274,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 
 
 <% partial 'partials/material_sub_heading' do %>
-  Tiedon päivittäminen
+  Tiedon päivittäminen: UPDATE
 <% end %>
 
 
@@ -483,7 +1302,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 
 
 <% partial 'partials/material_sub_heading' do %>
-  Tiedon poistaminen tietokantataulusta
+  Tiedon poistaminen tietokantataulusta: DELETE FROM
 <% end %>
 
 <p>
@@ -525,6 +1344,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
 <% end %>
 
 <table class="table">
+
   <tr>
     <th>
       Operaatio
@@ -536,6 +1356,7 @@ SELECT <em>sarake1</em>, <em>sarake2</em> FROM <em>TAULUN_NIMI</em>
       Esimerkki
     </th>
   </tr>
+
   <tr>
     <td>
       Tietokantataulun luominen
@@ -553,6 +1374,7 @@ CREATE TABLE Opiskelija (
       <% end %>
     </td>
   </tr>
+
   <tr>
     <td>
       Tietokantataulun poistaminen
@@ -566,6 +1388,7 @@ DROP TABLE Opiskelija
       <% end %>
     </td>
   </tr>
+
   <tr>
     <td>
       Tiedon lisääminen
@@ -581,6 +1404,7 @@ INSERT INTO
       <% end %>
     </td>
   </tr>
+
   <tr>
     <td>
       Tiedon hakeminen
@@ -594,6 +1418,7 @@ SELECT nimi FROM Opiskelija
       <% end %>
     </td>
   </tr>
+
   <tr>
     <td>
       Tiedon päivittäminen
@@ -609,6 +1434,7 @@ UPDATE Opiskelija
       <% end %>
     </td>
   </tr>
+
   <tr>
     <td>
       Tiedon (rivien) poistaminen
@@ -629,10 +1455,6 @@ DELETE FROM Opiskelija
 
 
 <% partial 'partials/exercise', locals: { name: 'Kappaleet' } do %>
-
-  <p>
-    Huom! <em>Suurin osa tästä tehtävästä tulee tehdä SQLite-ohjelmalla.</em> Materiaalista löytyy aiemmin ohjeet kyseisen ohjelman asentamiseen. Jos käytät Linux- tai MacOS-käyttöjärjestelmää, sqlite on todennäköisesti valmiiksi asennettuna koneellesi. <em>Jos latasit viikon tehtäväpohjat ennen 14.9., tietokantatiedostoissa on todennäköisesti bugi. Bugi korjaantuu kun lataat pohjan uudestaan (poista tehtävä ja lataa se uudestaan).</em>
-  </p>
 
   <p>
     Etsi tehtäväpohjan sisältävä kansio ja mene sen alikansioon <code>db</code>. Kyseisessä kansiossa on valmiina tiedosto <code>esimerkki.db</code>.
@@ -680,32 +1502,45 @@ DELETE FROM Opiskelija
     </tr>
   </table>
 
+  <p>
+    Voit testata tehtävän edistymistä TMC:n kautta. Jos tehtäväpohja näyttää punaista, klikkaa tehtäväpohjan Dependencies-kansiota hiiren oikealla napilla ja valitse "Download declared dependencies". Tämä lataa tehtäväpohjassa olevissa testeissä käytetyn SQLite-ajurin.
+  </p>
+  
 <% end %>
 
 <% partial 'partials/exercise', locals: { name: 'Tilastot' } do %>
-
-
-  <p>
-    Huom! <em>Suurin osa tästä tehtävästä tulee tehdä SQLite-ohjelmalla.</em> Materiaalista löytyy aiemmin ohjeet kyseisen ohjelman asentamiseen.
-  </p>
 
   <p>
     Etsi tehtäväpohjan sisältävä kansio ja mene sen alikansioon <code>db</code>. Kyseisessä kansiossa on valmiina tiedosto <code>palkkatilastot.db</code>. Kyseisessä tiedostossa on yksityisen sektorin mediaanipalkat. Palkkatilastot on noudettu tilastokeskuksen sivuilta osoitteesta <a href="http://www.stat.fi/til/yskp/2014/yskp_2014_2015-08-20_tie_001_fi.html" target="_blank" norel">http://www.stat.fi/til/yskp/2014/yskp_2014_2015-08-20_tie_001_fi.html</a>.
   </p>
 
   <p>
-    Selvitä tiedostosta seuraavat tiedot:
+    Tietokannassa on käytetty seuraavanlaista CREATE TABLE -lausetta. Työtehtävät löytyvät sarakkeesta <code>NAME</code>, mediaaniansio sarakkeesta <code>SALARY</code>.
+  </p>
+
+  <pre>
+CREATE TABLE EMPLOYEE (
+  ID INTEGER PRIMARY KEY NOT NULL,
+  NAME TEXT NOT NULL,
+  AGE INT NOT NULL,
+  ADDRESS CHAR(50),
+  SALARY REAL
+);
+  </pre>
+
+  <p>
+    Selvitä SQLite-ohjelman avulla tiedostosta seuraavat tiedot:
   </p>
 
   <ul>
-    <li>Mikä on ohutlevyseppien kuukausittainen mediaaniansio?</li>
+    <li>Mikä on ohutlevyseppien ("Ohutlevysepät") kuukausittainen mediaaniansio?</li>
     <li>Kuinka monen työtehtävän mediaaniansio on alle 1900 euroa kuussa?</li>
     <li>Kuinka monen työtehtävän mediaaniansio on yli 7000 euroa kuussa?</li>
     <li>Minkä työtehtävän mediaaniansio on tasan 3300 euroa kuussa?</li>
   </ul>
 
   <p>
-    TMC:n tehtäväpohjassa on valmiit kohdat vastauksille. Kun tiedoston Tilastoja.java käynnistää nyt, ohjelma tulostaa.
+    TMC:n tehtäväpohjassa on valmiit kohdat vastauksille. Kun tiedoston Tilastoja.java käynnistää nyt, ohjelma tulostaa. 
   </p>
 
   <% partial 'partials/sample_output' do %>
@@ -716,8 +1551,13 @@ DELETE FROM Opiskelija
   <% end %>
 
   <p>
-    Kun olet selvittänyt tilastot, muokkaa ohjelmaa niin, että ohjelma tulostaa edellä toivotut lukumäärät (ja työtehtävän) oikein.
+    Selvitä SQLite-ohjelman avulla edellisiin tietoihin oikeat vastaukset ja muokkaa ohjelmaa niin, että että ohjelma tulostaa edellä toivotut lukumäärät (ja työtehtävän) oikein. Muokkaa tulostuksissa vain kaksoispistettä seuraavaa tulostusta.
   </p>
+
+  <p>
+    Tehtävässä on testit vain palvelimella. Testit odottavat, että tulostukset ovat täsmällisiä. 
+  </p>
+
 
   <p>
     <em>
@@ -727,575 +1567,3 @@ DELETE FROM Opiskelija
 
 <% end %>
 
-
-
-<% partial 'partials/material_heading' do %>
-  Tietokannan käsittely ohjelmallisesti
-<% end %>
-
-<p>
-  Lähes jokainen ohjelmointikieli tarjoaa jonkinlaisen rajapinnan tietokantakyselyiden tekemiseen. Nämä rajapinnat suoraviivaistavat kyselyiden tekemistä tietokantoihin ja tietokannanhallintajärjestelmien käyttöönoottoa, sillä rajapintaa noudattamalla yhteydenotto tietokannantallintajärjestelmään on lähes samankaltaista käytetystä tietokannanhallintajärjestelmästä riippumatta.
-</p>
-
-<p>
-  Java-kielessä tähän tehtävään on <a href="https://en.wikipedia.org/wiki/Java_Database_Connectivity" target="_blank" nodel>Java Database Connectivity</a> (JDBC) -rajapinta. JDBC tarjoaa tuen tietokantayhteyden luomiseen sekä kyselyiden suorittamiseen tietokantayhteyden yli. Jotta JDBCn avulla voidaan ottaa yhteys tietokantaan, tulee käytössä olla tietokannanhallintajärjestelmäkohtainen ajuri, jonka vastuulla on tietokantayhteyden luomiseen liittyvät yksityiskohdat sekä tietokannanhallintajärjestelmän sisäisten kyselytulosten muuntaminen JDBC-rajapinnan mukaiseen muotoon.
-</p>
-
-
-<% partial 'partials/hint', locals: { name: 'JDBC-ajurin noutaminen' } do %>
-  
-  <p>
-    JDBC-ajurit ovat käytännössä Java-kielellä kirjoitettuja ohjelmia, joita tietokannanhallintajärjestelmän toteuttajat tarjoavat ohjelmoijien käyttöön. Kurssin toisessa osassa ajurit on lisätty valmiiksi tehtäväpohjien <code>lib</code>-kansioon, jonka lisäksi niiden käyttö on valmiiksi määritelty tehtäväpohjissa.
-  </p>
-
-  <p>
-    Myöhemmissä osissa tutustumme kirjastojen käyttöönottoon ja hakemiseen <a href="https://maven.apache.org/" target="_blank" norel">Maven</a>-apuvälineen avulla.
-  </p>
-  
-<% end %>
-
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Ohjelmallinen tietokantakysely kokonaisuudessaan 
-<% end %>
-
-
-<p>
-  Oletetaan, että käytössämme on seuraava tietokantataulu Opiskelija:
-</p>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th>opiskelijanumero (integer)</th>
-      <th>nimi (varchar)</th>
-      <th>syntymävuosi (integer)</th>
-      <th>pääaine (varchar)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>9999999</td>
-      <td>Pihla</td>
-      <td>1997</td>
-      <td>Tietojenkäsittelytiede</td>
-    </tr>
-    <tr>
-      <td>9999998</td>
-      <td>Joni</td>
-      <td>1993</td>
-      <td>Tietojenkäsittelytiede</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
-
-
-<p>
-  JDBCn avulla kyselyn tekeminen tietokantatauluun tapahtuu seuraavasti -- olettaen, että käytössämme on sekä tietokanta, että tietokannan ajuri.
-</p>
-
-
-<% partial 'partials/code_highlight' do %>
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        // luodaan yhteys jdbc:n yli sqlite-tietokantaan nimeltä "tietokanta.db"
-        Connection connection = DriverManager.getConnection("jdbc:sqlite:tietokanta.db");
-
-        // luodaan kyely "SELECT * FROM Opiskelija", jolla haetaan
-        // kaikki tiedot Opiskelija-taulusta
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM Opiskelija");
-
-        // suoritetaan kysely -- tuloksena resultSet-olio
-        ResultSet resultSet = statement.executeQuery();
-
-        // käydään tuloksena saadussa oliossa olevat rivit läpi -- next-komento hakee
-        // aina seuraavan rivin, ja palauttaa true jos rivi löytyi
-        while(resultSet.next()) {
-            // haetaan nykyiseltä riviltä opiskelijanumero int-muodossa
-            Integer opNro = resultSet.getInt("opiskelijanumero");
-            // haetaan nykyiseltä riviltä nimi String-muodossa
-            String nimi = resultSet.getString("nimi");
-            // haetaan nykyiseltä riviltä syntymävuosi int-muodossa
-            Integer syntVuosi = resultSet.getInt("syntymävuosi");
-            // haetaan nykyiseltä riviltä pääaine String-muodossa
-            String paaAine = resultSet.getString("pääaine");
-
-            // tulostetaan tiedot
-            System.out.println(opNro + "\t" + nimi + "\t" + syntVuosi + "\t" + paaAine);
-        }
-
-        // suljetaan lopulta yhteys tietokantaan
-        connection.close();
-    }
-}
-<% end %>
-
-<p>
-Ohjelman suoritus tuottaa (esimerkiksi) seuraavanlaisen tulostuksen:
-</p>
-
-<% partial 'partials/sample_output' do %>
-999999	Pihla	1997	Tietojenkäsittelytiede
-999998	Joni	1993	Tietojenkäsittelytiede
-999997	Anna	1991	Matematiikka
-999996	Krista	1990	Tietojenkäsittelytiede
-...
-<% end %>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Ohjelman rakentaminen osissa 
-<% end %>
-
-<p>
-  <em>Tässä oletetaan, että projektiin on lisätty tarvittava JDBC-ajuri.</em>
-</p>
-
-<p>
-  Avaa projektiin liittyvä <em>Source Packages</em> ja valitse (tai tarvittaessa luo) sopiva pakkaus. Oletetaan tässä, että käytössä on pakkaus <code>tikape</code>. Valitse tämän jälkeen <em>New</em> -> <em>Java Class</em>, jonka jälkeen avautuu valikko, missä voit antaa luokalle nimen. Anna luokan nimeksi <code>Main</code>.
-</p>
-
-<p>
-  Avaa tiedosto tuplaklikkaamalla sitä. Muokkaa tiedostoa vielä siten, että se on seuraavan näköinen:
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-
-    }
-}
-<% end %>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tietokantayhteyden luominen
-<% end %>
-
-<p>
-  Lisää projektiin <em>import</em>-komento <code>import java.sql.*;</code>, joka hakee kaikki SQL-kyselyihin liittyvät Javan kirjastot.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.sql.*;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-
-    }
-}
-<% end %>
-
-<p>
-  Avataan seuraavaksi tietokantayhteys tietokantatiedostoon nimeltä <em>testi.db</em> ja tehdään kysely "SELECT 1", jolla pyydetään tietokantaa palauttamaan luku 1 -- käytämme tätä yhteyden testaamiseksi. Jos yhteyden luominen onnistuu, tulostetaan "Hei tietokantamaailma!", muulloin "Yhteyden muodostaminen epäonnistui".
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.sql.*;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-        Connection connection = DriverManager.getConnection("jdbc:sqlite:testi.db");
-
-        PreparedStatement statement = connection.prepareStatement("SELECT 1");
-
-        ResultSet resultSet = statement.executeQuery();
-
-        if(resultSet.next()) {
-            System.out.println("Hei tietokantamaailma!");
-        } else {
-            System.out.println("Yhteyden muodostaminen epäonnistui.");
-        }
-    }
-}
-<% end %>
-
-<% partial 'partials/sample_output' do %>
-Hei tietokantamaailma!
-<% end %>
-
-<p>
-  Kun suoritamme ohjelman ensimmäistä kertaa valitsemalla <em>Run</em> -> <em>Run Project</em>, puuttuvan tietokannan paikalle luodaan tietokanta (ainakin SQLiteä käyttäessä). Projektin kansiossa on nyt tiedosto <code>testi.db</code>, joka on tietokantamme.
-</p>
-
-
-<figure>
-  <img src="img/viikko3/nb-testidb.png" alt="Kun ohjelma on suoritettu ensimmäistä kertaa, tiedosto testi.db luodaan projektiin."/>
-  <figcaption>Tietokantatiedosto <em>testi.db</em> löytyy projektin kansiosta. Tiedostot löytyvät <em>Files</em>-välilehdeltä.</figcaption>
-</figure>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tietokantakyselyiden tekeminen
-<% end %>
-
-<p>
-  Osoitteessa <a href="https://materiaalit.github.io/tikape-s17/dbs/vuokraamo.db">vuokraamo.db</a> löytyy kuvitteellisen moottoripyörävuokraamon tietokanta. Lataa se edellä tehdyn projektin juureen ja kokeile kyselyn tekemistä kyseiseen tietokantaan.
-</p>
-
-<p>
-  Tietokannassa on tietokantataulu <code>Pyora</code>, jolla on sarakkeet <code>rekisterinumero</code> ja <code>merkki</code>. Jokaisen pyörän rekisterinumeron ja merkin tulostaminen tapahtuu seuraavasti -- huomaa myös, että olemme vaihtaneet käytössä olevaa tietokantaa.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
-
-PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Pyora");
-ResultSet rs = stmt.executeQuery();
-
-while (rs.next()) {
-    String rekisterinumero = rs.getString("rekisterinumero");
-    String merkki = rs.getString("merkki");
-
-    System.out.println(rekisterinumero + " " + merkki);
-}
-
-stmt.close();
-rs.close();
-
-connection.close();
-<% end %>
-
-<p>
-Käydään ylläoleva ohjelmakoodi läpi askeleittain.
-</p>
-
-<ol>
-  <li>
-    <p>Luomme ensin JDBC-yhteyden tietokantaan <em>vuokraamo.db</em>.
-    <% partial 'partials/code_highlight' do %>
-Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
-    <% end %>
-    </p>
-  </li>
-  
-  <li>
-    <p>Kysely luodaan antamalla yhteydelle merkkijono, jossa on kysely. Yhteys palauttaa <em>PreparedStatement</em>-olion, jota käytetään kyselyn suorittamiseen ja tulosten pyytämiseen. Metodi <em>executeQuery</em> suorittaa SQL-kyselyn ja palauttaa tulokset sisältävän <em>ResultSet</em>-olion.
-      
-      <% partial 'partials/code_highlight' do %>
-PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora");
-ResultSet resultSet = statement.executeQuery();
-      <% end %>
-    </p>
-  </li>
-  
-  <li>
-    <p>Tämän jälkeen ResultSet-oliossa olevat tulokset käydään läpi. Metodia next() kutsumalla siirrytään kyselyn palauttamissa tulosriveissä eteenpäin. Kultakin riviltä voi kysyä sarakeotsikon perusteella solun arvoa. Esimerkiksi kutsu getString("rekisterinumero") palauttaa kyseisellä rivillä olevan sarakkeen "rekisterinumero" arvon String-tyyppisenä.
-
-      <% partial 'partials/code_highlight' do %>
-while(resultSet.next()) {
-    String rekisterinumero = rs.getString("rekisterinumero");
-    String merkki = rs.getString("merkki");
-
-    System.out.println(rekisterinumero + " " + merkki);
-}
-      <% end %>
-    </p>
-  </li>
-  
-  <li>
-    <p>Kun kyselyn vastauksena saadut rivit on käyty läpi, eikä niitä enää tarvita, vapautetaan niihin liittyvät resurssit.
-    
-    <% partial 'partials/code_highlight' do %>
-stmt.close();
-rs.close();
-    <% end %>
-    </p>
-  </li>
-
-
-  <li>
-    <p>Lopulta tietokantayhteys suljetaan.
-
-      <% partial 'partials/code_highlight' do %>
-connection.close();
-<% end %>
-    </p>
-  </li>
-</ol>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Parametrien lisääminen kyselyyn
-<% end %>
-
-<p>
-  Kyselyihin halutaan usein antaa rajausehtoja. Ohjelmallisesti tämä tapahtuu lisäämällä kyselyä muodostaessa rajausehtoihin kohtia, joihin asetetaan arvot. Alla olevassa esimerkissä kyselyyn lisätään merkkijono.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = ?");
-statement.setString(1, "Royal Enfield");
-
-ResultSet resultSet = statement.executeQuery();
-<% end %>
-
-<p>
-  Kyselyiden paikat indeksoidaan kohdasta 1 alkaen. Alla olevassa esimerkissä haetaan Henkilo-taulusta henkilöitä, joiden syntymävuosi on 1952.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Henkilo WHERE syntymavuosi  = ?");
-  statement.setInt(1, 1952);
-
-  ResultSet resultSet = statement.executeQuery();
-<% end %>
-
-<p>
-  Ohjelma voi toimia myös siten, että rajausehdot kysytään ohjelman käyttäjältä.
-</p>
-
-
-<% partial 'partials/code_highlight' do %>
-  Scanner lukija = new Scanner(System.in);
-  System.out.println("Minkä vuoden opiskelijat tulostetaan?");
-  int vuosi = Integer.parseInt(lukija.nextLine());
-
-  // ...
-
-  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Henkilo WHERE syntymavuosi  = ?");
-  statement.setInt(1, vuosi);
-
-  ResultSet resultSet = statement.executeQuery();
-
-  // ...
-<% end %>
-
-
-<% partial 'partials/hint', locals: { name: 'PreparedStatement ja set<em>Arvo</em>-metodit' } do %>
-
-  <p>
-    Kun kyselyt luodaan tietokantayhteyteen liittyvän olion prepareStatement oliolla, kyselyihin merkitään kysymysmerkeillä ne kohdat, joihin käyttäjän syöttämiä arvoja voidaan lisätä. Kun metodilla setArvo -- esim setInt -- asetetaan parametrin arvo kyselyyn, Java tarkastaa (1) että arvo on varmasti halutun kaltainen ja (2) että arvossa ei ole esimerkiksi hipsuja, joiden kautta parametri voisi vaikuttaa kyselyn tavoitteisiin.
-  </p>
-
-  <p>
-    Palaamme tähän kohta SQL-injektioihin liittyvässä aliluvussa.
-  </p>
-  
-<% end %>
-
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Päivityskyselyiden tekeminen
-<% end %>
- 
-<p>
-  Myös päivityskyselyiden kuten rivien lisäämisten ja rivien poistamisten tekeminen onnistuu ohjelmallisesti. Tällöin tuloksessa ei ole erillistä ResultSet-oliota, vaan luku, joka kertoo muuttuneiden rivien määrän. Allaoleva ohjelmakoodi lisää pyöriä sisältävään tietokantaan uuden pyörän.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
-
-PreparedStatement stmt = connection.prepareStatement("INSERT INTO Pyora (rekisterinumero, merkki) VALUES (?, ?)");
-stmt.setString(1, "RIP-34");
-stmt.setString(2, "Jopo");
-
-int changes = stmt.executeUpdate();
-
-System.out.println("Kyselyn vaikuttamia rivejä: " + changes);
-stmt.close();
-
-connection.close();
-<% end %>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  SQL-injektiot
-<% end %>
-
-<p>
-  Suurin osa olemassaolevista sovelluksista käyttää tietokannanhallintajärjestelmiä jollain tavalla: tietoa haetaan tietokannasta, tietokannassa olevaa tietoa muokataan, ja tietokantaan tallennetaan tietoa. Tyypillisesti sovelluksiin on myös käyttöliittymä, minkä kautta sovelluksen käyttäjät pääsevät vaikuttamaan kyselyiden sisältöön.
-</p>
-
-<p>
-  SQL-injektioiden tekeminen onnistuu jos ohjelmoija jättää tietokantaa käsitteleviin kyselyihin ns. käyttäjän mentävän aukon. Tämä onnistuu Javalla siten, että kyselyt luodaan niin, että kyselyihin lisättävät parametrit syötetään kyselyyn suoraan merkkijonona.
-</p>
-
-<p>
-  Alla on esimerkki, missä käyttäjältä kysytään haettavan pyörän merkkiä.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-  Scanner lukija = new Scanner(System.in);
-  System.out.println("Minkä merkkiset pyörät tulostetaan?");
-  String merkki = lukija.nextLine();
-
-  // ...
-
-  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = ?");
-  statement.setString(1, merkki);
-
-  // ...
-
-  ResultSet resultSet = statement.executeQuery();
-<% end %>
-
-<p>
-  Kysely on turvallinen, sillä merkki asetetaan metodin setString avulla. Metodi tarkastaa myös, ettei kyselyssä ole ylimääräistä sisältöä. 
-</p>
-
-<p>
-  Kyselystä saa helposti erittäin turvattoman. Seuraavassa esimerkissä on mahdollisuus SQL-injektioon.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-  Scanner lukija = new Scanner(System.in);
-  System.out.println("Minkä merkkiset pyörät tulostetaan?");
-  String merkki = lukija.nextLine();
-
-  // ...
-
-  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = '" + merkki + "'");
-
-  // ...
-
-  ResultSet resultSet = statement.executeQuery();
-<% end %>
-
-<p>
-  Kun käyttäjän syöttämä merkkijono lisätään suoraan osaksi kyselyä, voi käyttäjä syöttää SQL-lauseita komentoonsa. Jos käyttäjä syöttää ohjelmaan esimerkiksi merkkijono <code>a' OR 'a'='a</code>, on suoritettava SQL-lause lopulta muotoa:
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-SELECT * FROM Pyora WHERE merkki = 'a' OR 'a'='a'
-<% end %>
-
-<p>
-  Edellinen lause on aina totta, sillä tarkastus 'a'='a' on totta.
-</p>
-
-<p>
-  Myös muunlaisten SQL-lauseiden suoritus olisi em. tapauksessa mahdollista. Web-sarjakuva <a href="http://xkcd.com/" target="_blank">xkcd</a> kuvastaa tätä ilmiötä hyvin <em>Exploits of a Mom</em>-sarjakuvallaan.
-</p>
-
-<figure>
-  
-  <img src="http://imgs.xkcd.com/comics/exploits_of_a_mom.png" alt="School: Hi, this is your son's school. We're having some computer trouble.
-								    
-									Mom: Oh, dear -- Did he break something?
-								    
-								    School: In a way. Did you really name your son Robert'); DROP TABLE Students;--?
-								    
-								    Mom: Oh. Yes. Little Bobby Tables we call him.
-								    
-								    School: Well, we've lost this year's student records. I hope you're happy.
-								    
-								    Mom: And I hope you've learned to sanitize your database inputs."/>
-  
-  <figcaption>http://xkcd.com/327/ -- Exploits of a Mom. </figcaption>
-  
-</figure>
-
-
-
-
-
-<% partial 'partials/exercise', locals: { name: 'Listaaminen ja lisääminen' } do %>
-
-  <p>
-    Luo tekstikäyttöliittymää käyttävä interaktiivinen sovellus, jossa voi listata ja lisätä kappaleita. Käytä tässä ensimmäisessä tehtävässä luomaasi tietokantaa (tai ainakin sen rakennetta). Ohjelman tulee käynnistyä kun luokassa ListaaminenJaLisaaminen oleva main-metodi suoritetaan. Ohjelman toiminnan tulee olla seuraavanlainen. Alla punaisella merkityt rivit ovat käyttäjän syöttämiä.
-  </p>
-
-  
-  <% partial 'partials/sample_output' do %>
-    Tervetuloa!
-    Komennot:
-    1: Listaa kappaleet
-    2: Lisää kappale
-    3: Sulje
-    
-    &gt; <font color="red">1</font>
-    (ei kappaleita)
-
-    &gt; <font color="red">2</font>
-    Nimi: <font color="red">The Days you Didn't Notice</font>
-    Artisti: <font color="red">Rendezvous Park</font>
-    Levytysvuosi: <font color="red">2010</font>
-    Pituus: <font color="red">605</font>
-
-    &gt; <font color="red">2</font>
-    Nimi: <font color="red">Closer To Being Here - Reprise</font>
-    Artisti: <font color="red">Rendezvous Park</font>
-    Levytysvuosi: <font color="red">2012</font>
-    Pituus: <font color="red">363</font>
-
-    &gt; <font color="red">1</font>
-    Rendezvous Park, Closer to Being Here - Reprise (363 s), 2012
-    Rendezvous Park, The Days you DIdn't Notice (605 s), 2010
-
-    &gt; <font color="red">3</font>
-  <% end %>
-
-  <p>
-    Sovelluksen tulee käyttää tietokantaa tietojen tallentamiseen ja hakemiseen. Huomaa, että sovelluksen toiminnan tulee jatkua siitä mihin se jäi. Seuraavalla käynnistyskerralla edellisellä kerralla lisättyjen kappaleiden tulee siis olla olemassa tietokannassa.
-  </p>
-
-  <% partial 'partials/sample_output' do %>
-    Tervetuloa!
-    Komennot:
-    1: Listaa kappaleet
-    2: Lisää kappale
-    3: Sulje
-    
-    &gt; <font color="red">1</font>
-    Rendezvous Park, Closer to Being Here - Reprise (363 s), 2012
-    Rendezvous Park, The Days you DIdn't Notice (605 s), 2010
-
-    &gt; <font color="red">3</font>
-  <% end %>
-
-  <p>
-    <em>
-      Sovelluksessa ei saa olla mahdollisuutta SQL-injektion tekemiseen.
-    </em>
-  </p>
-  
-<% end %>
-
-
-<% partial 'partials/exercise', locals: { name: 'Injektio' } do %>
-
-  <p>
-    Toteuta sama sovellus kuin edellä, mutta lisää sovellukseen SQL-injektiomahdollisuus. Käyttäjän tulee siis pystyä kirjoittamaan syötteenä -- ainakin jossain kohtaa sovellusta -- SQL-koodia, joka suoritetaan tietokannassa. 
-  </p>
-
-  <p>
-    Luennolla 15.9. huomattiin, että JDBC ei hyväksy useampaa lausetta samassa kyselyssä. Jos haluat sallia useamman kyselyn tekemisen, lisää tietokantayhteyden muodostamiseen parametri <code>allowMultiQueries=true</code>, esim. <code>DriverManager.getConnection("jdbc:sqlite:vuokraamo.db?allowMultiQueries=true")</code>.
-  </p>
-
-  <p>
-    Tähän löytyy muutamia muitakin tapoja, kuten useamman rivin lisääminen "vahingossa" (kts. <a href="https://stackoverflow.com/questions/452859/inserting-multiple-rows-in-a-single-sql-query" target="_blank" norel>https://stackoverflow.com/questions/452859/inserting-multiple-rows-in-a-single-sql-query</a>) sekä -- todennäköisesti -- harmin aiheuttaminen alikyselyn kautta (kts. <a href="https://stackoverflow.com/questions/12467354/nesting-queries-in-sql" target="_blank" norel>https://stackoverflow.com/questions/12467354/nesting-queries-in-sql</a>).
-  </p>
-
-
-<% end %>
-
-
-<%= partial 'partials/quiz', locals: { id: '59b52f79bd99d10004d5b26c' } %>
