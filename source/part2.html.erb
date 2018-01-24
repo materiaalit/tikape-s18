@@ -655,6 +655,42 @@
 
 
 
+<% partial 'partials/hint', locals: { name: 'SQLiten konfigurointi' } do %>
+
+  <p>
+    SQLite:n voi myös konfiguroida oman mieleseksi määrittelemällä <code>.sqliterc</code>-tiedoston kotihakemistoon. Tällöin samoja asetuksia ei tarvitse määritellä jokaisen käynnistyksen yhteydessä.
+  </p>
+
+  <p>
+    <code>.sqliterc</code>-pikaohje (macOS/Linux):
+  </p>
+
+  <ol>
+    <li>Siirry kotihakemistoosi: <code>cd ~</code> tai <code>cd $HOME</code>.</li>
+    <li>Luo tiedosto nimeltä <code>.sqliterc</code> (jos sitä ei jo ole olemassa): <code>touch .sqliterc</code>.</li>
+    <li>Avaa tiedosto mieleisellä tekstieditorilla, esim. <code>nano .sqliterc</code>.</li>
+    <li>Lisää haluamasi asetukset erillisille riveille, tallenna muutokset ja poistu tekstieditorista. Useimmat järjestelmät vaativat terminaalin uudelleen käynnistämistä (tai ainakin uuden session avaamista) niin että SQLite lukee <code>.sqliterc</code>:n.</li>
+  </ol>
+
+  <p>
+    Esimerkiksi seuraavat asetukset voivat olla hyödyllisiä <code>.sqliterc</code>-tiedostossa:
+  </p>
+
+  <ul>
+    <li><code>.mode column</code> – tulostaa kyselyn tuloksen sarakkeissa.</li>
+    <li><code>.headers on</code> – näyttää sarakkeiden otsikot.</li>
+    <li><code>.timer on</code> – tulostaa kyselyn tuloksen jälkeen kyselyyn kuluneen ajan.</li>
+    <li><code>.prompt "# "</code> – käyttää merkkijonoa <code># </code> rivin alussa normaalin <code>sqlite> </code> sijaan.</li>
+  </ul>
+
+  <p>
+    Tiedostoon voi myös lisätä <code>PRAGMA</code>-lauseita, kuten esimerkiksi <code>PRAGMA FOREIGN_KEYS = ON;</code>P jolloin SQLite tottelee viiteavainten rajoitteita.
+  </p>
+
+<% end %>
+
+
+
 <% partial 'partials/hint', locals: { name: 'SQL-kyselyiden muodosta'} do %>
 
   <p>
