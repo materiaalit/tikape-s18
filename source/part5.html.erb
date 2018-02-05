@@ -9,10 +9,879 @@
 <% partial 'partials/hint', locals: { name: 'Viidennen osan oppimistavoitteet' } do %>
 
   <p>
-    Osaa tehdä SQL-kielellä yhteenvetokyselyitä. Osaa luoda yhtä tietokantataulua käyttävän ja muokkaavan web-sovelluksen, jota voi käyttää selaimella. Tuntee sekvenssikaaviot.
+    Osaa tehdä SQL-kielellä yhteenvetokyselyitä. Tuntee käsiteanalyysin askeleet. Osaa luoda ongelma-alueen kuvauksesta luokkakaavion sekä johtaa siitä relaatiokaavion. Tietää käsitteet tietokannan normalisointi ja tietokannan denormalisointi. Tuntee tietokannan normalisointiin liittyvät ensimmäisen, toisen ja kolmannen normaalimuodon. Osaa perustella noudattaako annettu tietokanta em. normaalimuotoja. 
+
   </p>
   
 <% end %>
+
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  SQL-injektiot
+<% end %>
+
+<p>
+  Suurin osa olemassaolevista sovelluksista käyttää tietokannanhallintajärjestelmiä jollain tavalla: tietoa haetaan tietokannasta, tietokannassa olevaa tietoa muokataan, ja tietokantaan tallennetaan tietoa. Tyypillisesti sovelluksiin on myös käyttöliittymä, minkä kautta sovelluksen käyttäjät pääsevät vaikuttamaan kyselyiden sisältöön.
+</p>
+
+<p>
+  SQL-injektioiden tekeminen onnistuu jos ohjelmoija jättää tietokantaa käsitteleviin kyselyihin ns. käyttäjän mentävän aukon. Tämä onnistuu Javalla siten, että kyselyt luodaan niin, että kyselyihin lisättävät parametrit syötetään kyselyyn suoraan merkkijonona.
+</p>
+
+<p>
+  Alla on esimerkki, missä käyttäjältä kysytään haettavan pyörän merkkiä.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Scanner lukija = new Scanner(System.in);
+  System.out.println("Minkä merkkiset pyörät tulostetaan?");
+  String merkki = lukija.nextLine();
+
+  // ...
+
+  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = ?");
+  statement.setString(1, merkki);
+
+  // ...
+
+  ResultSet resultSet = statement.executeQuery();
+<% end %>
+
+<p>
+  Kysely on turvallinen, sillä merkki asetetaan metodin setString avulla. Metodi tarkastaa myös, ettei kyselyssä ole ylimääräistä sisältöä. 
+</p>
+
+<p>
+  Kyselystä saa helposti erittäin turvattoman. Seuraavassa esimerkissä on mahdollisuus SQL-injektioon.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  Scanner lukija = new Scanner(System.in);
+  System.out.println("Minkä merkkiset pyörät tulostetaan?");
+  String merkki = lukija.nextLine();
+
+  // ...
+
+  PreparedStatement statement = connection.prepareStatement("SELECT * FROM Pyora WHERE merkki = '" + merkki + "'");
+
+  // ...
+
+  ResultSet resultSet = statement.executeQuery();
+<% end %>
+
+<p>
+  Kun käyttäjän syöttämä merkkijono lisätään suoraan osaksi kyselyä, voi käyttäjä syöttää SQL-lauseita komentoonsa. Jos käyttäjä syöttää ohjelmaan esimerkiksi merkkijono <code>a' OR 'a'='a</code>, on suoritettava SQL-lause lopulta muotoa:
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT * FROM Pyora WHERE merkki = 'a' OR 'a'='a'
+<% end %>
+
+<p>
+  Edellinen lause on aina totta, sillä tarkastus 'a'='a' on totta.
+</p>
+
+<p>
+  Myös muunlaisten SQL-lauseiden suoritus olisi em. tapauksessa mahdollista. Web-sarjakuva <a href="http://xkcd.com/" target="_blank">xkcd</a> kuvastaa tätä ilmiötä hyvin <em>Exploits of a Mom</em>-sarjakuvallaan.
+</p>
+
+<figure>
+  
+  <img src="http://imgs.xkcd.com/comics/exploits_of_a_mom.png" alt="School: Hi, this is your son's school. We're having some computer trouble.
+								    
+								    Mom: Oh, dear -- Did he break something?
+								    
+								    School: In a way. Did you really name your son Robert'); DROP TABLE Students;--?
+								    
+								    Mom: Oh. Yes. Little Bobby Tables we call him.
+								    
+								    School: Well, we've lost this year's student records. I hope you're happy.
+								    
+								    Mom: And I hope you've learned to sanitize your database inputs."/>
+  
+  <figcaption>http://xkcd.com/327/ -- Exploits of a Mom. </figcaption>
+  
+</figure>
+
+
+
+
+
+
+
+<% partial 'partials/material_heading' do %>
+  Tietokannan normalisointi ja denormalisointi
+<% end %>
+
+<p>
+  Tietokannan normalisointi on askeleittainen prosessi, mikä sisältää mahdollisten ongelmakohtien tunnistamisen ja niiden korjaamisen. Tietokannan normalisointiprosessin tuloksena tietokanta sisältää hyvin vähän toisteista tietoa. Tietokannan denormalisointi on käänteinen prosessi, missä tietokannassa sijaitsevan toisteisuuden määrä lisääntyy. Samalla tietokantakyselyiden tehokkuus tyypillisesti kasvaa.
+</p>
+
+<p>
+  Tarkastellaan näitä kahta seuraavaksi.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan normalisointi
+<% end %>
+
+<p>
+  Tietokannan normalisoinnin tavoite on vähentää tietokantatauluissa esiintyvää toisteista tietoa. Pääpiirteittäin tavoite on sama kuin käsiteanalyysissä: lopulta jokainen taulu liittyy vain tiettyyn käsitteeseen ja taulun attribuutit liittyvät vain kyseisen taulun esittämään käsitteeseen. Lähestymistapa on kuitenkin toisenlainen: tietokannan normalisoinnissa etsimme epäkohtia olemassaolevista tietokantatauluista, jonka jälkeen näitä epäkohtia korjataan.
+</p>
+
+<p>
+  Tietokannan normalisointi tapahtuu askeleittain normaalimuotojen avulla.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Ensimmäinen normaalimuoto
+<% end %>
+
+<p>
+  Tietokantataulu on ensimmäisessä normaalimuodossa, jos se täyttää seuraavat ehdot:
+</p>
+
+<ol>
+  <li>
+    Sarakkeen arvot eivät saa sisältää listoja.
+  </li>
+  <li>
+    Taulun sarakkeet eivät muodosta toistuvia ryhmiä.
+  </li>
+  <li>
+    Sarakkeen arvojen tulee olla saman tyyppisiä. 
+  </li>
+  <li>
+    Jokaisen sarakkeen nimen tulee olla tietokantataulussa uniikki.
+  </li>
+  <li>
+    Sarakkeiden järjestyksen ei tule vaikuttaa tietokantataulun toimintaan.
+  </li>
+  <li>
+    Tietokantataulussa ei saa olla kahta täsmälleen samanlaista riviä.
+  </li>
+  <li>
+    Rivien järjestyksen ei tule vaikuttaa tietokantataulun toimintaan.
+  </li>
+</ol>
+
+<p>
+  Alla on esimerkki henkilöitä sisältävästä tietokantataulusta. Jokaiseen henkilöön liittyy tunnus (id), nimi sekä pilkuilla eroteltu lista puhelinnumeroita. Esimerkki rikkoo ensimmäistä normaalimuotoa, sillä puhelinnumerot sisältävät listoja.
+</p>
+
+<table class="table">
+  <tr>
+    <th colspan=3>Henkilo((pk) id, nimi, puhelinnumerot)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      nimi
+    </th>
+    <th>
+      puhelinnumerot
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Larry
+    </td>
+    <td>
+      555-1024, 555-2048
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Moe
+    </td>
+    <td>
+      555-0512, 555-0256, 555-0128
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Curly
+    </td>
+    <td>
+      555-0001, 555-0002, 555-0004
+    </td>
+  </tr>
+</table>
+
+<p>
+  Ensimmäinen korjaus ylläolevaan tietokantatauluun on eritellä puhelinnumerot erillisiksi sarakkeikseen (tehty alla). Tämä ei ole kovin hyvä ratkaisu -- koko tietokantataulun rakennetta tulee muuttaa jos jollain on esimerkiksi neljä tai viisi erillistä numeroa. Tämä myös rikkoo ensimmäistä normaalimuotoa, sillä puhelinnumero muodostaa toistuvan ryhmän.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan=5>Henkilo((pk) id, nimi, puhelinnumero1, puhelinnumero2, puhelinnumero3)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      nimi
+    </th>
+    <th>
+      puhelinnumero1
+    </th>
+    <th>
+      puhelinnumero2
+    </th>
+    <th>
+      puhelinnumero3
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Larry
+    </td>
+    <td>
+      555-1024
+    </td>
+    <td>
+      555-2048
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Moe
+    </td>
+    <td>
+      555-0512
+    </td>
+    <td>
+      555-0256
+    </td>
+    <td>
+      555-0128
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Curly
+    </td>
+    <td>
+      555-0001
+    </td>
+    <td>
+      555-0002
+    </td>
+    <td>
+      555-0004
+    </td>
+  </tr>
+</table>
+
+<p>
+  Sopivampi korjaus ongelmaan on muodostaa erillinen tietokantataulu puhelinnumeroille. Henkilön ja puhelinnumeron välillä on yhden suhden moneen -yhteys, eli yhteen henkilöön liittyy monta puhelinnumeroa, mutta jokainen puhelinnumero liittyy yhteen henkilöön.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan=2>Henkilo((pk) id, nimi)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      nimi
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Larry
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Moe
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Curly
+    </td>
+  </tr>
+</table>
+
+<p>
+  &nbsp;
+</p>
+
+<table class="table">
+  <tr>
+    <th colspan=3>Puhelinnumero((pk) id, (fk) henkilo_id -&gt; Henkilo, puhelinnumero)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      <u>
+	henkilo_id
+      </u>
+    </th>
+    <th>
+      puhelinnumero
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      555-1024
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      555-2048
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      2
+    </td>
+    <td>
+      555-0512
+    </td>
+  </tr>
+  <tr>
+    <td>
+      4
+    </td>
+    <td>
+      2
+    </td>
+    <td>
+      555-0256
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+  </tr>
+</table>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Toinen normaalimuoto
+<% end %>
+
+
+<p>
+  Ensimmäisessä normaalimuodossa kyse on ensiaskeleista tietokannan rakenteen järkevöittämiseen. Muissa normaalimuodoissa käsite <em>funktionaalinen riippuvuus</em> sarakkeiden välillä on oleellinen.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Funktionaalinen riippuvuus' } do %>
+
+  <p>
+    Sarake B on funktionaalisesti riippuvainen sarakkeesta A (A määrää funktionaalisesti B:n), jos sarakkeen A arvon perusteella voidaan yksikäsitteisesti selvittää sarakkeen B arvo. Tällöin kirjoitetaan <code>A -&gt; B</code>, ja sanotaan, että "sarake B on funktionaalisesti riippuvainen sarakkeesta A". Huom! A voi olla myös kokoelma sarakkeita!
+  </p>
+
+  <p>
+    <em>
+      Esimerkiksi henkilön nimi on funktionaalisesti riippuvainen henkilötunnuksesta, sillä henkilötunnuksen perusteella voidaan yksikäsitteisesti selvittää nimi. Toisaalta, henkilötunnus ei ole funktionaalisesti riippuvainen henkilön nimestä, koska useammalla henkillä voi olla sama nimi.
+    </em>
+  </p>
+
+  <p>
+    Selvittäminen voi tapahtua kyselyllä "SELECT DISTINCT b FROM Taulu WHERE a=tiedetty_arvo", missä avainsana DISTINCT palauttaa uniikit rivit. Jos attribuutti <code>b</code> on funktionaalisesti riippuva <code>a</code>:sta, tuottaa ylläoleva kysely joko yhden tai ei yhtään tulosriviä, mutta ei koskaan enempää. Tämän ehdon on oltava voimassa aina, ei vain hetkellisesti.
+  </p>
+  
+<% end %>
+
+<p>
+  Tietokantataulu on toisessa normaalimuodossa jos (1) se on ensimmäisessä normaalimuodossa ja (2) tietokantataulun sarakkeet (poislukien avaimet) ovat <em>funktionaalisesti riippuvaisia</em> tietokantataulun (yhdellä sarakkeella määritellystä) pääavaimesta.
+</p>
+
+<p>
+  Jos tietokantataulun pääavain on määritelty yhden sarakkeen avulla, ovat kaikki tietokantataulun sarakkeet automaattisesti funktionaalisesti riippuvaisia pääavaimesta. Käytännössä siis, jos taulu on ensimmäisessä normaalimuodossa ja sillä on yhden sarakkeen avulla määritelty pääavain, on se automaattisesti toisessa normaalimuodossa.
+</p>
+
+<p>
+  Jos taas tietokantataulun pääavain on määritelty useamman sarakkeen avulla, tulee tietokantataulun jokaisen sarakkeen olla riippuvainen koko avaimesta, eli osittaista riippuvuutta pääavaimesta ei sallita. Tarkastellaan tilannetta, missä tietokantataulun pääavain on määritelty useamman sarakkeen kautta ja tällainen tilanne tapahtuu.
+</p>
+
+<p>
+  Oletetaan seuraavat tietokantataulut, joissa pääavaimet on alleviivattu. Ensimmäisessä kahdessa tietokantataulussa pääavain on id, kolmannessa taulussa pääavain on määrätty kahden viiteavaimen yhdistelmänä. 
+</p>
+
+<ul>
+  <li>Asiakas ((pk) <u>id</u>, nimi)</li>
+  <li>Kauppa ((pk) <u>id</u>, nimi, osoite)</li>
+  <li>Ostos ((fk) <u>asiakas_id</u> -&gt; Asiakas, (fk) <u>kauppa_id</u> -&gt; Kauppa, hinta, kaupunki)</li>
+</ul>
+
+<p>
+  Taulut Asiakas ja Kauppa ovat ensimmäisessä ja toisessa normaalimuodossa.
+</p>
+
+<p>
+  Tarkastellaan taulua Ostos. Taulun Ostos sarake hinta kertoo ostoksen hinnan. Sarake kaupunki kertoo missä ostos tehtiin.
+</p>
+
+
+
+<table class="table">
+  <tr>
+    <th colspan=3>Ostos ((fk) <u>asiakas_id</u> -&gt; Asiakas, (fk) <u>kauppa_id</u> -&gt; Kauppa, hinta, kaupunki)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	asiakas_id
+      </u>
+    </th>
+    <th>
+      <u>
+	kauppa_id
+      </u>
+    </th>
+    <th>
+      hinta
+    </th>
+    <th>
+      kaupunki
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      14.90
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      3
+    </td>
+    <td>
+      15.20
+    </td>
+    <td>
+      Vantaa
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      8.40
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      2
+    </td>
+    <td>
+      19.20
+    </td>
+    <td>
+      Espoo
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      3
+    </td>
+    <td>
+      10.40
+    </td>
+    <td>
+      Vantaa
+    </td>
+  </tr>
+  <tr>
+    <td>
+      4
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      12.20
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+  </tr>
+</table>
+
+<p>
+  Kun tarkastelemme taulua Ostos, huomaamme, että tietokantataulun sarake kaupunki on funktionaalisesti riippuvainen sarakkeesta kauppa_id. Koska sarake kauppa_id on osa tietokantataulun pääavaimesta, tämä rikkoo toista normaalimuotoa. Yksi ratkaisu ongelmaan on kaupungin siirtäminen tauluun Kauppa.
+</p>
+
+
+<ul>
+  <li>Asiakas ((pk) <u>id</u>, nimi)</li>
+  <li>Kauppa ((pk) <u>id</u>, nimi, osoite, kaupunki)</li>
+  <li>Ostos ((fk) <u>asiakas_id</u> -&gt; Asiakas, (fk) <u>kauppa_id</u> -&gt; Kauppa, hinta)</li>
+</ul>
+
+<p>
+  Nyt jokainen ylläolevista tietokantatauluista on ensimmäisessä ja toisessa normaalimuodossa.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Kandidaattiavain' } do %>
+  
+  <p>
+    Toisen normaalimuodon voi määritellä myös kandidaattiavain-käsitteen kautta. Tietokantataulun kandidaattiavaimet määritellään niiden tietokantataulun sarakkeiden joukkona, joiden avulla tietokantataulun rivit voidaan yksilöidä. Toisin sanoen, kandidaattiavainjoukko mahdollistaa tietokantatauuln rivin yksilöimisen.
+  </p>
+
+  <p>
+    Tietokantataululle voidaan määritellä tyypillisesti useampia kandidaattiavaimia, mutta näistä valitaan vain yksi tietokantataulun pääavaimeksi. Tarkastellaan taulua Henkilö, joka sisältää sarakkeet syntymäaika, etunimi, sukunimi ja puhelinnumero.
+  </p>
+
+  <p>
+    Kandidaattiavaimia etsitään sarakkeiden avulla muodostetusta joukkojen joukosta: {{syntymäaika}, {etunimi}, {sukunimi}, {puhelinnumero}, {syntymäaika, etunimi}, {syntymäaika, sukunimi}, {syntymäaika, puhelinnumero}, {etunimi, sukunimi}, {etunimi, puhelinnumero}, {syntymäaika, etunimi, sukunimi}, {syntymäaika, etunimi, puhelinnumero}, {syntymäaika, sukunimi, puhelinnumero}, {etunimi, sukunimi, puhelinnumero}, {syntymäaika, etunimi, sukunimi, puhelinnumero}}.
+  </p>
+
+  <p>
+    Jokaista joukkoa tarkastellaan niiden sisältämien sarakkeiden arvojoukkojen kautta. Jos joukolle on mahdollista löytää useampia rivejä, joissa kandidaattiavainjoukon arvot ovat samat, hylätään kandidaattiavain. Esimerkiksi useammalla henkilöllä voi olla sama syntymäaika, useammalla henkilöllä voi olla sama etunimi, ja useammalla henkilöllä voi olla sama sukunimi, joten {syntymäaika}, {etunimi}, {sukunimi} eivät ole kandidaattiavaimia. Vastaavasti joukko {etunimi, sukunimi} ei voi olla kandidaattiavain, sillä useammalla henkilöllä voi olla sama etunimi ja sukunimi.
+  </p>
+
+  <p>
+    Tätä prosessia jatkamalla tunnistetaan lopullinen kandidaattiavainten joukko. Edellisessä taulussa oikeastaan yksikään esitellyistä joukoista ei ole kandidaattiavainjoukko jos oletamme, että useammalla henkilöllä voi olla sama puhelinnumero.
+  </p>
+
+  <p>
+    Kandidaattiavainten avulla määriteltynä taulu on toisessa normaalimuodossa jos ja vain jos se on ensimmäisessä normaalimuodossa ja jokainen taulun kandidaattiavaimeen kuulumaton sarake on riippuvainen koko kandidaattiavaimen joukosta, mutta ei yksittäisestä joukon jäsenestä (jos joukkoon kuuluu useampi sarake).
+  </p>
+  
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Kolmas normaalimuoto
+<% end %>
+
+<p>
+  Kolmanteen normaalimuotoon liittyy oleellisesti käsite transitiivinen riippuvuus.
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'Transitiivinen riippuvuus' } do %>
+
+  <p>
+    Transitiivisella riippuvuudella tarkoitetaan sitä, että sarake A on funktionaalisesti riippuvainen sarakkeesta C jonkun toisen sarakkeen kautta. Sarake A on transitiivisesti riippuvainen sarakkeesta C, jos sarake A on funktionaalisesti riippuvainen sarakkeesta B ja sarake B on funktionaalisesti riippuvainen sarakkeesta C. Tässä A, B ja C voivat olla myös sarakejoukkoja.
+  </p>
+
+<% end %>
+
+<p>
+  Tietokantataulu on kolmannessa normaalimuodossa jos se on toisessa normaalimuodossa ja siinä olevat sarakkeet eivät ole transitiivisesti riippuvaisia taulun pääavaimesta.
+</p>
+
+
+<p>
+  Jos tietokantataulu rikkoo kolmannen normaalimuodon, eli tietokantataulusta tunnistetaan sarakkeita, jotka ovat transitiivisesti riippuvaisia pääavaimesta, eriytetään ne omaksi taulukseen. Eräs klassinen esimerkki tällaisesta tilanteesta liittyy postinumeroon -- tarkastellaan seuraavaa taulua Osoite.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan=4>Osoite((pk) <u>id</u>, katuosoite, postinumero, postitoimipaikka)</th>
+  </tr>
+  <tr>
+    <th>
+      <u>
+	id
+      </u>
+    </th>
+    <th>
+      katuosoite
+    </th>
+    <th>
+      postinumero
+    </th>
+    <th>
+      postitoimipaikka
+    </th>
+  </tr>
+  <tr>
+    <td>
+      1
+    </td>
+    <td>
+      Työpajankatu 13
+    </td>
+    <td>
+      00580
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      2
+    </td>
+    <td>
+      Työpajankatu 2 R1 C
+    </td>
+    <td>
+      00580
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      3
+    </td>
+    <td>
+      Siltavuorenranta 18
+    </td>
+    <td>
+      00170
+    </td>
+    <td>
+      Helsinki
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+    <td>
+      ...
+    </td>
+  </tr>
+</table>
+
+
+<p>
+  Yllä olevassa tietokantataulussa havaitaan funktionaalinen riippuvuus <code>postinumero -&gt postitoimipaikka</code>, eli postitoimipaikan saa selvitettyä postinumeron perusteella. Samalla kaikki sarakkeet ovat selvitettävissä taulun pääavaimen kautta, joten taulusta löytyy myös transitiivinen riippuvuus. Ratkaisu tähän on -- esimerkiksi -- luoda erillinen taulu postinumeroille. 
+</p>
+
+<ul>
+  <li>Osoite((pk) <u>id</u>, katuosoite, postinumero)</li>
+  <li>Postinumero((pk) <u>postinumero</u>, postitoimipaikka)</li>
+</ul>
+
+
+
+<% partial 'partials/hint', locals: { name: 'Muita normaalimuotoja' } do %>
+
+  <p>
+    Ensimmäisen, toisen ja kolmannen normaalimuodon lisäksi tietokannan normalisointiin käytetään <a href="https://en.wikipedia.org/wiki/Boyce%E2%80%93Codd_normal_form" target="_blank" norel>Boyce-Codd -normaalimuotoa</a>, <a href="https://en.wikipedia.org/wiki/Fourth_normal_form" target="_blank" norel>Neljättä normaalimuotoa</a> ja <a href="https://en.wikipedia.org/wiki/Fifth_normal_form" target="_blank" norel">Viidettä normaalimuotoa</a>.
+  </p>
+
+  <p>
+    Tämän kurssin puitteissa ensimmäiset kolme normaalimuotoa riittävät tietokannan suunnitteluun.
+  </p>
+  
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tietokannan denormalisointi
+<% end %>
+
+<p>
+  Tietokannan normalisointi johtaa tyypillisesti tilanteeseen, missä tietokannassa on useita tietokantatauluja, joista jokainen kuvaa jotain selkeää käsitettä. Tietokantataulujen väliset yhteydet tunnistetaan pää- ja viiteavainten avulla, ja taulujen attribuutit ovat selkeitä. Tietokannasta puuttuu toisteinen tieto.
+</p>
+
+<p>
+  Yleisesti ottaen yllä kuvattu tilanne on hyvä, mutta absoluuttinen hyvyys liittyy paljolti myös käyttötarkoitukseen. Esimerkiksi raportointiin tarkoitettujen järjestelmien ei kannata todennäköisesti -- jos raportin luonti on hidas operaatio -- luoda samoja raportteja yhä uudelleen ja uudelleen, vaan voi olla mielekästä luoda erillinen tietokantataulu (tai muutama), jotka sisältävät raporteille oleelliset tiedot valmiiksi laskettuna.
+</p>
+
+<p>
+  Myös tietokannan (tai tietokantataulun) käyttötarkoitus vaikuttaa normalisoinnin tarpeeseen. Esimerkiksi sivukäyntien kirjaamiseen tarkoitettu logitusjärjestelmä toimii tehokkaammin jos sivukäyntien tallentamiseen tarkoitetut osat järjestelmästä on denormalisoitu. Tarkastellaan tätä seuraavan esimerkin kautta.
+</p>
+
+<p>
+  Alla on annettuna kaksi tietokantaa, toinen on normalisoitu ja toinen denormalisoitu. Kumpaakin käytetään järjestelmässä kävijöiden tekemien tapahtumien kirjaamiseen.
+</p>
+
+<p>
+  Alla olevassa versiossa käyttäjä ja sivu on eriytetty omaksi käsitteekseen, johon tapahtuma-taulu viittaa. Kun tapahtumaa luodaan, tulee tapahtuman lisäämisen yhteydessä hakea käyttäjän tunnus taulusta Kayttaja sekä osoitetta vastaavan sivun tunnus taulusta Sivu.
+</p>
+
+
+<ul>
+  <li>
+    Kayttaja ((pk) id, kayttajatunnus)
+  </li>
+  <li>
+    Sivu ((pk) id, osoite)
+  </li>
+  <li>
+    Tapahtuma ((pk) id, (fk) kayttaja_id -&gt; Kayttaja, (fk) sivu_id -&gt; Sivu, aika, operaatio, ip-osoite, laite)
+  </li>
+</ul>
+
+<p>
+  Toinen vaihtoehto on tallentaa käyttäjätunnus ja sivun osoite sellaisenaan.
+</p>
+
+<ul>
+  <li>
+    Tapahtuma ((pk) id, kayttajatunnus, osoite, aika, operaatio, ip-osoite, laite)
+  </li>
+</ul>
+
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Operaatioiden tehokkuuden tarkastelu' } do %>
+
+  <p>
+    Lisää SQLiten avulla tehtäväpohjan kansioon <code>db</code> kaksi yllä kuvattua tietokantaa, joita käytetään järjestelmässä tapahtuvien tapahtumien tallentamiseen. Tee tämän jälkeen ohjelma, joka testaa tiedon lisäämisen nopeutta edellä mainittuihin tietokantatauluihin. 
+  </p>
+
+  <p>
+    Voit olettaa, että järjestelmä saa jokaisen tapahtuman yhteydessä tietoonsa käyttäjätunnuksen, osoitteen, ajan, tehdyn operaation, ip-osoitteen sekä käyttäjän käyttämän laitteen. Tehtäväpohjassa on valmiit metodit satunnaisen tiedon luomiseen.
+  </p>
+
+  <p>
+    Kun tietoa lisätään ensimmäiseen tietokantaan, tapahtuman lisäämisen yhteydessä tulee hakea käyttäjätaulusta tieto käyttäjästä (ja tallentaa käyttäjä tauluun jos kyseistä käyttäjää ei vielä ole), jonka lisäksi sivutaulusta tulee hakea tieto sivusta osoitteen perusteella (sekä lisätä sivu jos sitä ei vielä ole).
+  </p>
+
+  <p>
+    Kun tietoa lisätään toiseen tietokantaan, riittää tiedon tallentaminen tietokantatauluun.
+  </p>
+
+  <p>
+    Kun ohjelma lisää tietoa kumpaankin tietokantatauluun ja tulostaa lisäysoperaatioiden kestot, palauta ohjelma. Testaa lisäyksen nopeutta vähintään 25000 rivin lisäyksellä.
+  </p>  
+
+<% end %>
+
+
+
+<% partial 'partials/hint', locals: { name: 'Normalisoida vai eikö normalisoida?' } do %>
+
+  <p>
+    Lue CodingHorror.com-blogista kirjoitus <a href="http://blog.codinghorror.com/maybe-normalizing-isnt-normal/" target="_blank">Maybe Normalizing Isn't Normal</a>.
+  </p>
+
+  
+  <p>
+    Ensimmäisen, toisen ja kolmannen normaalimuodon lisäksi tietokannan normalisointiin käytetään <a href="https://en.wikipedia.org/wiki/Boyce%E2%80%93Codd_normal_form" target="_blank" norel>Boyce-Codd -normaalimuotoa</a>, <a href="https://en.wikipedia.org/wiki/Fourth_normal_form" target="_blank" norel>Neljättä normaalimuotoa</a> ja <a href="https://en.wikipedia.org/wiki/Fifth_normal_form" target="_blank" norel">Viidettä normaalimuotoa</a>.
+  </p>
+
+  <p>
+    Tämän kurssin puitteissa ensimmäiset kolme normaalimuotoa riittävät tietokannan suunnitteluun.
+  </p>
+  
+<% end %>
+
 
 
 
@@ -1780,6 +2649,33 @@ public class Main {
   <img src="/img/sekvenssikaavio.png" alt="Selaimen, palvelimen sekä tietokannan välistä kommunikaatiota kuvaava sekvenssikaavio."/>
   <figcaption>Käyttäjä tekee selaimella pyynnön palvelimelle menemällä osoitteeseen "/opiskelijat". Palvelimella oleva koodi tekee ensin pyynnön tietokantaan, missä haetaan kaikki tietokannassa olevat opiskelijat. Tämän jälkeen palvelin antaa opiskelijalistan sekä html-sivun nimen Thymeleafille, joka luo sivusta HTML-sivun. Lopulta luotu HTML-sivu palautetaan käyttäjälle.</figcaption>
 </figure>
+
+
+
+<% partial 'partials/exercise', locals: { name: 'Sanitettitarkastus' } do %>
+
+  <p>
+    Tehtävien lisääminen käyttäjälle toteutettiin edellä kuvatussa sovelluksessa tietokantaa käyttäville sovelluksille harmittavan yleisellä tavalla. Kun käyttäjälle lisätään tehtävä, kyseistä tehtävää ei enää näytetä sivulla, missä tehtäviä voi lisätä käyttäjille. Mikään ei kuitenkaan estä ilkeämielistä käyttäjää leikkimästä selainta ja tekemästä pyyntöjä palvelimelle.
+  </p>
+  
+  <p>
+    Voit kokeilla tätä myös itse -- linux/unix/mac -komentorivillä seuraava komento lisää käyttäjälle, jonka pääavain on 2 tehtävän, jonka pääavain on 1.
+  </p>
+  
+  <pre>
+kayttaja@kone:~/kansio$ curl --data "userId=2" http://localhost:4567/tasks/1
+  </pre>
+
+  <p>
+    Yllä kuvatun komennon voi ajaa tällä hetkellä halutessaan vaikkapa miljoona kertaa, jolloin TaskAssignment-tauluun päätyy miljoona riviä.
+  </p>
+
+  <p>
+    Korjaa tilanne. Muokkaa sovellusta siten, että jokainen tehtävä voi olla määrättynä korkeintaan yhdelle käyttäjälle.
+  </p>
+  
+<% end %>
+
 
 
 <%= partial 'partials/quiz', locals: { id: '59d65c9cdd63ba00049b6ade' } %>
