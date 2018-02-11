@@ -935,7 +935,7 @@ CREATE TABLE
 <% partial 'partials/exercise', locals: { name: 'SQL-injektio' } do %>
 
   <p>
-    blabla
+    Tehtäväpohjassa on sovellus, joka mahdollistaa huonekalujen lisäämisen, listaamisen ja poistamisen. Muokkaa sovellusta siten, että huonekalujen poistamisessa on SQL-injektiomahdollisuus. Tällä hetkellä huonekalun, jonka id on 3, poistaminen onnistuu POST-pyynnöllä sovelluksen polkuun <code>/delete/3</code>. SQL-injektion tulee muuntaa tilannetta siten, että esimerkiksi pyyntö osoitteeseen <code>/delete/3%20OR%2042=42</code> poistaakin kaikki tietokannan rivit. Edellisessä esimerkissä <code>%20</code> on osoitteissa käytettävä välilyönnin merkki.
   </p>
   
 <% end %>
@@ -967,7 +967,7 @@ CREATE TABLE
 </p>
 
 <p>
-  Tietokannan normalisointi tapahtuu askeleittain normaalimuotojen avulla. TODO: vähän historiaa..
+  Tietokannan normalisointi tapahtuu askeleittain normaalimuotojen avulla. 
 </p>
 
 
@@ -1797,7 +1797,7 @@ CREATE TABLE
     Sivu ((pk) id, osoite)
   </li>
   <li>
-    Tapahtuma ((pk) id, (fk) kayttaja_id -&gt; Kayttaja, (fk) sivu_id -&gt; Sivu, aika, operaatio, ip-osoite, laite)
+    Tapahtuma ((pk) id, (fk) kayttaja_id -&gt; Kayttaja, (fk) sivu_id -&gt; Sivu, aika, operaatio, ip, laite)
   </li>
 </ul>
 
@@ -1807,7 +1807,7 @@ CREATE TABLE
 
 <ul>
   <li>
-    Tapahtuma ((pk) id, kayttajatunnus, osoite, aika, operaatio, ip-osoite, laite)
+    Tapahtuma ((pk) id, kayttajatunnus, osoite, aika, operaatio, ip, laite)
   </li>
 </ul>
 
@@ -1817,24 +1817,36 @@ CREATE TABLE
 <% partial 'partials/exercise', locals: { name: 'Operaatioiden tehokkuuden tarkastelu' } do %>
 
   <p>
-    Lisää SQLiten avulla tehtäväpohjan kansioon <code>db</code> kaksi yllä kuvattua tietokantaa, joita käytetään järjestelmässä tapahtuvien tapahtumien tallentamiseen. Tee tämän jälkeen ohjelma, joka testaa tiedon lisäämisen nopeutta edellä mainittuihin tietokantatauluihin. 
+    Luo SQLiten avulla tehtäväpohjan kansioon <code>db</code> kaksi yllä kuvattua tietokantaa. Ensimmäisen nimeksi tulee 'tapahtumat-normalisoitu.db' ja toisen nimeksi 'tapahtumat-denormalisoitu.db'. Tee tämän jälkeen ohjelma, joka testaa tiedon lisäämisen nopeutta edellä mainittuihin tietokantatauluihin. Luokan <code>OperaatioidenTehokkuus</code> <code>main</code>-metodin kutsun tulee lisätä 100 tapahtumaa kumpaankin tietokantaan.
   </p>
 
   <p>
-    Voit olettaa, että järjestelmä saa jokaisen tapahtuman yhteydessä tietoonsa käyttäjätunnuksen, osoitteen, ajan, tehdyn operaation, ip-osoitteen sekä käyttäjän käyttämän laitteen. Tehtäväpohjassa on valmiit metodit satunnaisen tiedon luomiseen.
+    Ota seuraava CREATE TABLE-lause lähtökohdaksi.
+  </p>
+
+  <pre>
+    CREATE TABLE Tapahtuma (
+        id integer PRIMARY KEY, 
+        kayttajatunnus varchar(255), 
+        osoite varchar(255), 
+        aika integer, 
+        operaatio varchar(255), 
+        ip varchar(255), 
+        laite varchar(255)
+    );
+  </pre>
+
+  <p>
+    Voit olettaa, että järjestelmä saa jokaisen tapahtuman yhteydessä tietoonsa käyttäjätunnuksen, osoitteen, ajan, tehdyn operaation, ip-osoitteen sekä käyttäjän käyttämän laitteen. Tehtäväpohjassa on valmis toiminnallisuus satunnaisen tiedon luomiseen sekä paikat lisäyskyselyiden tekemiseen.
   </p>
 
   <p>
-    Kun tietoa lisätään ensimmäiseen tietokantaan, tapahtuman lisäämisen yhteydessä tulee hakea käyttäjätaulusta tieto käyttäjästä (ja tallentaa käyttäjä tauluun jos kyseistä käyttäjää ei vielä ole), jonka lisäksi sivutaulusta tulee hakea tieto sivusta osoitteen perusteella (sekä lisätä sivu jos sitä ei vielä ole).
+    Kun tietoa lisätään normalisoituun tietokantaan, tapahtuman lisäämisen yhteydessä tulee hakea käyttäjätaulusta tieto käyttäjästä (ja tallentaa käyttäjä tauluun jos kyseistä käyttäjää ei vielä ole), jonka lisäksi sivutaulusta tulee hakea tieto sivusta osoitteen perusteella (sekä lisätä sivu jos sitä ei vielä ole).
   </p>
 
   <p>
-    Kun tietoa lisätään toiseen tietokantaan, riittää tiedon tallentaminen tietokantatauluun.
+    Kun tietoa lisätään denormalisoituun tietokantaan, riittää tiedon tallentaminen tietokantatauluun.
   </p>
-
-  <p>
-    Kun ohjelma lisää tietoa kumpaankin tietokantatauluun ja tulostaa lisäysoperaatioiden kestot, palauta ohjelma. Testaa lisäyksen nopeutta vähintään 25000 rivin lisäyksellä.
-  </p>  
 
 <% end %>
 
@@ -1853,7 +1865,7 @@ CREATE TABLE
 <% partial 'partials/exercise', locals: { name: 'Sanitettitarkastus' } do %>
 
   <p>
-    Tehtävien lisääminen käyttäjälle toteutettiin edellä kuvatussa sovelluksessa tietokantaa käyttäville sovelluksille harmittavan yleisellä tavalla. Kun käyttäjälle lisätään tehtävä, kyseistä tehtävää ei enää näytetä sivulla, missä tehtäviä voi lisätä käyttäjille. Mikään ei kuitenkaan estä ilkeämielistä käyttäjää leikkimästä selainta ja tekemästä pyyntöjä palvelimelle.
+    Tehtäväpohjassa on tehtävien hallintaan tarkoitettu sovellus. Sovelluksessa on kuitenkin harmittava ominaisuus: kun käyttäjälle lisätään tehtävä, kyseistä tehtävää ei enää näytetä sivulla, missä tehtäviä voi lisätä käyttäjille. Mikään ei kuitenkaan estä ilkeämielistä käyttäjää leikkimästä selainta ja tekemästä pyyntöjä palvelimelle.
   </p>
   
   <p>
@@ -1871,6 +1883,12 @@ kayttaja@kone:~/kansio$ curl --data "userId=2" http://localhost:4567/tasks/1
   <p>
     Korjaa tilanne. Muokkaa sovellusta siten, että jokainen tehtävä voi olla määrättynä korkeintaan yhdelle käyttäjälle.
   </p>
-  
+
+  <p>
+    <em>
+      Tehtäväpohjassa ei ole toistaiseksi testejä, eli testaa korjauksesi toimintaa itse.
+    </em>
+  </p>
+
 <% end %>
 
