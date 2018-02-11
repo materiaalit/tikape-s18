@@ -1,7 +1,7 @@
 ---
   title: Osa 5
   exercise_page: true
-  quiz_page: true
+  quiz_page: false
   published: false
 ---
 
@@ -9,16 +9,842 @@
 <% partial 'partials/hint', locals: { name: 'Viidennen osan oppimistavoitteet' } do %>
 
   <p>
-    Osaa tehdä SQL-kielellä yhteenvetokyselyitä. Tuntee käsiteanalyysin askeleet. Osaa luoda ongelma-alueen kuvauksesta luokkakaavion sekä johtaa siitä relaatiokaavion. Tietää käsitteet tietokannan normalisointi ja tietokannan denormalisointi. Tuntee tietokannan normalisointiin liittyvät ensimmäisen, toisen ja kolmannen normaalimuodon. Osaa perustella noudattaako annettu tietokanta em. normaalimuotoja. 
-
+    Osaa siirtää web-sovelluksen verkkoon, missä se on kaikkien nähtävillä. Tuntee käsitteen SQL-injektio. Tietää menetelmiä SQL-injektioon perustuvien hyökkäysten tekemiseen ja osaa toisaalta puolustautua niiltä. Tietää käsitteet tietokannan normalisointi ja tietokannan denormalisointi. Tuntee tietokannan normalisointiin liittyvät ensimmäisen, toisen ja kolmannen normaalimuodon. Osaa perustella noudattaako annettu tietokanta em. normaalimuotoja.
   </p>
   
 <% end %>
 
 
 
+<% partial 'partials/material_heading' do %>
+  Web-sovelluksen siirtäminen verkkoon
+<% end %>
+
+<p>
+  Web-sovelluksemme on tähän mennessä toiminut vain paikallisella koneella, missä kehitystyötä on tehty. Tutustutaan tässä Heroku-nimisen pilvipalvelun käyttöön ja siirretään Web-sovellus verkkoon kaikkien nähtäväksi.
+</p>
+
+<p>
+  Herokulla on aiheeseen liittyen myös oma opas, johon kannattaa tutustua <a href="https://devcenter.heroku.com/articles/getting-started-with-java" target="_blank">täällä</a>.
+</p>
+
+<p>
+  Tarvitset sovelluksen siirtoon (1) <a href="https://signup.heroku.com/dc" target="_blank">tunnuksen Heroku-palveluun</a> sekä (2) <a href="https://toolbelt.heroku.com/" target="_blank">Heroku Toolbeltin</a>.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Alkutoimet
+<% end %>
+
+<p>
+  Herokuun siirrettävät sovellukset tarvitsevat muutamia muutoksia:
+</p>
+
+<ol>
+
+  <li>
+    <p>
+      Ohjeet Herokulle sovelluksen käynnistämiseen. Ohjeet annetaan sovelluksen juuripolkuun lisättävän <code>Procfile</code>-nimisen tiedoston avulla. Tiedosto sisältää komennon, jota tulee käyttää sovelluksen käynnistämisessä.
+    </p>
+
+    <p>
+      Alla olevassa esimerkissä oletetaan, että sovelluksen käynnistävä luokka on nimeltä <code>Main</code> ja se sijaitsee pakkauksessa <code>tikape</code>.
+    </p>
+
+    <pre>
+web:    java -cp target/classes:target/dependency/* tikape.Main
+    </pre>
+
+    <p>
+      Komennon osa <code>tikape.Main</code> kuvaa pääohjelmaluokkaa, jonka kautta sovellus tulee käynnistää. Jos pääohjelmaluokkasi on toisessa pakkauksessa (ei tikape) tai pääohjelmaluokan nimi on jotain muuta (ei Main), tulee tätä muokata. Heroku käyttää tätä komentoa sovelluksen käynnistykseen.
+    </p>
+  </li>
+
+  <li>
+    <p>
+      Maven-liitännäiset ohjelman kääntöprosessin automatisointiin. Sovelluksen <code>pom.xml</code>-tiedostoon tulee lisätä seuraavat rivit. Rivit lisätään esimerkiksi <code>&lt;/properties&gt;</code>-rivin jälkeen.</p>
+
+    <% partial 'partials/xml_highlight' do %>
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.5.1&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.8&lt;/source&gt;
+                    &lt;target&gt;1.8&lt;/target&gt;
+                    &lt;optimize&gt;true&lt;/optimize&gt;
+                    &lt;debug&gt;true&lt;/debug&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.4&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;id&gt;copy-dependencies&lt;/id&gt;
+                        &lt;phase&gt;package&lt;/phase&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+    <% end %>
+  </li>
+
+  <li>
+    <p>
+      Sovelluksen käynnistäminen Herokun määräämässä portissa. Jokainen web-sovellus käynnistettään tiettyyn porttiin, jonka se varaa käyttöönsä. Heroku pyörittää useampia sovelluksia samalla palvelinkoneella, joten sille pitää antaa mahdollisuus portin asetukseen.
+    </p>
+
+    <p>
+      Portin asetus tapahtuu <em>ympäristömuuttujan</em> avulla, jonka Heroku antaa sovellukselle sovellusta käynnistettäessä. Käytännössä pääohjelmaluokkaan, joka käynnistää web-palvelimen, tulee lisätä seuraavat rivit -- lisää ne main-metodin alkuun.
+    </p>
+
+    <% partial 'partials/code_highlight' do %>
+        // asetetaan portti jos heroku antaa PORT-ympäristömuuttujan
+        if (System.getenv("PORT") != null) {
+            Spark.port(Integer.valueOf(System.getenv("PORT")));
+        }
+    <% end %>
+  </li>
+</ol>
+
+<p>
+  Ylläolevien muutosten avulla sovelluksen siirtäminen verkkoon onnistuu.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Heroku toolbeltin asennus
+<% end %>
+
+<p>
+  Asenna <a href="https://toolbelt.heroku.com/" target="_blank">heroku toolbelt</a>. Ohjeita löytyy esimerkiksi osoitteessa <a href="https://devcenter.heroku.com/articles/heroku-command" target="_blank">https://devcenter.heroku.com/articles/heroku-command</a>.
+</p>
+
+<p>
+  Jos sinulla ei ole koneeseen pääkäyttäjän oikeuksia (root), asennuksen pitäisi silti olla mahdollista jos koneelle on ennestään asennettu muutama Herokun vaatima ohjelmapaketti. Joudut kuitenkin tekemään <a href="http://geek.co.il/2015/06/19/fix-another-curlsh-bogus-installation-heroku">asennuksen hieman toisin</a>.
+</p>
+
+<% partial 'partials/material_sub_heading' do %>
+  Sovelluksen luominen Herokuun
+<% end %>
+
+<p>
+  Sovelluksen luomiseen Herokuun tarvitaan kaksi askelta. Ensimmäisessä askeleessa luodaan projektista git-repositorio (tätä ei tarvitse tehdä jos sovellus on jo git-versionhallinnassa), jonka jälkeen luodaan herokuun sijainti johon sovellus kopioidaan.
+</p>
+
+<p>
+  <em>
+    Mikäli et ole aiemmin käyttänyt Git-versionhallintaa, tutustu Gitin käyttöön nyt. Lue oppaat osoitteista <a href="https://guides.github.com/activities/hello-world/" target="_blank">https://guides.github.com/activities/hello-world/</a> ja <a href="http://bit.ly/tikapeGit" target="_blank">http://bit.ly/tikapeGit</a>.
+  </em>
+</p>
+
+<ol>
+  <li>
+    <p><strong>Projekti git-repositorioksi</strong> -- projektin luominen git-repositorioksi tapahtuu ajamalla komento <code>git init</code> projektin juurikansiossa (kansio, jossa löytyy tiedosto <code>pom.xml</code>). Jos sovellus on jo esimerkiksi githubissa, ei tätä tarvitse tehdä.
+    </p>
+  </li>
+
+  <li>
+    <p>
+      <strong>Heroku-projektin luominen</strong> -- suorita juurikansiossa komento <code>heroku create</code>. Tämä luo sovellukselle sijainnin herokuun, johon sovelluksen voi lähettää. Komennon toimintaan tarvitset aiemmin asennetun heroku toolbeltin.
+    </p>
+  </li>
+
+</ol>
+
+<p>
+  Mahdollisissa ongelmatilanteissa kannattaa ensimmäiseksi katsoa mitä viestejä Herokun <a href="https://devcenter.heroku.com/articles/logging">lokitiedostoon</a> on päätynyt.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Sovelluksen lähetys Herokuun
+<% end %>
+
+<p>
+  Sovelluksen lähetys herokuun sisältää tyypillisesti neljä askelta. Ensin poistamme turhat käännetyt lähdekooditiedostot, jotta ne eivät häiritse herokun toimintaa. Tämän jälkeen lisäämme tiedostot versionhallintaan, sitoudumme niiden lähettämiseen, ja siirrämme ne herokuun.
+</p>
+
+<ol>
+
+  <li>
+    <strong>Turhien lähdekooditiedostojen poistaminen</strong> -- suorita projektin juurikansiossa komento <code>mvn clean</code>, joka poistaa projektista käännetyt lähdekooditiedostot (kansio target).
+  </li>
+
+  <li>
+    <strong>Tiedostojen lisääminen versionhallintaan</strong> -- suorita projektin juurikansiossa komento <code>git add .</code>, joka lisää kaikki projektin tiedostot versionhallintaan. Huom! Varmista, että target-kansio ei pääse lipsahtamaan versionhallintaan tai Herokuun.
+  </li>
+
+  <li>
+    <strong>Tiedostojen lähettämiseen sitoutuminen</strong> -- suorita projektin juurikansiossa komento <code>git commit -m "viesti"</code>, joka sitouttaa lähetykseen juuri lisätyt tiedostot.
+  </li>
+
+  <li>
+    <strong>Tiedostojen siirtäminen herokuun</strong> -- suorita projektin juurikansiossa komento <code>git push heroku master</code>, joka lähettää tiedostot herokuun.
+  </li>
+  
+</ol>
+
+<p>
+  Nyt sovelluksesi on verkossa kaikkien nähtävillä. 
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Olemassaolevan projektin siirto Herokuun askel askeleelta
+<% end %>
+
+<p>
+  Oletetaan, että käytössämme on osoitteessa <a href="https://github.com/avihavai/huonekalut/tree/370a67fae46f6fbbd3f0e2e3d7aa34668f70a6a4" target="_blank">https://github.com/avihavai/huonekalut/tree/370a67fae46f6fbbd3f0e2e3d7aa34668f70a6a4</a> oleva esimerkkisovellus. Sovellus tarjoaa toiminnallisuuden huonekalujen listaamiseen ja lisäämiseen.
+</p>
 
 <% partial 'partials/material_sub_sub_heading' do %>
+  Procfilen puuttuminen
+<% end %>
+
+<p>
+  Alla paikallisella koneella oleva projekti ensin putsataan (poistetaan turhat lähdekooditiedostot. Tämän jälkeen kirjaudutaan Heroku toolbeltin avulla Herokuun. Tätä seuraa uuden Heroku-sovelluksen luominen -- sovelluksen nimeksi asetetaan <code>huonekalut-esim</code>. Nimi on uniikki, eli kukaan muu ei voi ottaa tätä nimeä käyttöön. 
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>mvn clean</strong>
+...
+user@kone:~/kansio/huonekalut$ <strong>heroku login</strong>
+Enter your Heroku credentials:
+Email: sposti@osoite.net
+Password: ***************
+Logged in as sposti@osoite.net
+user@kone:~/kansio/huonekalut$ <strong>heroku create huonekalut-esim</strong>
+Creating ⬢ huonekalut-esim... done
+https://huonekalut-esim.herokuapp.com/ | https://git.heroku.com/huonekalut-esim.git
+user@kone:~/kansio/huonekalut$ <strong>git status</strong>
+On branch master
+Your branch is up-to-date with 'origin/master'.
+nothing to commit, working directory clean
+user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+Counting objects: 13, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (7/7), done.
+Writing objects: 100% (13/13), 2.32 KiB | 0 bytes/s, done.
+Total 13 (delta 0), reused 0 (delta 0)
+remote: Compressing source files... done.
+remote: Building source:
+remote: 
+remote: -----> Java app detected
+remote: -----> Installing JDK 1.8... done
+remote: -----> Installing Maven 3.3.9... done
+remote: -----> Executing: mvn -DskipTests clean dependency:list install
+...
+</pre>
+
+<p>
+  Sovellus asentuu. Kun menemme osoitteeseen <a href="https://huonekalut-esim.herokuapp.com/" target="_blank">https://huonekalut-esim.herokuapp.com/</a> näemme seuraavanlaisen sivun.
+</p>
+
+<figure>
+  <img src="/img/heroku/huonekalut-application-error.png" alt="Herokun virheviesti: Application error."/>
+</figure>
+
+<p>
+  Sovelluksessa on virhe. Virheviestin saa selville Heroku toolbeltin avulla logeja tarkastelemalla.
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>heroku logs</strong>
+user@kone:~/kansio/huonekalut$ 
+...
+2018-02-11T14:07:31.000000+00:00 app[api]: Build succeeded
+2018-02-11T14:08:46.323557+00:00 heroku[router]: at=error code=H14 desc="No web processes running" method=GET path="/" host=huonekalut-esim.herokuapp.com request_id=43a2f9af-e5f6-4d60-9906-45f9d6145c32 fwd="..." dyno= connect= service= status=503 bytes= protocol=https
+</pre>
+
+<p>
+  Sovelluksen virheviesti on <strong>No web processes running</strong>, eli web-sovelluksia ei ole käynnissä. Sovellus tarvitsee Herokua sovelluksen käynnistämiseen ohjeistavan tiedoston <code>Procfile</code>.
+</p>
+
+<p>
+  Luodaan tiedosto Procfile. Koska huonekalut-projektin Main-luokka on pakkauksessa <code>tikape.huonekalut</code>, tulee Procfile-tiedoston sisältöä muokata sopivasti. Tiedoston sisällöksi tulee seuraava merkkijono:
+</p>
+
+<pre>
+web:    java -cp target/classes:target/dependency/* tikape.huonekalut.Main
+</pre>
+
+<p>
+  Lisätään Procfile versionhallintaan ja lähetetään projektista uusi versio Herokuun.
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>echo "web:    java -cp target/classes:target/dependency/* tikape.huonekalut.Main" > Procfile</strong>
+user@kone:~/kansio/huonekalut$ <strong>git status</strong>
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Untracked files:
+(use "git add &lt;file&gt;..." to include in what will be committed)
+
+  Procfile
+
+nothing added to commit but untracked files present (use "git add" to track)
+user@kone:~/kansio/huonekalut$ <strong>git add Procfile</strong>
+user@kone:~/kansio/huonekalut$ <strong>git commit -m "Herokun käynnistykseen tarvittava tiedosto Procfile"</strong>
+[master 123bla] Herokun käynnistykseen tarvittava tiedosto Procfile
+
+1 file changed, 1 insertion(+)
+create mode 100644 Procfile
+user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+Counting objects: 13, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (7/7), done.
+Writing objects: 100% (13/13), 2.32 KiB | 0 bytes/s, done.
+Total 13 (delta 0), reused 0 (delta 0)
+remote: Compressing source files... done.
+remote: Building source:
+remote: 
+remote: -----> Java app detected
+remote: -----> Installing JDK 1.8... done
+remote: -----> Installing Maven 3.3.9... done
+remote: -----> Executing: mvn -DskipTests clean dependency:list install
+...
+</pre>
+
+<p>
+  Sovellus siirtyy taas Herokuun. Kun tarkastelemme sovellusta, sovellus näyttää tutulta..
+</p>
+
+
+<figure>
+  <img src="/img/heroku/huonekalut-application-error.png" alt="Herokun virheviesti: Application error."/>
+</figure>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Maven-konfiguraation puuttuminen
+<% end %>
+
+<p>
+  Sovelluksessa on yhä virhe. Tarkastellaan virheviestiä Herokun logeista.
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>heroku logs</strong>
+...
+2018-02-11T14:23:27.162335+00:00 heroku[web.1]: Starting process with command `java -cp target/classes:target/dependency/* tikape.huonekalut.Main`
+2018-02-11T14:23:29.732606+00:00 heroku[web.1]: Process exited with status 1
+2018-02-11T14:23:29.750379+00:00 heroku[web.1]: State changed from starting to crashed
+2018-02-11T14:23:29.359931+00:00 app[web.1]: Setting JAVA_TOOL_OPTIONS defaults based on dyno size. Custom settings will override them.
+2018-02-11T14:23:29.364538+00:00 app[web.1]: Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8 
+2018-02-11T14:23:29.642788+00:00 app[web.1]: Error: A JNI error has occurred, please check your installation and try again
+2018-02-11T14:23:29.643688+00:00 app[web.1]: Exception in thread "main" java.lang.NoClassDefFoundError: spark/TemplateEngine
+2018-02-11T14:23:29.643691+00:00 app[web.1]: 	at java.lang.Class.getDeclaredMethods0(Native Method)
+2018-02-11T14:23:29.643693+00:00 app[web.1]: 	at java.lang.Class.privateGetDeclaredMethods(Class.java:2701)
+2018-02-11T14:23:29.646781+00:00 app[web.1]: 	at java.lang.Class.privateGetMethodRecursive(Class.java:3048)
+2018-02-11T14:23:29.646784+00:00 app[web.1]: 	at java.lang.Class.getMethod0(Class.java:3018)
+2018-02-11T14:23:29.646786+00:00 app[web.1]: 	at java.lang.Class.getMethod(Class.java:1784)
+2018-02-11T14:23:29.646788+00:00 app[web.1]: 	at sun.launcher.LauncherHelper.validateMainClass(LauncherHelper.java:544)
+2018-02-11T14:23:29.646789+00:00 app[web.1]: 	at sun.launcher.LauncherHelper.checkAndLoadMain(LauncherHelper.java:526)
+2018-02-11T14:23:29.646791+00:00 app[web.1]: Caused by: java.lang.ClassNotFoundException: spark.TemplateEngine
+2018-02-11T14:23:29.646793+00:00 app[web.1]: 	at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+2018-02-11T14:23:29.646795+00:00 app[web.1]: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+2018-02-11T14:23:29.646796+00:00 app[web.1]: 	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:338)
+2018-02-11T14:23:29.646798+00:00 app[web.1]: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+2018-02-11T14:23:29.646800+00:00 app[web.1]: 	... 7 more
+2018-02-11T14:23:31.210681+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=huonekalut-esim.herokuapp.com request_id=35d815fe-806f-412b-8808-d775895d671a fwd="..." dyno= connect= service= status=503 bytes= protocol=https
+</pre>
+
+<p>
+  Virheviesti <code>java.lang.NoClassDefFoundError</code> on melko selkeä. Java ei löydä tarvitsemaamme luokkaa. Lisätään projektin pom.xml-tiedostoon Maven-liitännäisen tarvitsemat tiedot. Tiedoston <code>pom.xml</code> sisältö on tämän jälkeen kokonaisuudessaan seuraava.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+  &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+  &lt;project xmlns="http://maven.apache.org/POM/4.0.0" 
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                               http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;tikape&lt;/groupId&gt;
+    &lt;artifactId&gt;huonekalut&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    
+    &lt;properties&gt;
+      &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+      &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+      &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+    
+    &lt;dependencies&gt;
+      
+      &lt;dependency&gt;
+        &lt;groupId&gt;org.xerial&lt;/groupId&gt;
+        &lt;artifactId&gt;sqlite-jdbc&lt;/artifactId&gt;
+        &lt;version&gt;3.21.0.1&lt;/version&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
+        &lt;artifactId&gt;spark-core&lt;/artifactId&gt;
+        &lt;version&gt;2.7.1&lt;/version&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
+        &lt;artifactId&gt;spark-template-thymeleaf&lt;/artifactId&gt;
+        &lt;version&gt;2.7.1&lt;/version&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;com.google.code.gson&lt;/groupId&gt;
+        &lt;artifactId&gt;gson&lt;/artifactId&gt;
+        &lt;version&gt;2.8.2&lt;/version&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+        &lt;artifactId&gt;slf4j-simple&lt;/artifactId&gt;
+        &lt;version&gt;1.7.25&lt;/version&gt;
+      &lt;/dependency&gt;
+      
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+      &lt;plugins&gt;
+        &lt;plugin&gt;
+          &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+          &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+          &lt;version&gt;2.5.1&lt;/version&gt;
+          &lt;configuration&gt;
+            &lt;source&gt;1.8&lt;/source&gt;
+            &lt;target&gt;1.8&lt;/target&gt;
+            &lt;optimize&gt;true&lt;/optimize&gt;
+            &lt;debug&gt;true&lt;/debug&gt;
+          &lt;/configuration&gt;
+        &lt;/plugin&gt;
+        &lt;plugin&gt;
+          &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+          &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+          &lt;version&gt;2.4&lt;/version&gt;
+          &lt;executions&gt;
+            &lt;execution&gt;
+              &lt;id&gt;copy-dependencies&lt;/id&gt;
+              &lt;phase&gt;package&lt;/phase&gt;
+              &lt;goals&gt;
+                &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+              &lt;/goals&gt;
+            &lt;/execution&gt;
+          &lt;/executions&gt;
+        &lt;/plugin&gt;
+      &lt;/plugins&gt;
+    &lt;/build&gt;
+    
+  &lt;/project&gt;
+<% end %>
+
+<p>
+  Lähetetään projekti taas Herokuun. Sormet ristiin jne.
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>git status</strong>
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)
+
+  modified:   pom.xml
+
+no changes added to commit (use "git add" and/or "git commit -a")
+user@kone:~/kansio/huonekalut$ <strong>git add pom.xml</strong>
+user@kone:~/kansio/huonekalut$ <strong>git commit -m "Projektin käännökseen tarvitut liitännäiset"</strong>
+[master 124bla] Projektin käännökseen tarvitut liitännäiset
+...
+1 file changed, 31 insertions(+), 1 deletion(-)
+user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+Counting objects: 3, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 647 bytes | 0 bytes/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+remote: Compressing source files... done.
+remote: Building source:
+remote: 
+remote: -----> Java app detected
+remote: -----> Installing JDK 1.8... done
+remote: -----> Installing Maven 3.3.9... done
+remote: -----> Executing: mvn -DskipTests clean dependency:list install
+...
+</pre>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Portin määrittely
+<% end %>
+
+
+<p>
+  Sovellukseen on nyt lisätty tarvittu Procfile sekä pom.xml-tiedostoon tarvitut rivit. Kun tarkastelemme sovellusta, näkymä on harmittavan tuttu..
+</p>
+
+<figure>
+  <img src="/img/heroku/huonekalut-application-error.png" alt="Herokun virheviesti: Application error."/>
+</figure>
+
+<p>
+  Tiedämme onneksi mitä tehdä. Tarkastellaan virheviestiä Herokun logeista.
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>heroku logs</strong>
+...
+2018-02-11T14:37:29.796865+00:00 heroku[web.1]: Starting process with command `java -cp target/classes:target/dependency/* tikape.huonekalut.Main`
+2018-02-11T14:37:31.109739+00:00 app[web.1]: Picked up JAVA_TOOL_OPTIONS: -Xmx300m -Xss512k -Dfile.encoding=UTF-8 
+2018-02-11T14:37:31.106706+00:00 app[web.1]: Setting JAVA_TOOL_OPTIONS defaults based on dyno size. Custom settings will override them.
+2018-02-11T14:37:31.217373+00:00 app[web.1]: Hello world!
+2018-02-11T14:37:31.409503+00:00 app[web.1]: [Thread-0] INFO org.eclipse.jetty.util.log - Logging initialized @295ms to org.eclipse.jetty.util.log.Slf4jLog
+2018-02-11T14:37:31.487930+00:00 app[web.1]: [Thread-0] INFO spark.embeddedserver.jetty.EmbeddedJettyServer - == Spark has ignited ...
+2018-02-11T14:37:31.488042+00:00 app[web.1]: [Thread-0] INFO spark.embeddedserver.jetty.EmbeddedJettyServer - >> Listening on 0.0.0.0:4567
+2018-02-11T14:37:31.492481+00:00 app[web.1]: [Thread-0] INFO org.eclipse.jetty.server.Server - jetty-9.4.6.v20170531
+2018-02-11T14:37:31.559757+00:00 app[web.1]: [Thread-0] INFO org.eclipse.jetty.server.session - DefaultSessionIdManager workerName=node0
+2018-02-11T14:37:31.563164+00:00 app[web.1]: [Thread-0] INFO org.eclipse.jetty.server.session - Scavenging every 660000ms
+2018-02-11T14:37:31.559867+00:00 app[web.1]: [Thread-0] INFO org.eclipse.jetty.server.session - No SessionScavenger set, using defaults
+2018-02-11T14:37:31.592726+00:00 app[web.1]: [Thread-0] INFO org.eclipse.jetty.server.AbstractConnector - Started ServerConnector@1faa7888{HTTP/1.1,[http/1.1]}{0.0.0.0:4567}
+2018-02-11T14:37:31.592938+00:00 app[web.1]: [Thread-0] INFO org.eclipse.jetty.server.Server - Started @483ms
+2018-02-11T14:39:00.117450+00:00 heroku[web.1]: Error R10 (Boot timeout) -> Web process failed to bind to $PORT within 90 seconds of launch 
+2018-02-11T14:39:00.117535+00:00 heroku[web.1]: Stopping process with SIGKILL
+2018-02-11T14:39:00.205503+00:00 heroku[web.1]: State changed from starting to crashed
+2018-02-11T14:39:00.194080+00:00 heroku[web.1]: Process exited with status 137
+2018-02-11T14:39:11.229117+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=huonekalut-esim.herokuapp.com request_id=695ac260-a6d7-4e37-a453-ea089e680740 fwd="..." dyno= connect= service= status=503 bytes= protocol=https
+</pre>
+
+<p>
+  Rivejä tarkasteltaessamme huomaamme tulostuksen "Hello world!". Sovellus on siis käynnistynyt! Viestejä eteenpäin tarkasteltaessamme huomaamme kuitenkin, että sovellus ei ole toiminut Herokun toivomalla tavalla. Virhe <code>Web process failed to bind to $PORT within 90 seconds of launch</code> kertoo, että sovellus ei ole ottanut Herokun tarjoamaa porttia käyttöön.
+</p>
+
+<p>
+  Lisätään sovelluksen käynnistämiseen käytettävän <code>tikape.huonekalut.Main</code> päämetodin alkuun rivit:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  // asetetaan portti jos heroku antaa PORT-ympäristömuuttujan
+  if (System.getenv("PORT") != null) {
+      Spark.port(Integer.valueOf(System.getenv("PORT")));
+  }
+<% end %>
+
+<p>
+  Lähetetään sovellus taas Herokuun.
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>git add src/main/java/tikape/huonekalut/Main.java</strong>
+user@kone:~/kansio/huonekalut$ <strong>git commit -m "Käytetään Herokun tarjoamaa porttia."</strong>
+[master 125bla] Käytetään Herokun tarjoamaa porttia.
+...
+user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+...
+remote: -----> Discovering process types
+remote:        Procfile declares types -> web
+remote: 
+remote: -----> Compressing...
+remote:        Done: 61.2M
+remote: -----> Launching...
+remote:        Released v5
+remote:        https://huonekalut-esim.herokuapp.com/ deployed to Heroku
+remote: 
+remote: Verifying deploy... done.
+To https://git.heroku.com/huonekalut-esim.git
+...
+</pre>
+
+<p>
+  Entä nyt? Tarkastellaan taas sovelluksen osoitetta -- tuntuu toimivan.
+</p>
+
+
+<figure>
+  <img src="/img/heroku/heroku-huonekalut-sqlite.png" alt="Sovellus on Herokussa."/>
+</figure>
+
+<p>
+  Sovellus on verkossa ja sinne voi lisätä huonekaluja.
+</p>
+
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Herokun tarjoaman tietokannan käyttöönotto
+<% end %>
+
+<p>
+  Olemme saaneet sovelluksemme verkkoon. Sovelluksessa on kuitenkin vielä iso ongelma. Se käyttää SQLiteä, joka hallinnoi tietokantaa levylle tallennettuna tiedostona. Pilvipalvelut kuten Heroku kuitenkin toimivat niin, että sovellukset voivat sammua ja käynnistyä uudestaan tarvittaessa -- levylle tehtyjä muutoksia ei hallinnoida. Käytännössä jokaisen uudelleenkäynnistyksen yhteydessä sovellus on siinä pisteessä, missä se lähettiin verkkoon. <strong>Käytetty tietokantatoiminnallisuus ei siis toimi pilvipalvelussa.</strong>
+</p>
+
+<p>
+  Tarvitsemme käyttöömme erillisen tietokannanhallintajärjestelmän. Heroku tarjoaa palveluna <a href="https://www.postgresql.org/" target="_blank">PostgreSQL</a>-tietokannanhallintajärjestelmän. Ohjeistukset PostgreSQL:n käyttöönottoon löytyvät osoitteesta <a href="https://devcenter.heroku.com/articles/heroku-postgresql" target="_blank">https://devcenter.heroku.com/articles/heroku-postgresql</a>.
+</p>
+
+<p>
+  Tarvitsemme (1) PostgreSQL-ajurin tietokantayhteyden luomiseen, (2) Herokun tarjoaman PostgreSQL-tietokannan sekä (3) tavan muodostaa yhteys PostgreSQL-tietokantaan. 
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  PostgreSQL-ajuri
+<% end %>
+
+<p>
+  PostgreSQL-ajuri lisätään projektin pom.xml-tiedostossa määriteltyihin riippuvuuksiin. Ajuri noudattaa JDBC-rajapintaa, eli tietokannanhallintajärjestelmän vaihtaminen ei ideaalitilanteessa vaikuta sovelluksessa käytettyihin SQL-kyselyihin tai muuhun koodiin. PostgreSQL-tietokannanhallintajärjestelmän ajurin riippuvuus on seuraavanlainen. 
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+    &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+    &lt;version&gt;42.2.1&lt;/version&gt;
+  &lt;/dependency&gt;
+<% end %>
+
+<p>
+  Kun riippuvuus on lisätty projektin pom.xml-tiedostoon, sovelluksessa voidaan käyttää PostgreSQL-tietokantoja.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  PostgreSQL-tietokannan luominen
+<% end %>
+
+<p>
+  Heroku tarjoaa harrastuskäyttöön ilmaisen PostgreSQL-tietokannan. Tietokanta on tosin hieman rajattu: ilmaisessa versiossa saa olla korkeintaan 10000 riviä -- tämä on ok kurssimme tarkoituksiin. Tietokannan luominen onnistuu Heroku toolbeltin avulla. Komento <code>heroku addons:create heroku-postgresql:hobby-dev</code> lisää Herokussa sijaitsevan sovelluksen käyttöön PostgreSQL-tietokannan. 
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>heroku addons:create heroku-postgresql:hobby-dev</strong>
+Creating heroku-postgresql:hobby-dev on ⬢ huonekalut-esim... free
+Database has been created and is available
+ ! This database is empty. If upgrading, you can transfer
+ ! data from another database with pg:copy
+Created <em>tietokannan-nimi</em> as DATABASE_URL
+Use heroku addons:docs heroku-postgresql to view documentation
+</pre>
+
+<p>
+  Nyt sovelluksemme käytössä on tietokanta. Tietokannan yhteystiedot saadaan Herokun kautta ympäristömuuttujana käyttöön.
+</p>
+
+<p>
+  Mikäli käytössä olevalle koneelle on asennettu PostgreSQL, yhteyden muodostaminen Herokun tarjoamaan tietokantaan on myös komentoriviltä helppoa. Tämä onnistuu komennolla. <code>heroku pg:psql</code>. Yleiset tietokannanhallintajärjestelmäkohtaiset komennot poikkeavat SQLite-tietokannanhallintajärjestelmästä, mutta SQL-komennot ovat tuttuja.
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ heroku pg:psql
+--> Connecting to <em>tietokannan-nimi</em>
+psql (9.5.11, server 10.1)
+WARNING: psql major version 9.5, server major version 10.
+         Some psql features might not work.
+SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
+Type "help" for help.
+
+<em>tietokannan-nimi</em>::DATABASE=> help
+You are using psql, the command-line interface to PostgreSQL.
+Type:  \copyright for distribution terms
+       \h for help with SQL commands
+       \? for help with psql commands
+       \g or terminate with semicolon to execute query
+       \q to quit
+<em>tietokannan-nimi</em>::DATABASE=> \d
+No relations found.
+<em>tietokannan-nimi</em>::DATABASE=> SELECT 1;
+ ?column? 
+----------
+        1
+(1 row)
+
+<em>tietokannan-nimi</em>::DATABASE=> \q
+</pre>
+
+<p>
+  Tietokanta on olemassa ja saamme muodostettua yhteyden siihen komentoriviltä.
+</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Yhteys PostgreSQL-tietokantaan
+<% end %>
+
+<p>
+  Muokataan vielä sovelluksemme lähdekoodia siten, että otamme yhteyden Herokun tietokantaan mikäli yhteyteen liittyvä ympäristömuuttuja on tarjolla. Tehdään tästä erillinen metodi.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+    public static Connection getConnection() throws Exception {
+        String dbUrl = System.getenv("JDBC_DATABASE_URL");
+        if (dbUrl != null && dbUrl.length() > 0) {
+            return DriverManager.getConnection(dbUrl);
+        }
+
+        return DriverManager.getConnection("jdbc:sqlite:huonekalut.db");
+    }
+<% end %>
+
+<p>
+  Lähdekoodia tulee muuttaa myös niistä kohdista, missä yhteys muodostetaan. Esimerkiksi esineiden noutamiseen liittyvässä toiminnallisuudessa ohjelman tulee hyödyntää uutta yhteyttä.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+  // ...
+  
+  // avaa yhteys tietokantaan
+  Connection conn = getConnection();
+
+  // tee kysely
+  PreparedStatement stmt = conn.prepareStatement("SELECT nimi FROM Huonekalu");
+  ResultSet tulos = stmt.executeQuery();
+
+  // käsittele kyselyn tulokset
+  while (tulos.next()) {
+      String nimi = tulos.getString("nimi");
+      huonekalut.add(nimi);
+  }
+  // sulje yhteys tietokantaan
+  conn.close();
+
+  // ...
+<% end %>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Sovelluksen siirto Herokuun
+<% end %>
+
+<p>
+  Siirretään lopuksi sovellus Herokuun. 
+</p>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>git status</strong>
+On branch master
+Your branch is ahead of 'origin/master' by 3 commits.
+(use "git push" to publish your local commits)
+Changes to be committed:
+(use "git reset HEAD &lt;file&gt;..." to unstage)
+
+  modified:   pom.xml
+  modified:   src/main/java/tikape/huonekalut/Main.java
+
+user@kone:~/kansio/huonekalut$ <strong>git add pom.xml</strong>
+user@kone:~/kansio/huonekalut$ <strong>git add src/main/java/tikape/huonekalut/Main.java</strong>
+user@kone:~/kansio/huonekalut$ <strong>git commit -m "Herokun tarjoaman tietokannan käyttöönotto."</strong>
+user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+...
+</pre>
+
+<p>
+  Kun tarkastelemme sovellusta verkossa, virheviesti on tällä kertaa hieman vähemmän kuvaava..
+</p>
+
+<figure>
+  <img src="/img/heroku/heroku-500.png" alt="Herokun virheviesti: 500 Internal Server Error."/>
+</figure>
+
+<p>
+  Sovellus on käynnissä, mutta siinä tapahtuu virhe. Seuraava askel on tuttu. Tarkastellaan Herokun logeja.
+</p>
+
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>heroku logs</strong>
+2018-02-11T15:32:25.356102+00:00 heroku[router]: at=info method=GET path="/favicon.ico" host=huonekalut-esim.herokuapp.com request_id=3b463660-67b3-420e-8b10-2dfb5ec53b1e fwd="..." dyno=web.1 connect=1ms service=157ms status=500 bytes=216 protocol=https
+2018-02-11T15:32:25.353146+00:00 app[web.1]: [qtp1497053618-15] ERROR spark.http.matching.GeneralError - 
+2018-02-11T15:32:25.353211+00:00 app[web.1]: org.postgresql.util.PSQLException: ERROR: relation "huonekalu" does not exist
+2018-02-11T15:32:25.353216+00:00 app[web.1]:   Position: 18
+2018-02-11T15:32:25.353388+00:00 app[web.1]: 	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2422)
+2018-02-11T15:32:25.353443+00:00 app[web.1]: 	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2167)
+2018-02-11T15:32:25.353491+00:00 app[web.1]: 	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:306)
+2018-02-11T15:32:25.353525+00:00 app[web.1]: 	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:441)
+2018-02-11T15:32:25.353570+00:00 app[web.1]: 	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:365)
+2018-02-11T15:32:25.353615+00:00 app[web.1]: 	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:155)
+2018-02-11T15:32:25.353659+00:00 app[web.1]: 	at org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:118)
+2018-02-11T15:32:25.353693+00:00 app[web.1]: 	at tikape.huonekalut.Main.lambda$main$0(Main.java:34)
+2018-02-11T15:32:25.353743+00:00 app[web.1]: 	at spark.TemplateViewRouteImpl$1.handle(TemplateViewRouteImpl.java:66)
+2018-02-11T15:32:25.353819+00:00 app[web.1]: 	at spark.http.matching.Routes.execute(Routes.java:61)
+2018-02-11T15:32:25.353852+00:00 app[web.1]: 	at spark.http.matching.MatcherFilter.doFilter(MatcherFilter.java:130)
+2018-02-11T15:32:25.353900+00:00 app[web.1]: 	at spark.embeddedserver.jetty.JettyHandler.doHandle(JettyHandler.java:50)
+2018-02-11T15:32:25.353943+00:00 app[web.1]: 	at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:1568)
+2018-02-11T15:32:25.354035+00:00 app[web.1]: 	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:141)
+2018-02-11T15:32:25.354108+00:00 app[web.1]: 	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132)
+2018-02-11T15:32:25.354183+00:00 app[web.1]: 	at org.eclipse.jetty.server.Server.handle(Server.java:564)
+2018-02-11T15:32:25.354257+00:00 app[web.1]: 	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:317)
+2018-02-11T15:32:25.354330+00:00 app[web.1]: 	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:251)
+2018-02-11T15:32:25.354447+00:00 app[web.1]: 	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:279)
+2018-02-11T15:32:25.354545+00:00 app[web.1]: 	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:110)
+2018-02-11T15:32:25.354644+00:00 app[web.1]: 	at org.eclipse.jetty.io.ChannelEndPoint$2.run(ChannelEndPoint.java:124)
+2018-02-11T15:32:25.354739+00:00 app[web.1]: 	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:673)
+2018-02-11T15:32:25.354816+00:00 app[web.1]: 	at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:591)
+2018-02-11T15:32:25.354886+00:00 app[web.1]: 	at java.lang.Thread.run(Thread.java:748)
+</pre>
+
+<p>
+  Virhe <strong>ERROR: relation "huonekalu" does not exist</strong> on selkeä. Relaatio (tai toisin sanoen tietokantataulu) <code>huonekalu</code> puuttuu Herokun käyttämästä tietokannasta. Tämä johtuu siitä, että kyseistä tietokantataulua ei ole sinne koskaan luotukaan.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tietokantataulun luominen Herokun PostgreSQL:ään
+<% end %>
+
+<p>
+  Jotta sovelluksemme toimisi, tulee käytössä olla tietokantataulu <code>Huonekalu</code>. Otetaan yhteys Herokun tarjoamaan tietokantaan komennolla <code>heroku pg:psql</code> ja luodaan tietokantataulu Huonekalu. PostgreSQL ei toimi täysin samalla tavalla kuin SQLite siinä, että pääavaimen automaattisen numeroinnin määräämiseen tapahtuu muuttujatyypin SERIAL avulla. Tästä lisää <a href="https://www.postgresql.org/docs/9.1/static/datatype-numeric.html" target="_blank">PostgreSQL:n dokumentaatiossa</a>.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  CREATE TABLE Huonekalu (
+      id SERIAL PRIMARY KEY,
+      nimi VARCHAR(255)
+  );
+<% end %>
+
+<pre>
+user@kone:~/kansio/huonekalut$ <strong>heroku pg:psql</strong>
+--> Connecting to postgresql-encircled-91328
+psql (9.5.11, server 10.1)
+WARNING: psql major version 9.5, server major version 10.
+         Some psql features might not work.
+SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
+Type "help" for help.
+
+<em>tietokannan-nimi</em>::DATABASE=> CREATE TABLE Huonekalu (
+<em>tietokannan-nimi</em>::DATABASE(>     id SERIAL PRIMARY KEY,
+<em>tietokannan-nimi</em>::DATABASE(>     nimi VARCHAR(255)
+<em>tietokannan-nimi</em>::DATABASE(> );
+CREATE TABLE
+<em>tietokannan-nimi</em>::DATABASE=> 
+<em>tietokannan-nimi</em>::DATABASE=> SELECT * FROM Huonekalu;
+ id | nimi 
+----+------
+(0 rows)
+
+<em>tietokannan-nimi</em>::DATABASE=> \quit
+</pre>
+
+<p>
+  Kun tietokantataulu on lisätty, sovellus alkaa toimimaan (ja mikäli ei, Herokun logit auttavat!).
+</p>
+
+
+<% partial 'partials/hint', locals: { name: 'En halua asentaa PostgreSQL:ää omalle koneelleni!' } do %>
+
+  <p>
+    Edellisen esimerkin tietokantayhteyden muodostaminen olettaa, että koneelle asennetaan PostgreSQL. Voit halutessasi tehdä myös (esimerkiksi) niin, että tietokantataulu luodaan ohjelmallisesti Herokuun lähetettävän sovelluksen lähdekoodissa. Komennot kuten <strong>CREATE TABLE</strong> toimivat Javan kautta aivan yhtä hyvin kuin esimerkiksi <strong>INSERT</strong>-komennot.
+  </p>
+   
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
   SQL-injektiot
 <% end %>
 
@@ -106,8 +932,13 @@
 </figure>
 
 
+<% partial 'partials/exercise', locals: { name: 'SQL-injektio' } do %>
 
-
+  <p>
+    blabla
+  </p>
+  
+<% end %>
 
 
 
@@ -128,11 +959,15 @@
 <% end %>
 
 <p>
-  Tietokannan normalisoinnin tavoite on vähentää tietokantatauluissa esiintyvää toisteista tietoa. Pääpiirteittäin tavoite on sama kuin käsiteanalyysissä: lopulta jokainen taulu liittyy vain tiettyyn käsitteeseen ja taulun attribuutit liittyvät vain kyseisen taulun esittämään käsitteeseen. Lähestymistapa on kuitenkin toisenlainen: tietokannan normalisoinnissa etsimme epäkohtia olemassaolevista tietokantatauluista, jonka jälkeen näitä epäkohtia korjataan.
+  Tietokannan normalisoinnin tavoite on vähentää tietokantatauluissa esiintyvää toisteista tietoa. Pääpiirteittäin tavoite on sama kuin käsiteanalyysissä: lopulta jokainen taulu liittyy vain tiettyyn käsitteeseen ja taulun attribuutit liittyvät vain kyseisen taulun esittämään käsitteeseen.
 </p>
 
 <p>
-  Tietokannan normalisointi tapahtuu askeleittain normaalimuotojen avulla.
+  Toisin kuin käsiteanalyysi, tietokannan normalisointi tehdään tyypillisesti olemassaolevalle tietokannalle tai sen suunnitelmalle. Tietokannan normalisoinnissa etsimme epäkohtia, jonka jälkeen näitä epäkohtia korjataan.
+</p>
+
+<p>
+  Tietokannan normalisointi tapahtuu askeleittain normaalimuotojen avulla. TODO: vähän historiaa..
 </p>
 
 
@@ -225,7 +1060,7 @@
 </table>
 
 <p>
-  Ensimmäinen korjaus ylläolevaan tietokantatauluun on eritellä puhelinnumerot erillisiksi sarakkeikseen (tehty alla). Tämä ei ole kovin hyvä ratkaisu -- koko tietokantataulun rakennetta tulee muuttaa jos jollain on esimerkiksi neljä tai viisi erillistä numeroa. Tämä myös rikkoo ensimmäistä normaalimuotoa, sillä puhelinnumero muodostaa toistuvan ryhmän.
+  Ensimmäinen korjaus ylläolevaan tietokantatauluun on eritellä puhelinnumerot erillisiksi sarakkeikseen (tehty alla). Tämä ei ole kovin hyvä ratkaisu -- koko tietokantataulun rakennetta tulee muuttaa mikäli jollain on esimerkiksi neljä tai viisi erillistä numeroa. Tämä myös rikkoo ensimmäistä normaalimuotoa, sillä puhelinnumero muodostaa toistuvan ryhmän.
 </p>
 
 
@@ -432,7 +1267,7 @@
 
 
 <% partial 'partials/material_sub_sub_heading' do %>
-  Toinen normaalimuoto
+  Funktionaalinen riippuvuus
 <% end %>
 
 
@@ -440,24 +1275,164 @@
   Ensimmäisessä normaalimuodossa kyse on ensiaskeleista tietokannan rakenteen järkevöittämiseen. Muissa normaalimuodoissa käsite <em>funktionaalinen riippuvuus</em> sarakkeiden välillä on oleellinen.
 </p>
 
+<p>
+  Sarake B on funktionaalisesti riippuvainen sarakkeesta A (A määrää funktionaalisesti B:n), jos sarakkeen A arvon perusteella voidaan yksikäsitteisesti selvittää sarakkeen B arvo. Tällöin kirjoitetaan <code>A -&gt; B</code>, ja sanotaan, että "sarake B on funktionaalisesti riippuvainen sarakkeesta A". Huom! A voi olla myös kokoelma sarakkeita!
+</p>
 
-<% partial 'partials/hint', locals: { name: 'Funktionaalinen riippuvuus' } do %>
+<p>
+  <em>
+    Esimerkiksi henkilön nimi on funktionaalisesti riippuvainen henkilötunnuksesta, sillä henkilötunnuksen perusteella voidaan yksikäsitteisesti selvittää nimi. Toisaalta, henkilötunnus ei ole funktionaalisesti riippuvainen henkilön nimestä, koska useammalla henkillä voi olla sama nimi.
+  </em>
+</p>
 
-  <p>
-    Sarake B on funktionaalisesti riippuvainen sarakkeesta A (A määrää funktionaalisesti B:n), jos sarakkeen A arvon perusteella voidaan yksikäsitteisesti selvittää sarakkeen B arvo. Tällöin kirjoitetaan <code>A -&gt; B</code>, ja sanotaan, että "sarake B on funktionaalisesti riippuvainen sarakkeesta A". Huom! A voi olla myös kokoelma sarakkeita!
-  </p>
+<p>
+  Selvittäminen voi tapahtua kyselyllä "SELECT DISTINCT b FROM Taulu WHERE a=tiedetty_arvo", missä avainsana DISTINCT palauttaa uniikit rivit. Jos attribuutti <code>b</code> on funktionaalisesti riippuva <code>a</code>:sta, tuottaa ylläoleva kysely joko yhden tai ei yhtään tulosriviä, mutta ei koskaan enempää. Tämän ehdon on oltava voimassa aina, ei vain hetkellisesti.
+</p>
 
-  <p>
-    <em>
-      Esimerkiksi henkilön nimi on funktionaalisesti riippuvainen henkilötunnuksesta, sillä henkilötunnuksen perusteella voidaan yksikäsitteisesti selvittää nimi. Toisaalta, henkilötunnus ei ole funktionaalisesti riippuvainen henkilön nimestä, koska useammalla henkillä voi olla sama nimi.
-    </em>
-  </p>
 
-  <p>
-    Selvittäminen voi tapahtua kyselyllä "SELECT DISTINCT b FROM Taulu WHERE a=tiedetty_arvo", missä avainsana DISTINCT palauttaa uniikit rivit. Jos attribuutti <code>b</code> on funktionaalisesti riippuva <code>a</code>:sta, tuottaa ylläoleva kysely joko yhden tai ei yhtään tulosriviä, mutta ei koskaan enempää. Tämän ehdon on oltava voimassa aina, ei vain hetkellisesti.
-  </p>
+<p>Esimerkki: <code>Henkilo( (pk) id, nimi, henkilötunnus)</code> -- mitkä arvot ovat funktionaalisesti riippuvaisia toisistaan?</p>
+
+<table class="table">
   
+  <thead>
+    <tr>
+      <th>Henkilo</th>
+      <th>A: id</th>
+      <th>A: nimi</th>
+      <th>A: henkilötunnus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B: id</td>
+      <td>?</td>
+      <td>?</td>
+      <td>?</td>
+    </tr>
+    <tr>
+      <td>B: nimi</td>
+      <td>?</td>
+      <td>?</td>
+      <td>?</td>
+    </tr>
+    <tr>
+      <td>B: henkilötunnus</td>
+      <td>?</td>
+      <td>?</td>
+      <td>?</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Sarakkeen perusteella voi aina määritellä itsensä. Esimerkiksi <code>id -&gt; id</code> on aina totta.</p>
+
+<table class="table">
+  
+  <thead>
+    <tr>
+      <th>Henkilo</th>
+      <th>A: id</th>
+      <th>A: nimi</th>
+      <th>A: henkilötunnus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B: id</td>
+      <td>kyllä</td>
+      <td>?</td>
+      <td>?</td>
+    </tr>
+    <tr>
+      <td>B: nimi</td>
+      <td>?</td>
+      <td>kyllä</td>
+      <td>?</td>
+    </tr>
+    <tr>
+      <td>B: henkilötunnus</td>
+      <td>?</td>
+      <td>?</td>
+      <td>kyllä</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Voimmeko tunnistaa nimen perusteella henkilön yksilöivän tunnisteen? Useammalla henkilöllä voi olla sama nimi, joten tämä ei pidä paikkansa. Voimmeko tunnistaa henkilötunnuksen perusteella henkilön yksilöivän tunnisteen? Henkilötunnus on uniikki, joten oletetaan että kyllä (tämä pätee tosin vain Suomessa..).</p>
+
+<table class="table">
+  
+  <thead>
+    <tr>
+      <th>Henkilo</th>
+      <th>A: id</th>
+      <th>A: nimi</th>
+      <th>A: henkilötunnus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B: id</td>
+      <td>kyllä</td>
+      <td>ei</td>
+      <td>kyllä</td>
+    </tr>
+    <tr>
+      <td>B: nimi</td>
+      <td>?</td>
+      <td>kyllä</td>
+      <td>?</td>
+    </tr>
+    <tr>
+      <td>B: henkilötunnus</td>
+      <td>?</td>
+      <td>?</td>
+      <td>kyllä</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Voiko yksilöivän avaimen perusteella tunnistaa henkilön nimen? Kyllä. </p>
+
+<table class="table">
+  
+  <thead>
+    <tr>
+      <th>Henkilo</th>
+      <th>A: id</th>
+      <th>A: nimi</th>
+      <th>A: henkilötunnus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B: id</td>
+      <td>kyllä</td>
+      <td>ei</td>
+      <td>kyllä</td>
+    </tr>
+    <tr>
+      <td>B: nimi</td>
+      <td>kyllä</td>
+      <td>kyllä</td>
+      <td>?</td>
+    </tr>
+    <tr>
+      <td>B: henkilötunnus</td>
+      <td>?</td>
+      <td>?</td>
+      <td>kyllä</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Loput jäävät omatoimiseen harjoitteluun.</p>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Toinen normaalimuoto
 <% end %>
+
 
 <p>
   Tietokantataulu on toisessa normaalimuodossa jos (1) se on ensimmäisessä normaalimuodossa ja (2) tietokantataulun sarakkeet (poislukien avaimet) ovat <em>funktionaalisesti riippuvaisia</em> tietokantataulun (yhdellä sarakkeella määritellystä) pääavaimesta.
@@ -783,7 +1758,7 @@
   </p>
 
   <p>
-    Tämän kurssin puitteissa ensimmäiset kolme normaalimuotoa riittävät tietokannan suunnitteluun.
+    Tämän kurssin puitteissa ensimmäiset kolme normaalimuotoa riittävät suunnitteluun.
   </p>
   
 <% end %>
@@ -864,1791 +1839,14 @@
 <% end %>
 
 
-
 <% partial 'partials/hint', locals: { name: 'Normalisoida vai eikö normalisoida?' } do %>
 
   <p>
     Lue CodingHorror.com-blogista kirjoitus <a href="http://blog.codinghorror.com/maybe-normalizing-isnt-normal/" target="_blank">Maybe Normalizing Isn't Normal</a>.
   </p>
 
-  
-  <p>
-    Ensimmäisen, toisen ja kolmannen normaalimuodon lisäksi tietokannan normalisointiin käytetään <a href="https://en.wikipedia.org/wiki/Boyce%E2%80%93Codd_normal_form" target="_blank" norel>Boyce-Codd -normaalimuotoa</a>, <a href="https://en.wikipedia.org/wiki/Fourth_normal_form" target="_blank" norel>Neljättä normaalimuotoa</a> ja <a href="https://en.wikipedia.org/wiki/Fifth_normal_form" target="_blank" norel">Viidettä normaalimuotoa</a>.
-  </p>
-
-  <p>
-    Tämän kurssin puitteissa ensimmäiset kolme normaalimuotoa riittävät tietokannan suunnitteluun.
-  </p>
-  
-<% end %>
-
-
-
-
-<% partial 'partials/material_heading' do %>
-  Yhteenvetokyselyt SQL-kielellä
-<% end %>
-
-<p>
-  Harjoittelemamme SQL-kyselyt ovat tähän mennessä tuottaneet listauksia tietokantataulujen sisällöistä. Listauksia tuottavat kyselyt ovat erittäin hyödyllisiä, kun halutaan vastata esimerkiksi kysymyksiin kuten "Listaa kaikki opiskelijat, jotka ovat osallistuneet kurssille tietokantojen perusteet" tai "Listaa kaikki kurssit, joille annettu opiskelija on ilmoittautunut". Kysymykset kuten "Kuinka moni opiskelija on osallistunut kurssille tietokantojen perusteet" ovat kuitenkin vaatineet manuaalista työtä, sillä kyselyn tulosrivit on pitänyt laskea käsin tai jonkun toisen ohjelman avulla.
-</p>
-
-<p>
-  SQL-kieli tarjoaa välineitä yhteenvetokyselyiden tekemiseen. Tällaisia kyselyitä ovat esimerkiksi juurikin yllä mainittu "kuinka moni" -- eli tulosrivien määrä -- sekä esimerkiksi erilaiset summa- ja keskiarvokyselyt. Käytännössä yhteenvetokyselyt tehdään SQL-kielen tarjoamien funktioiden avulla, jotka muuntavat tulosrivit toiseen muotoon. Alla on listattuna muutamia tyypillisimpiä funktioita, joita tietokantakyselyissä käytetään.
-</p>
-
-<table class="table">
-  
-  <tr>
-    <th>
-      Tavoite
-    </th>
-    <th>
-      Funktio
-    </th>
-    <th>
-      Esimerkki
-    </th>
-  </tr>
-
-  <tr>
-    <td>
-      Rivien lukumäärän selvittäminen
-    </td>
-    <td>
-      <code>COUNT</code>
-    </td>
-    <td>
-      <% partial 'partials/sql_highlight' do %>
-SELECT COUNT(*) FROM <em>Taulu</em>
-      <% end %>
-    </td>
-  </tr>
-
-  <tr>
-    <td>
-      Numeerisen sarakkeen keskiarvon laskeminen
-    </td>
-    <td>
-      <code>AVG</code>
-    </td>
-    <td>
-      <% partial 'partials/sql_highlight' do %>
-SELECT AVG(<em>sarake</em>) FROM <em>Taulu</em>
-      <% end %>
-    </td>
-  </tr>
-
-  <tr>
-    <td>
-      Numeerisen sarakkeen summan laskeminen
-    </td>
-    <td>
-      <code>SUM</code>
-    </td>
-    <td>
-      <% partial 'partials/sql_highlight' do %>
-SELECT SUM(<em>sarake</em>) FROM <em>Taulu</em>
-      <% end %>
-    </td>
-  </tr>
-
-  <tr>
-    <td>
-      Numeerisen sarakkeen minimiarvon selvittäminen
-    </td>
-    <td>
-      <code>MIN</code>
-    </td>
-    <td>
-      <% partial 'partials/sql_highlight' do %>
-SELECT MIN(<em>sarake</em>) FROM <em>Taulu</em>
-      <% end %>
-    </td>
-  </tr>
-  
-  <tr>
-    <td>
-      Numeerisen sarakkeen maksimiarvon selvittäminen
-    </td>
-    <td>
-      <code>MAX</code>
-    </td>
-    <td>
-      <% partial 'partials/sql_highlight' do %>
-SELECT MAX(<em>sarake</em>) FROM <em>Taulu</em>
-      <% end %>
-    </td>
-  </tr>
-
-</table>
-
-
-<p>
-  Tarkastellaan näitä kyselyitä hieman tarkemmin. Oletetaan, että käytössämme on seuraava lentomatkoja kuvaava tietokantataulu.
-</p>
-
-
-<table class="table">
-  <tr>
-    <th colspan="4">
-      Lentomatka(yhtio, lahtopaikka, maaranpaa, pituus)
-    </th>
-  </tr>
-  <tr>
-    <th>
-      Lentoyhtiö
-    </th>
-    <th>
-      Lähtöpaikka
-    </th>
-    <th>
-      Määränpää
-    </th>
-    <th>
-      Lennon pituus (minuuttia)
-    </th>
-  </tr>
-  <tr>
-    <td>
-      Air Berlin
-    </td>
-    <td>
-      Helsinki
-    </td>
-    <td>
-      Berliini
-    </td>
-    <td>
-      205
-    </td>
-  </tr>
-  <tr>
-    <td>
-      Finnair
-    </td>
-    <td>
-      Helsinki
-    </td>
-    <td>
-      Oulu
-    </td>
-    <td>
-      70
-    </td>
-  </tr>
-  <tr>
-    <td>
-      Finnair
-    </td>
-    <td>
-      Helsinki
-    </td>
-    <td>
-      Berliini
-    </td>
-    <td>
-      200
-    </td>
-  </tr>
-  <tr>
-    <td>
-      Finnair
-    </td>
-    <td>
-      Helsinki
-    </td>
-    <td>
-      Tukholma
-    </td>
-    <td>
-      50
-    </td>
-  </tr>
-  <tr>
-    <td>
-      Finnair
-    </td>
-    <td>
-      Helsinki
-    </td>
-    <td>
-      Mallorca
-    </td>
-    <td>
-      230
-    </td>
-  </tr>
-  <tr>
-    <td>
-      Norwegian
-    </td>
-    <td>
-      Helsinki
-    </td>
-    <td>
-      Mallorca
-    </td>
-    <td>
-      240
-    </td>
-  </tr>
-</table>
-
-<p>
-  Yhteenvetokyselyiden avulla saamme selville erilaisia tilastoja. Alla muutamia esimerkkejä:
-</p>
-
-<ul>
-  <li>
-    Kuinka monta matkaa tietokantataulussa Lentomatka on yhteensä?
-    <% partial 'partials/sql_highlight' do %>
-SELECT COUNT(*) FROM Lentomatka
-    <% end %>
-  </li>
-
-  <li>
-    Kuinka monta lentoyhtiötä on tietokantataulussa lentomatka? (Huomaa avainsanan DISTINCT käyttö)
-    <% partial 'partials/sql_highlight' do %>
-SELECT COUNT(DISTINCT yhtio) FROM Lentomatka
-    <% end %>
-  </li>  
-  
-  <li>
-    Kuinka monta lentoa taulussa on Helsingistä Mallorcalle?
-    <% partial 'partials/sql_highlight' do %>
-SELECT COUNT(*) FROM Lentomatka
-    WHERE lahtopaikka = 'Helsinki' AND maaranpaa = 'Mallorca'
-    <% end %>
-  </li>
-
-  <li>
-    Mikä on keskimääräinen Finnairin lennon pituus?
-    <% partial 'partials/sql_highlight' do %>
-SELECT AVG(pituus) FROM Lentomatka
-    WHERE yhtio = 'Finnair'
-    <% end %>
-  </li>
-
-  <li>
-    Mikä on lyhin matkan kesto Helsingistä Berliiniin?
-    <% partial 'partials/sql_highlight' do %>
-SELECT MIN(pituus) FROM Lentomatka
-    WHERE lahtopaikka = 'Helsinki' AND maaranpaa = 'Berliini'
-    <% end %>
-  </li>
-
-</ul>
-
-<p>
-  Yllä olevat esimerkit tuottavat tulokseksi aina yhden luvun. Entä jos haluaisimme saada selville yhtiökohtaisia tietoja kuten vaikkapa jokaisen yhtiön lyhimmän lennon? Tarkastellaan tätä seuraavaksi.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Tulosten ryhmittely
-<% end %>
-
-
-<p>
-  Tulosten ryhmittely tietyn sarakkeen perusteella tapahtuu komennon <code>GROUP BY</code> perustella. Komento <code>GROUP BY</code> lisätään taulujen listauksen ja mahdollisten kyselyn rajausehtojen jälkeen. Komentoa <code>GROUP BY</code> seuraa sarake, jonka perusteella tulokset ryhmitellään. Jotta ryhmittelystä tulee mielekäs, asetetaan ryhmittelyn peruste tyypillisesti myös SELECT-komentoa seuraavaan sarakelistaukseen.
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT <em>ryhmittelysarake</em>, <em>FUNKTIO</em>(<em>sarake</em>) FROM <em>Taulu</em>
-      GROUP BY <em>ryhmittelysarake</em>
-<% end %>
-
-
-<p>
-  Alla muutamia esimerkkejä:
-</p>
-
-<ul>
-  
-  <li>
-    Kuinka monta matkaa kullakin lentoyhtiöllä on tarjolla?
-    <% partial 'partials/sql_highlight' do %>
-SELECT yhtio, COUNT(*) FROM Lentomatka GROUP BY yhtio
-    <% end %>
-  </li>
-
-  <li>
-    Kuinka monta alle 100 minuutin pituista lentomatkaa eri kaupungeista lähtee?
-    <% partial 'partials/sql_highlight' do %>
-SELECT lahtopaikka, COUNT(*) FROM Lentomatka
-    WHERE pituus < 100 GROUP BY lahtopaikka
-    <% end %>
-  </li>
-
-  <li>
-    Kuinka pitkiä kunkin lentoyhtiön matkat ovat keskimäärin?
-    <% partial 'partials/sql_highlight' do %>
-SELECT yhtio, AVG(pituus) FROM Lentomatka GROUP BY yhtio
-    <% end %>
-  </li>
-   
-</ul>
-
-
-<p>
-  Taulujen yhdistäminen toimii kuten ennen. Valittavat taulut kerrotaan joko FROM -avainsanan jälkeen tai JOIN -avainsanan jälkeen, riippuen tavasta, jolla yhdistäminen tehdään. Ryhmittelykomento tulee mahdollisten WHERE-ehtojen jälkeen.
-</p>
-
-<p>
-  Oletetaan seuraavat taulut Kurssi ja Kurssitehtävä.
-</p>
-
-
-<ul>
-  <li>
-    Kurssi((pk) id, nimi, opintopisteet)
-  </li>
-  <li>
-    Kurssitehtava((pk) id, (fk) kurssi_id -&gt; Kurssi, tehtava)
-  </li>
-</ul>
-
-<p>
-  Kurssikohtaisten tehtävien lukumäärän laskeminen onnistuu seuraavasti. Avainsana AS muuntaa tuloksena saatavassa taulussa olevan sarakkeen nimen.
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT Kurssi.nimi AS kurssi, COUNT(*) AS tehtäviä FROM Kurssi, Kurssitehtävä
-      WHERE Kurssi.id = Kurssitehtava.kurssi_id
-      GROUP BY Kurssi.nimi
-<% end %>
-
-
-<p>
-  Edellä kuvatun kyselyn tuloksia tarkastellessa huomaamme, että tuloksissa ei ole yhtäkään tehtävätöntä kurssia. Tämä selittyy kyselyillämme -- olemme valinneet mukaan vain rivit, joilla hakuehdot täyttyvät. Kirjoitetaan edellinen kysely siten, että otamme huomioon kurssit vaikka niihin ei liittyisikään yhtäkään toisen taulun riviä -- käytämme siis <code>LEFT JOIN</code>-liitosoperaatiota.
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT Kurssi.nimi AS kurssi, COUNT(*) AS tehtäviä FROM Kurssi
-      LEFT JOIN Kurssitehtävä ON Kurssi.id = Kurssitehtava.kurssi_id
-      GROUP BY Kurssi.nimi
-<% end %>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Ryhmittely useamman sarakkeen perusteella
-<% end %>
-
-
-<p>
-  Komennolle <code>GROUP BY</code> voi antaa myös useampia sarakkeita, jolloin ryhmittely tapahtuu sarakeryhmittäin. Esimerkiksi ryhmittely <code>GROUP BY kurssi, arvosana</code> ryhmittelisi taulussa olevat rivit ensin kurssin perusteella, jonka jälkeen kurssikohtaiset ryhmät ryhmiteltäisiin vielä arvosanan perusteella. Tällöin jokaiselle kurssille tulisi erilliset arvosanaryhmät.
-</p>
-
-<p>
-  Oletetaan edellä kuvatun taulun lisäksi taulut Kurssisuoritus ja Opiskelija:
-</p>
-
-<ul>
-  <li>
-    Kurssisuoritus((pk) id, (fk) kurssi_id -&gt; Kurssi, opiskelija_id -&gt; Opiskelija, arvosana, paivamaara)
-  </li>
-  <li>
-    Opiskelija((pk) id, opiskelijanumero, nimi, syntymävuosi)
-  </li>
-</ul>
-
-<p>
-  Kurssikohtaiset arvosanaryhmät saa selville seuraavalla kyselyllä.
-</p>
-
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT Kurssi.nimi AS kurssi, Kurssisuoritus.arvosana AS arvosana, COUNT (*) AS lukumäärä
-      FROM Kurssi, Kurssisuoritus
-      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
-      GROUP BY Kurssi.nimi, Kurssisuoritus.arvosana
-<% end %>
-
-<% partial 'partials/material_sub_heading' do %>
-  Tulosten järjestäminen
-<% end %>
-
-<p>
-  Kyselyn tulokset voi järjestää komennolla <code>ORDER BY</code>, jota seuraa järjestettävät sarakkeet. Sarakkeelle voi antaa myös lisämääreen <code>ASC</code> (<em>ascending</em>), joka kertoo että tulokset tulee järjestää nousevaan järjestykseen, ja <code>DESC</code> (<em>descending</em>), joka kertoo että tulokset tulee järjestää laskevaan järjestykseen. Oletuksena järjestys on nouseva.
-</p>
-
-<p>
-  Komento <code>ORDER BY</code> tulee kyselyn loppuun. Edellisen kurssiarvosanatilaston tulokset saisi kurssin nimen perusteella järjestykseen seuraavasti.
-</p>
-
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT Kurssi.nimi AS kurssi, Kurssisuoritus.arvosana AS arvosana, COUNT (*) AS lukumäärä
-      FROM Kurssi, Kurssisuoritus
-      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
-      GROUP BY Kurssi.nimi, Kurssisuoritus.arvosana
-      ORDER BY Kurssi.nimi
-<% end %>
-
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Hakutulosten rajaaminen yhteenvetokyselyissä
-<% end %>
-
-<p>
-  Yhteenvetokyselyissä laskettavat tulokset kuten summa, rivien lukumäärä ja keskiarvo muodostetaan vasta, kun kaikki kyselyn rivit on selvillä. Kyselyiden tuloksen rajaamiseen käytetty WHERE toimii siten, että se tarkastelee tuloksia riveittäin -- se ei osaa odottaa summan laskemisen lopputulosta.
-</p>
-
-<p>
-  Jos yhteenvetokyselyn tuloksen perusteella halutaan rajata tuloksia, tulee käyttää <code>HAVING</code>-ehtoa. HAVING ehto tarkastetaan vasta, kun yhteenvetokyselyn tulokset ovat selvillä. Ehto HAVING lisätään ryhmittelykyselyn jälkeen esimerkiksi seuraavalla tavalla.
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT Kurssi.nimi AS kurssi, AVG(Kurssisuoritus.arvosana) keskiarvo
-      FROM Kurssi, Kurssisuoritus
-      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
-      GROUP BY Kurssi.nimi
-      HAVING keskiarvo &lt; 2
-      ORDER BY Kurssi.nimi
-<% end %>
-
-<p>
-  Yllä olevalla kyselyllä saadaan selville ne kurssit, joihin liittyvien kurssisuoritusten keskiarvo on alle 2. 
-</p>
-
-<p>
-  Kuten esimerkissä näkyy, samassa kyselyssä voi olla sekä <code>WHERE</code>-ehto että <code>HAVING</code>-ehto.
-</p>
-
-
-
-<% partial 'partials/exercise', locals: { name: 'Yhteenvetokyselyt' } do %>
-
-  
-  <p>
-    Tehtäväpohjan kansiossa <code>db</code> tulee tiedosto nimeltä <code>Chinook_Sqlite.sqlite</code>. Käytimme samaa tiedostoa osan 3 tehtävässä 2. Tietokannassa on seuraavat taulut:
-  </p>
-
-  <pre>
-  sqlite&gt; .tables
-  Album          	Employee       	InvoiceLine    	PlaylistTrack
-  Artist         	Genre          	MediaType      Track        
-  Customer       	Invoice        	Playlist     
-  </pre>
-
-  <p>
-    Tietokanta kuvaa digitaalisen musiikin myyntipalvelua. Tietokannan relaatiokaavio löytyy osoitteesta <a href="http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation" target="_blank" norel>http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation</a>. Kirjoita SQLiten avulla kyselyt, joilla saa selville seuraavat tiedot.
-  </p>
-
-  
-  <ul>
-    <li>Kysely 1: Kuinka monta kappaletta kuhunkin genreen liittyy?</li>
-    <li>Kysely 2: Kuinka monta kappaletta kustakin genrestä on ostettu? Voit olettaa, että kappale on ostettu jos lasku on olemassa.</li>
-    <li>Kysely 3: Mitkä artistit esiintyvät useimmilla levyillä? Järjestäkä artistit levymäärän mukaan ja tulosta niistä 5 yleisimmin esiintyvää -- 5 yleisimmän artistin tulostamiseen auttaa avainsana "LIMIT".</li>
-  </ul>
-
-  <p>
-    Kun olet saanut kyselyt toimimaan, kopioi ne tehtäväpohjassa olevan luokan Kyselyja metodeihin kysely1, kysely2 ja kysely3. Metodeihin tulee siis kopioida SQL-kieliset kyselyt, joilla em. kysymyksiin saa vastaukset.
-  </p>
-
-
-<% end %>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Alikyselyt
-<% end %>
-
-<p>
-  Alikyselyt ovat nimensä mukaan kyselyn osana suoritettavia alikyselyitä, joiden tuloksia käytetään osana pääkyselyä. Pohditaan kysymystä <em>Miten haen opiskelijat, jotka eivät ole vielä osallistuneet yhdellekään kurssille?</em>, ja käytetään siihen ensin aiemmin tutuksi tullutta tapaa, eli LEFT JOIN -kyselyä. Yhdistetään opiskelijaa ja kurssisuoritusta kuvaavat taulut LEFT JOIN-kyselyllä siten, että myös opiskelijat, joilla ei ole suorituksia tulevat mukaan vastaukseen. Tämän jälkeen, jätetään vastaukseen vain ne rivit, joilla kurssisuoritukseen liittyvät tiedot ovat tyhjiä -- tämä onnistuu katsomalla mitä tahansa kurssisuoritus-taulun saraketta, ja tarkistamalla onko se tyhjä, eli <em>null</em>. Tämä onnistuu seuraavasti:
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT opiskelijanumero FROM Opiskelija
-      LEFT JOIN Kurssisuoritus
-      ON Opiskelija.id = Kurssisuoritus.opiskelija_id
-      WHERE Kurssisuoritus.kurssi_id IS null
-<% end %>
-  
-<p>
-  Toinen vaihtoehto edellisen kyselyn toteuttamiseen on luoda kysely, joka hakee kaikki ne opiskelijat, jotka eivät ole kurssisuorituksia saaneiden opiskelijoiden joukossa. Tässä on oleellisesti kaksi kyselyä: (1) hae niiden opiskelijoiden tunnus, joilla on kurssisuoritus, ja (2) hae opiskelijat, jotka eivät ole edellisen kyselyn palauttamassa joukossa.
-</p>
-
-<p>
-  Ensimmäinen kysely on suoraviivainen.
-</p>
-
-  
-<% partial 'partials/sql_highlight' do %>
-  SELECT opiskelija_id FROM Kurssisuoritus
-<% end %>
-
-<p>
-  Toinenkin kysely on melko suoraviivainen -- avainsanalla NOT IN voidaan rajata joukkoa.
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT * FROM Opiskelija
-      WHERE id NOT IN (<em>ensimmainen kysely</em>)
-<% end %>
-
-<p>
-  Yhdessä kyselyt ovat siis muotoa:
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT * FROM Opiskelija
-      WHERE id NOT IN (
-          SELECT opiskelija_id FROM Kurssisuoritus
-      )
-<% end %>
-
-<p>
-  Käytännössä alikyselyt tuottavat kyselyn tuloksena taulun, josta pääkyselyssä tehtävä kysely tehdään. Ylläolevassa esimerkissä alikyselyn tuottamassa taulussa on vain yksi sarake, jossa on kurssisuorituksen saaneiden opiskelijoiden opiskelijanumerot.
-</p>
-
-<p>
-  Määreen <code>NOT IN</code>, joka tarkastaa että valitut arvot eivät ole alikyselyn tuottamassa taulussa, lisäksi käytössä on määre <code>IN</code>. Määreen <code>IN</code> avulla voidaan luoda ehto, jolla tarkastetaan, että valitut arvot ovat annetussa joukossa tai taulussa. Esimerkiksi alla haetaan kaikki kurssisuoritukset, joissa arvosana on kolme tai viisi.
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT * FROM Kurssisuoritus WHERE arvosana IN (3, 5)
-<% end %>
-
-<p>
-  Määreiden IN ja NOT IN lisäksi alikyselyissä voidaan käyttää määreitä EXISTS ja NOT EXISTS, joiden avulla voidaan rajata hakujoukkoa alikyselyssä olevan ehdon perusteella. Voimme esimerkiksi kirjoittaa aiemmin kirjoitetun kursseja suorittamattomia opiskelijoita etsivän kyselyn siten, että jokaisen Opiskelija-taulussa olevan opiskelijanumeron kohdalla tarkistetaan, että sitä ei löydy taulusta Kurssisuoritus.
-</p>
-
-<% partial 'partials/sql_highlight' do %>
-  SELECT opiskelijanumero FROM Opiskelija
-      WHERE NOT EXISTS
-          (SELECT opiskelija_id FROM Kurssisuoritus
-               WHERE Kurssisuoritus.opiskelija_id = Opiskelija.id)
-<% end %>
-
-<p>
-  Edellä oleva kysely tarkistaa jokaisen Opiskelija-taulussa olevan opiskelijanumeron kohdalla ettei sitä löydy Kurssisuoritus-taulun opiskelija-sarakkeesta. Käytännössä -- jos tietokantamoottori ei optimoi kyselyä -- jokainen opiskelija-taulun rivi aiheuttaa uuden kyselyn kurssisuoritus-tauluun, mikä tekee kyselystä tehottoman.
-</p>
- 
-<% partial 'partials/hint', locals: { name: 'Kyselyn tulos on taulu' } do %>
-
-  <p>
-    Jokainen SQL-kysely tuottaa tuloksena taulun. Taulussa voi olla tasan yksi sarake ja rivi, tai vaikkapa tuhansia rivejä ja kymmeniä sarakkeita. Silloinkin, kun suoritamme yksinkertaisen haun, kuten vaikkapa "Hae kaikki kurssilla 'Tietokantojen perusteet' olevat opiskelijat", on haun tuloksena taulu.
-  </p>
-
-  <p>
-    Kaikki tekemämme SQL-kyselyt ovat liittyneet tauluihin. Emmekö siis voisi tehdä kyselyjä myös vastauksiin? Vastaus on kyllä.
-  </p>
-
-  <p>
-    Esimerkiksi vanhimman (tai vanhimmat, jos tämä ei ole yksikäsitteistä) opiskelijan löytää -- muunmuassa -- etsimällä kaikista pienimmän mahdollisimman syntymävuoden (kyselyn tulos on taulu), jonka jälkeen vastaustaulussa olevaa tulosta verrataan kaikkien opiskelijoiden syntymävuosiin.
-  </p>
-
-  <% partial 'partials/sql_highlight' do %>
-    SELECT * FROM Opiskelija
-    WHERE syntymävuosi
-    IN (SELECT MIN(syntymävuosi) FROM Opiskelija)
-  <% end %>
-
-<% end %>
-
-
-
-<% partial 'partials/material_heading' do %>
-  Tietokantaa käyttävien web-sovellusten rakentaminen
-<% end %>
- 
-<p>
-  Selaimen -- ja nykyään kännykän -- kautta käytettävät sovellukset ovat lähes poikkeuksetta syrjäyttäneet perinteiset työpöytäsovellukset. Tietokannan käyttö sovelluksen osana ei kuitenkaan ole muuttuneet. Työpöytäsovellusten aikana työpöytäsovellus käytti joko paikallisella koneella olevaa tietokannanhallintajärjestelmää, tai otti etäyhteyden toisella koneella käynnissä olevaan tietokannanhallintajärjestelmään. Selaimessa toimivia sovelluksia käytettäessä tietokannanhallintajärjestelmä toimii palvelinohjelmiston -- eli sovelluksen, johon selain ottaa yhteyttä -- kanssa samalla koneella, tai erillisellä koneella, johon palvelinohjelmisto ottaa yhteyden tarvittaessa.
-</p>
-
-<p>
-  Tutustumme seuraavaksi tietokantaa käyttävän palvelinohjelmiston toimintaan ja toteutukseen.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Projektinhallintatyökalu Maven
-<% end %>
-
-<p>
-  Jotta Javalla ja NetBeansilla tehtävään projektiin saa tietokannan käyttöön, tulee ohjelmoijan noutaa tietokanta-ajuri. Ajurien noutaminen kannattaa hoitaa ns. riippuvuuksia hallinnoivan projektinhallintatyökalun, kuten Mavenin, avulla.
-</p>
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Maven-projektin luominen NetBeansissa
-<% end %>
-
-<p>
-  Uuden Mavenia käyttävän projektin luominen NetBeansissa tapahtuu valitsemalla <em>File</em> -> <em>New Project</em> -> Kategoriaksi <em>Maven</em> ja projektiksi <em>Java Application</em>. Tämän jälkeen valitaan <em>Next</em>, ja täytetään projektin tiedot. Alla on esimerkki projektin tiedoista, projektin sijainti (Project location) on konekohtainen.
-</p>
-
-<figure>
-  <img src="/img/viikko3/nb-maven.png" alt="Project Name: tikape
-
-					   Project Location: (omasta koneesta riippuva)
-
-					   Group Id: tikape
-
-					   Version: (saa olla kuten on aluksi)
-
-					   Package: tikape"
-  />
-  <figcaption>Maven-projektin asetukset</figcaption>
-</figure>
-
-<p>
-  Tämän jälkeen painetaan Finish, ja projekti ilmestyy NetBeansin vasemmassa laidassa olevalle listalle. Etsi nyt projektin <em>Project Files</em> sisältä <code>pom.xml</code>-tiedosto -- se näyttää esimerkiksi seuraavalta:
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;project&gt;
-    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-    &lt;groupId&gt;tikape&lt;/groupId&gt;
-    &lt;artifactId&gt;tikape&lt;/artifactId&gt;
-    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-    &lt;packaging&gt;jar&lt;/packaging&gt;
-    &lt;properties&gt;
-        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-        &lt;maven.compiler.source&gt;1.7&lt;/maven.compiler.source&gt;
-        &lt;maven.compiler.target&gt;1.7&lt;/maven.compiler.target&gt;
-    &lt;/properties&gt;
-&lt;/project&gt;
-<% end %>
-
-<p>
-  Koska käytössämme on Java 8, vaihdetaan sekä <code>maven.compiler.source</code> että <code>maven.compiler.target</code> -arvot muotoon <code>1.8</code>.
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;project&gt;
-    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-    &lt;groupId&gt;tikape&lt;/groupId&gt;
-    &lt;artifactId&gt;tikape&lt;/artifactId&gt;
-    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-    &lt;packaging&gt;jar&lt;/packaging&gt;
-    &lt;properties&gt;
-        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-        &lt;maven.compiler.source&gt;<strong>1.8</strong>&lt;/maven.compiler.source&gt;
-        &lt;maven.compiler.target&gt;<strong>1.8</strong>&lt;/maven.compiler.target&gt;
-    &lt;/properties&gt;
-&lt;/project&gt;
-<% end %>
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Kirjastojen lisääminen projekteihin Mavenin avulla
-<% end %>
-
-<p>
-  Kirjastot kuten tietokanta-ajurit ja web-sovelluksen luomiseen tarvittavat apukirjastot ladataan Maven-työkalun avulla. Mavenin termein kirjastoja kutsutaan riippuvuuksiksi (dependency). Lisätään esimerkiksi SQLite-ajuri projektin käyttöön.
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;project&gt;
-    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-    &lt;groupId&gt;tikape&lt;/groupId&gt;
-    &lt;artifactId&gt;tikape&lt;/artifactId&gt;
-    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-    &lt;packaging&gt;jar&lt;/packaging&gt;
-    &lt;properties&gt;
-        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-        &lt;maven.compiler.source&gt;<strong>1.8</strong>&lt;/maven.compiler.source&gt;
-        &lt;maven.compiler.target&gt;<strong>1.8</strong>&lt;/maven.compiler.target&gt;
-    &lt;/properties&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.xerial&lt;/groupId&gt;
-            &lt;artifactId&gt;sqlite-jdbc&lt;/artifactId&gt;
-            &lt;version&gt;3.20.0&lt;/version&gt;
-        &lt;/dependency&gt;
-    &lt;/dependencies&gt;
-
-&lt;/project&gt;
-<% end %>
-
-<p>
-  Kun NetBeans-projektista valitsee oikealla hiirennapilla <em>Dependencies</em> ja klikkaa <em>Download Declared Dependencies</em>, latautuu JDBC-ajuri projektin käyttöön.
-</p>
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tietokantaa käyttävä ohjelma
-<% end %>
-
-<p>
-  Avaa projektiin liittyvä <em>Source Packages</em>, ja klikkaa <em>tikape</em>-pakkausta oikealle hiirennapilla. Valitse tämän jälkeen <em>New</em> -> <em>Java Class</em>, jonka jälkeen avautuu valikko, missä voit antaa luokalle nimen. Anna luokan nimeksi <code>Main</code>.
-</p>
-
-<p>
-  Avaa tiedosto tuplaklikkaamalla sitä. Muokkaa tiedostoa vielä siten, että se on seuraavan näköinen:
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-
-    }
-}
-<% end %>
-
-<figure>
-  <img src="/img/viikko3/nb-main.png" alt="Projektin lähdekooditiedosto Main.java on avattuna."/>
-  <figcaption>Avattu projekti NetBeansissa</figcaption>
-</figure>
-
-<p>
-  Lisää projektiin <em>import</em>-komento <code>import java.sql.*;</code>, joka hakee kaikki SQL-kyselyihin liittyvät Javan kirjastot.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.sql.*;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-
-    }
-}
-<% end %>
-
-<p>
-  Avataan seuraavaksi tietokantayhteys tietokantaan <em>testi.db</em>, ja tehdään siellä kysely "SELECT 1", jolla pyydetään tietokantaa palauttamaan luku 1 -- käytämme tätä yhteyden testaamiseksi. Jos yhteyden luominen onnistuu, tulostetaan "Hei tietokantamaailma!", muulloin "Yhteyden muodostaminen epäonnistui".
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.sql.*;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-        Connection connection = DriverManager.getConnection("jdbc:sqlite:testi.db");
-
-        Statement statement = connection.createStatement();
-
-        ResultSet resultSet = statement.executeQuery("SELECT 1");
-
-        if(resultSet.next()) {
-            System.out.println("Hei tietokantamaailma!");
-        } else {
-            System.out.println("Yhteyden muodostaminen epäonnistui.");
-        }
-    }
-}
-<% end %>
- 
-<% partial 'partials/sample_output' do %>
-  Hei tietokantamaailma!
-<% end %>
-
-<p>
-  Kun suoritamme ohjelman ensimmäistä kertaa valitsemalla <em>Run</em> -> <em>Run Project</em>, SQLite luo puuttuvan tietokannan paikalle uuden tietokannan. Projektin kansiossa on nyt tiedosto <code>testi.db</code>, joka on tietokantamme.
-</p>
-
-
-<figure>
-  <img src="/img/viikko3/nb-testidb.png" alt="Kun ohjelma on suoritettu ensimmäistä kertaa, tiedosto testi.db luodaan projektiin."/>
-  <figcaption>Tietokantatiedosto <em>testi.db</em> löytyy projektin kansiosta. Tiedostot löytyvät <em>Files</em>-välilehdeltä.</figcaption>
-</figure>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tietokantakyselyiden tekeminen
-<% end %>
-
-<p>
-  Oletetaan, että tietokannassa on tietokantataulu <code>Pyora</code>, jolla on sarakkeet <code>rekisterinumero</code> ja <code>merkki</code>. Jokaisen pyörän rekisterinumeron ja merkin tulostaminen tapahtuu seuraavasti.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
-
-Statement stmt = connection.createStatement();
-ResultSet rs = stmt.executeQuery("SELECT * FROM Pyora;");
-
-while (rs.next()) {
-    String rekisterinumero = rs.getString("rekisterinumero");
-    String merkki = rs.getString("merkki");
-
-    System.out.println(rekisterinumero + " " + merkki);
-}
-
-stmt.close();
-rs.close();
-
-connection.close();
-<% end %>
-  
-<p>
-  Käydään ylläoleva ohjelmakoodi läpi askeleittain.
-</p>
-
-<ol>
-  <li>
-    <p>Luomme ensin JDBC-yhteyden tietokantaan <em>vuokraamo.db</em>.
-      
-      <% partial 'partials/code_highlight' do %>
-Connection connection = DriverManager.getConnection("jdbc:sqlite:vuokraamo.db");
-      <% end %>
-    </p>
-    
-  </li>
-
-  <li>
-    <p>Kyselyn tekeminen tapahtuu pyytämällä yhteydeltä <em>Statement</em>-oliota, jota käytetään kyselyn tekemiseen ja tulosten pyytämiseen. Metodi <em>executeQuery</em> suorittaa parametrina annettavan SQL-kyselyn, ja palauttaa tulokset sisältävän <em>ResultSet</em>-olion.
-
-      <% partial 'partials/code_highlight' do %>
-Statement statement = connection.createStatement();
-ResultSet resultSet = statement.executeQuery("SELECT * FROM Pyora;");
-      <% end %>
-    </p>
-  </li>
-
-  <li>
-    <p>Tämän jälkeen ResultSet-oliossa olevat tulokset käydään läpi. Metodia next() kutsumalla siirrytään kyselyn palauttamissa tulosriveissä eteenpäin. Kultakin riviltä voi kysyä sarakeotsikon perusteella solun arvoa. Esimerkiksi kutsu getString("rekisterinumero") palauttaa kyseisellä rivillä olevan sarakkeen "rekisterinumero" arvon String-tyyppisenä.
-
-      <% partial 'partials/code_highlight' do %>
-while(resultSet.next()) {
-    String rekisterinumero = rs.getString("rekisterinumero");
-    String merkki = rs.getString("merkki");
-
-    System.out.println(rekisterinumero + " " + merkki);
-}
-	<% end %>
-    </p>
-  </li>
-  
-  <li>
-    <p>Kun kyselyn vastauksena saadut rivit on käyty läpi, eikä niitä enää tarvita, vapautetaan niihin liittyvät resurssit.
-      
-      <% partial 'partials/code_highlight' do %>
-stmt.close();
-rs.close();
-      <% end %>
-    </p>
-  </li>
-
-
-  <li>
-    <p>Lopulta tietokantayhteys suljetaan.
-
-      <% partial 'partials/code_highlight' do %>
-connection.close();
-      <% end %>
-    </p>
-
-    Huomaathan, että jos tietokantayhteyksiä ei sulje, jäävät ne odottamaan uusia kyselyitä. Tällöin ennemmin tai myöhemmin yhteyksiä on niin paljon auki, ettei tietokannanhallintajärjestelmä suostu uusien yhteyksien avaamiseen. 
-  </li>
-</ol>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Tietokantaa käyttävien web-sovellusten rakentaminen
-<% end %>
-
-<p>
-  Selain kommunikoi palvelimen kanssa tekemällä pyyntöjä joihin palvelin vastaa. Selain tekee pyynnön esimerkiksi kun käyttäjä kirjoittaa osoitekenttään sivun osoitteen -- esimerkiksi https://materiaalit.github.io/tikape-s17/ -- ja painaa enter. Tällöin tehdään hakupyyntö (<code>GET</code>) osoitteessa <code>materiaalit.github.io</code> olevalle palvelimelle. Palvelin vastaanottaa pyynnön, käsittelee sen -- esimerkiksi hakee haluttavan dokumentin tiedostojärjestelmästä -- ja luo käyttäjälle näytettävän sivun. Sivu palautetaan vastauksena pyynnölle tekstimuodossa. Selain päättelee vastauksen sisällön perusteella miten sivu tulee näyttää käyttäjälle ja näyttää sivun käyttäjälle.
-</p>
-
-<p>
-  Sivun näyttämisen yhteydessä selain hakee myös sisältöä, joihin sivu viittaa. Esimerkiksi jokainen tällä sivulla oleva kuva haetaan erikseen, aivan kuten erilaiset dynaamista toiminnallisuutta lisäävät Javascript -tiedostot sekä sivun ulkoasun tyylittelyyn liittyvät tyylitiedostot.
-</p>
-
-<p>
-  Käyttäjän näkökulmasta selain tekee käytännössä kahdenlaisia pyyntöjä. Hakupyynnöt (<code>GET</code>) liittyvät tietyssä osoitteessa olevan resurssin hakemiseen, kun taas lähestyspyynnöt (<code>POST</code>) liittyvät tiedon lähettämiseen tiettyyn osoitteeseen.
-</p>
-
-<p>
-  Tutustutaan tähän käytännössä Javalla toteutetun <a href="http://sparkjava.com/" target="_blank">Spark</a>-nimisen web-sovelluskehyksen avulla.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Spark ja ensimmäinen web-sovellus
-<% end %>
-
-<p>
-  <a href="http://sparkjava.com/" target="_blank">Spark</a>-sovelluskehyksen käyttöönotto toimii luvun 8.2 osassa "<em>Maven-projektin luominen NetBeansissa</em>" esitetyllä tavalla. Toisin kuin oppaassa, Maven-projektin riippuvuudeksi halutaan lisätä Spark. Tiedosto <code>pom.xml</code> näyttää lopuksi esimerkiksi seuraavalta:
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;project&gt;
-    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-    &lt;groupId&gt;tikape&lt;/groupId&gt;
-    &lt;artifactId&gt;tikape-web-sample&lt;/artifactId&gt;
-    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-    &lt;packaging&gt;jar&lt;/packaging&gt;
-    &lt;properties&gt;
-        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
-        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
-    &lt;/properties&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
-            &lt;artifactId&gt;spark-core&lt;/artifactId&gt;
-            &lt;version&gt;2.6.0&lt;/version&gt;
-        &lt;/dependency&gt;
-    &lt;/dependencies&gt;
-&lt;/project&gt;
-<% end %>
-
-<p>
-  Oleellista edellä on se, että Javan versioksi on määritelty 1.8, ja sparkin versioksi 2.6.0.
-</p>
-
-<p>
-  Nyt voimme luoda uuden pääohjelmaluokan. Lisätään <code>Main.java</code>-tiedostoon rivi <code>import spark.Spark;</code>, jolloin käyttöömme tulee oleellisimmat Sparkin tarjoamat toiminnallisuudet. Kutsutaan tämän jälkeen Sparkin get-metodia, ja määritellään sen avulla osoite, jota palvelinohjelmistomme tulee kuuntelemaan, sekä teksti, joka palautetaan, kun selaimella tehdään pyyntö annettuun osoitteeseen.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import spark.Spark;
-
-public class Main {
-
-    public static void main(String[] args) {
-
-        Spark.get("/hei", (req, res) -&gt; {
-            return "Hei maailma!";
-        });
-
-    }
-}
-<% end %>
-
-<p>
-  Yllä olevassa esimerkissä palvelimelle määritellään osoite <code>/hei</code>. Jos selaimella tehdään osoitteeseen pyyntö, pyyntöön vastataan tekstillä <code>Hei maailma!</code>.
-</p>
-
-<p>
-  Kun ylläolevan sovelluksen käynnistää, Spark käynnistää web-palvelimen osoitteeseen <code>http://localhost:4567</code>, eli paikallisen koneen porttiin <code>4567</code>. Palvelin on tämän jälkeen käynnissä, ja odottaa siihen tehtäviä pyyntöjä. Kun haemme web-selaimella sivua osoitteesta <code>http://localhost:4567</code>, palauttaa palvelin selaimelle tekstimuotoista tietoa, ja selain näyttää käyttäjälle seuraavanlaisen sivun:
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-localhost-not-found.png" alt="Kun osoitteeseen http://localhost:4567 tehdään pyyntö, sieltä palautuu sivu, jossa näkyy teksti '404 Not found'."/>
-  <figcaption>Kun osoitteeseen http://localhost:4567 tehdään pyyntö, sieltä palautuu sivu, jossa näkyy teksti '404 Not found'.</figcaption>
-</figure>
-
-<p>
-  Kun teemme pyynnön osoitteeseen <code>http://localhost:4567/hei</code>, eli palvelinohjelmiston osoitteeseen <code>/hei</code>, saammekin vastaukseksi ohjelmakoodissa määrittelemämme <code>Hei maailma!</code>-tekstin.
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-localhost-hei-maailma.png" alt="Kun osoitteeseen http://localhost:4567/hei tehdään pyyntö, sieltä palautuu teksti 'Hei maailma!'."/>
-  <figcaption>Kun osoitteeseen http://localhost:4567/hei tehdään pyyntö, sieltä palautuu teksti 'Hei maailma!'.</figcaption>
-</figure>
-
-
-
-<% partial 'partials/hint', locals: { name: 'NetBeans ja palvelimen sammuttaminen' } do %>
-  
-  <p>
-    Palvelimen sammuttaminen tapahtuu NetBeansissa punaista neliötä klikkaamalla. Joissakin käyttöjärjestelmissä tämä ei kuitenkaan toimi oikein, jolloin palvelin tulee sammuttaa komentoriviltä.
-  </p>
-
-  <p>
-    Saat portissa <code>4567</code> käynnissä olevan prosessin tunnuksen tietoon terminaalissa komennolla <code>lsof -i :4567</code>. Etsi komennon palauttamasta tulosteesta prosessin tunnus, jonka jälkeen voit sammuttaa prosessin komennolla <code>kill -9 prosessin-tunnus</code>.
-  </p>
-
-  <p>
-    Esimerkiksi:
-  </p>
-
-  <pre>
-> lsof -i :4567
-COMMAND  PID     USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
-java    9916 kayttaja   51u  IPv6 0x65802ef6be5c6f29      0t0  TCP *:tram (LISTEN)
->
-  </pre>
-
-  <p>
-    Yllä prosessin tunnus (PID) on 9916. Tämän jälkeen prosessi sammutetaan komennolla <code>kill -9 9916</code>.
-  </p>
-
-  <pre>
-> lsof -i :4567
-COMMAND  PID     USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
-java    9916 kayttaja   51u  IPv6 0x65802ef6be5c6f29      0t0  TCP *:tram (LISTEN)
-> kill -9 9916
-  </pre>
-  
-<% end %>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Useamman osoitteen kuunteleminen
-<% end %>
-
-
-<p>
-  Spark-palvelimelle määritellään <code>get</code>-metodin avulla palvelimen kuuntelemia osoitteita. Metodikutsun yhteydessä määritellään myös palvelimen palauttama data. Palautettava data on tekstiä, mutta selain päättelee palautetun tekstin sisällön perusteella, mitä tekstille tulee tehdä. Alla olevassa ohjelmakoodissa määritellään kaksi osoitetta, joista palautetaan dataa. Toinen palauttaa aiemmin nähdyn tekstin <code>Hei maailma!</code>, ja toinen palauttaa tekstin <code>Moi maailma!</code>.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import spark.Spark;
-
-public class Main {
-
-    public static void main(String[] args) {
-
-        Spark.get("/hei", (req, res) -&gt; {
-            return "Hei maailma!";
-        });
-
-        Spark.get("/testi", (req, res) -&gt; {
-            return "Moi maailma!";
-        });
-    }
-}
-<% end %>
-
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Tiedon esittäminen selaimessa
-<% end %>
-
-<p>
-  Selain näyttää käyttäjälle palvelimelta saamansa tekstimuotoisen vastauksen. Jos vastaus on HTML-muodossa, tulkitsee selain vastauksen, ja luo sen perusteella näkymän käyttäjälle. Periaatteessa palvelimelta voisi palauttaa suoraan HTML-koodia tekstimuodossa esimerkiksi seuraavalla tavalla.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-  Spark.get("/testi", (req, res) -&gt; {
-      return "&lt;h1&gt;Iso Viesti!&lt;/&gt;";
-  });
-<% end %>
-
-<p>
-  HTML-koodin palauttaminen suoraan palvelinohjelmistosta on kuitenkin hyvin epätyypillistä. Käytännössä html-sivut luodaan lähes aina ensin erilliseen tiedostoon, jonka palvelin palauttaa käyttäjälle. Voimme tehdä näin myös Sparkin kautta.
-</p>
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Thymeleaf ja HTML-sivujen luominen
-<% end %>
-
-<p>
-  Thymeleaf on eräs väline HTML-sivujen palauttamiseen suoraan palvelinohjelmistolta. Thymeleaf tarjoaa käyttäjälle lisäksi mahdollisuuden palvelimelta saatavan datan lisäämiseksi suoraan HTML-sivulle.
-</p>
-
-<p>
-  Lisätään projektiin riippuvuudeksi <code>spark-template-thymeleaf</code>-projekti, joka tuo käyttöön <a href="http://www.thymeleaf.org/" target="_blank">Thymeleaf</a>-kirjaston. Projektin konfiguraatio on nyt kokonaisuudessaan seuraavanlainen:
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;project&gt;
-    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-    &lt;groupId&gt;tikape&lt;/groupId&gt;
-    &lt;artifactId&gt;tikape-web-sample&lt;/artifactId&gt;
-    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-    &lt;packaging&gt;jar&lt;/packaging&gt;
-    &lt;properties&gt;
-        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
-        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
-    &lt;/properties&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
-            &lt;artifactId&gt;spark-core&lt;/artifactId&gt;
-            &lt;version&gt;2.6.0&lt;/version&gt;
-        &lt;/dependency&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.sparkjava&lt;/groupId&gt;
-            &lt;artifactId&gt;spark-template-thymeleaf&lt;/artifactId&gt;
-            &lt;version&gt;2.5.5&lt;/version&gt;
-        &lt;/dependency&gt;
-    &lt;/dependencies&gt;
-&lt;/project&gt;
-<% end %>
-
-<p>
-  Tehdään seuraavaksi resurssikansio (<code>resources</code>) projektin kansioon <code>src/main/</code>, jos sitä ei vielä ole. Uuden kansion saa luotua NetBeansin Files-välilehdellä klikkaamalla kansiota oikealla hiirennapilla, ja valitsemalla <code>New -> Folder</code>. Kun kansio on luotu, pitäisi käytössä olla kansio <code>src/main/resources</code>. Tämän jälkeen <code>resources</code>-kansioon tulee vielä luoda kansio <code>templates</code>, johon HTML-tiedostot tullaan laittamaan.
-</p>
-
-<figure>
-  <img src="/img/viikko6/nb-src-main-resources-templates.png" alt="Kansio src/main/resources/templates on luotu."/>
-  <figcaption>Projektiin liittyvän kansion <code>src</code> allaolevassa kansiossa <code>main</code> on nyt kansio <code>resources</code>, jossa on taas kansio <code>templates</code>.</figcaption>
-</figure>
-
-<p>
-  Lisätään kansioon <code>templates</code> uusi html-dokumentti (<code>New -&gt; HTML File</code>), ja asetetaan tiedoston nimeksi <code>index.html</code>.
-</p>
-
-<figure>
-  <img src="/img/viikko6/nb-src-main-resources-templates-index.png" alt="Kansioon src/main/resources/templates on luotu index.html-niminen tiedosto."/>
-  <figcaption>Nyt kansiossa <code>src/main/resources/templates</code> on tiedosto <code>index.html</code>.</figcaption>
-</figure>
-
-<p>
-  Käyttämämme Thymeleaf-kirjasto olettaa, että HTML-tiedostot ovat tietyn muotoisia -- palataan tähän myöhemmin. Tässä välissä riittää, että html-sivun sisällöksi kopioi seuraavan aloitussisällön.
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
-
-    &lt;head&gt;
-        &lt;title&gt;Otsikko&lt;/title&gt;
-        &lt;meta charset="utf-8" /&gt;
-    &lt;/head&gt;
-
-    &lt;body&gt;
-        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
-
-    &lt;/body&gt;
-&lt;/html&gt;
-<% end %>
-
-<p>
-  Huom! Jos näet virheen <code>500 Internal Server Error!</code> sekä NetBeansin lokeihin tulee viestiä "Parse errorista", tarkista, että sivun sisältö on aluksi täsmälleen ylläoleva.
-</p>
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Thymeleafin avulla luodun sivun palauttaminen käyttäjälle
-<% end %>
-
-<p>
-  Voimme palauttaa kansiossa <code>src/main/java/resources/templates</code> olevia <code>.html</code>-päätteisiä tiedostoja Sparkin avulla seuraavasti. Allaolevassa metodikutsussa määritellään kuunneltavaksi osoitteeksi <code>/sivu</code>, jonka jälkeen käyttäjälle palautetaan <code>index</code>-niminen sivu. Sivun nimen perusteella päätellään palautettava html-tiedosto -- nimi <code>index</code> muunnetaan muotoon <code>src/main/java/resources/templates/</code>index<code>.html</code>.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.util.HashMap;
-import spark.ModelAndView;
-import spark.Spark;
-import spark.template.thymeleaf.ThymeleafTemplateEngine;
-
-public class Main {
-
-    public static void main(String[] args) {
-        Spark.get("/sivu", (req, res) -> {
-            HashMap map = new HashMap<>();
-
-            return new ModelAndView(map, "index");
-        }, new ThymeleafTemplateEngine());
-    }
-}
-<% end %>
-
-<p>
-  Kun yllä määritelty sovellus käynnistetään, ja kansiossa <code>src/main/java/resources/templates</code> on tiedosto <code>index.html</code>, näytetään tiedoston sisältö käyttäjälle. Huomaathan, että tiedoston sisällön tulee olla kuten edellisessä kappaleessa näytetty. Näkymä on käyttäjälle esimerkiksi seuraavanlainen:
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-index.png" alt="Osoite http://localhost:4567/sivu avattuna."/>
-  <figcaption>Osoite http://localhost:4567/sivu avattuna.</figcaption>
-</figure>
-
-
-<p>
-  Mitä tässä oikein tapahtuu? Tutkitaan sivun palauttamista vielä tarkemmin.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-Spark.get("/sivu", (req, res) -> {
-    HashMap map = new HashMap&lt;&gt;();
-
-    return new ModelAndView(map, "index");
-}, new ThymeleafTemplateEngine());
-<% end %>
-
-<p>
-  Metodikutsun ensimmäinen rivi lienee tuttu. Kerromme, että ohjelman tulee kuunnella osoitteeseen <code>/sivu</code> tehtäviä hakupyyntöjä. Tämän jälkeen tulee pyynnön käsittelyyn liittyvä lohko, josta tällä kertaa palautetaan olio, joka sisältää <code>HashMap</code>-olion sekä tiedon näytettävästä html-sivusta. Tämän jälkeen pyynnön käsittelyyn lisätään vielä erillinen olio, <code>ThymeleafTemplateEngine</code>, joka käsittelee html-sivun ennen sen palautusta.
-</p>
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Palvelimelta saadun tiedon näyttäminen käyttäjälle
-<% end %>
-
-<p>
-  Thymeleaf-komponentin avulla voimme lisätä html-sivulle tietoa. Tämä tapahtuu lisäämällä <code>HashMap</code>-olioon <code>put</code>-metodilla arvo, esimerkiksi <code>map.put("teksti", "Hei mualima!");</code>.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-Spark.get("/sivu", (req, res) -> {
-    HashMap map = new HashMap<>();
-    map.put("teksti", "Hei mualima!");
-
-    return new ModelAndView(map, "index");
-}, new ThymeleafTemplateEngine());
-<% end %>
-  
-<p>
-  Tämän jälkeen html-sivua <code>index.html</code> muokataan siten, että sinne lisätään "paikka" tiedolle. Tiedon lisääminen tapahtuu lisäämällä sivulle html-elementti, jossa on <em>attribuutti</em> <code>th:text</code>, jolle annetaan HashMap-olioon lisätyn arvon nimi aaltosulkujen sisällä siten, että aaltosulkuja edeltää dollarimerkki -- eli <code>th:text="${teksti}"</code>. Elementti voi olla vaikka <code>h2</code>-elementti, jolloin kokonaisuus voisi olla vaikkapa seuraava <code>&lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;</code>.
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
-
-    &lt;head&gt;
-        &lt;title&gt;Otsikko&lt;/title&gt;
-        &lt;meta charset="utf-8" /&gt;
-    &lt;/head&gt;
-
-    &lt;body&gt;
-        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
-
-        &lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;
-
-    &lt;/body&gt;
-&lt;/html&gt;
-<% end %>
-
-<p>
-  Kun käynnistämme palvelimen, ja avaamme osoitteen <code>http://localhost:4567/sivu</code>, näemme seuraavanlaisen näkymän.
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-index-ja-thyme.png" alt="Osoite http://localhost:4567/sivu avattuna."/>
-  <figcaption>Osoite http://localhost:4567/sivu avattuna.</figcaption>
-</figure>
-
-
-<p>
-  <strong>HashMap</strong> on ohjelmoinnissa käytettävä lokerikko, missä jokaisella lokerolla on nimi, mihin arvon voi asettaa. Alla olevassa esimerkissä luomme ensin HashMap-olion, jonka jälkeen asetamme lokeroon nimeltä <code>teksti</code> arvon <code>"Hei mualima!"</code>.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-HashMap map = new HashMap&lt;&gt;();
-map.put("teksti", "Hei mualima!");
-<% end %>
-
-<p>
-  Kun HashMap-olio <em>palautetaan</em> pyynnön käsittelyn jälkeen -- <code>return new ModelAndView(map, "index");</code> -- annetaan lokerikko Thymeleafin käyttöön.
-</p>
-
-<p>
-  Thymeleaf etsii annetusta HashMap-oliosta lokeroita <code>th:text</code>-attribuutille annetulla nimellä. Esimerkiksi kun Thymeleaf käsittelee edellä näkemämme <code>&lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;</code>-rivin, etsii se HashMap-oliosta lokeron nimeltä <code>teksti</code>, ja asettaa siinä olevan arvon <em>elementin tekstiarvoksi</em>. Tässä tapauksessa teksti <code>testi</code> korvataan HashMap-olion lokerosta teksti löytyvällä arvolla, eli tekstillä <code>Hei mualima!</code>.
-</p>
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Listojen lisääminen sivulle
-<% end %>
-
-<p>
-  Tutustutaan vielä olioiden ja listojen käsittelyyn Thymeleafin avulla. Oletetaan, että käytössämme on seuraava <em>Opiskelija</em>-luokka.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-public class Opiskelija {
-
-    private Integer id;
-    private String nimi;
-
-    public Opiskelija() {
-    }
-
-    public Opiskelija(Integer id, String nimi) {
-        this.id = id;
-        this.nimi = nimi;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNimi() {
-        return nimi;
-    }
-
-    public void setNimi(String nimi) {
-        this.nimi = nimi;
-    }
-}
-<% end %>
-
-<p>
-  Jokaisella opiskelijalla on siis tunnus sekä nimi. Tämän lisäksi, jokaiselle opiskelijalle kuuluu <code>get</code>- ja <code>set</code>-metodit, joiden avulla opiskelijaan liittyviä tietoja voidaan hakea ja muokata. Muokataan aiempaa ohjelmaamme siten, että käytössämme on listallinen opiskelijoita, jotka palautetaan sivun mukana thymeleafin käsiteltäväksi.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import spark.ModelAndView;
-import spark.Spark;
-import spark.template.thymeleaf.ThymeleafTemplateEngine;
-
-public class Main {
-
-    public static void main(String[] args) {
-        ArrayList&lt;Opiskelija&gt; opiskelijat = new ArrayList&lt;&gt;();
-        opiskelijat.add(new Opiskelija(1, "Ada Lovelace"));
-        opiskelijat.add(new Opiskelija(2, "Charles Babbage"));
-
-        Spark.get("/opiskelijat", (req, res) -> {
-            HashMap map = new HashMap&lt;&gt;();
-            map.put("teksti", "Hei mualima!");
-            map.put("opiskelijat", opiskelijat);
-
-            return new ModelAndView(map, "index");
-        }, new ThymeleafTemplateEngine());
-    }
-}
-<% end %>
-
-<p>
-  Lisätään vielä opiskelijat html-sivulle.
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
-
-    &lt;head&gt;
-        &lt;title&gt;Otsikko&lt;/title&gt;
-        &lt;meta charset="utf-8" /&gt;
-    &lt;/head&gt;
-
-    &lt;body&gt;
-        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
-
-        &lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;
-
-        &lt;h2 th:text="${opiskelijat}"&gt;opiskelijatesti&lt;/h2&gt;
-
-    &lt;/body&gt;
-&lt;/html&gt;
-<% end %>
-
-<p>
-  Kun nyt haemme sivua, saamme (esimerkiksi) seuraavanlaisen näkymän.
-</p>
-
-
-<figure>
-  <img src="/img/viikko6/spark-index-opiskelijat.png" alt="Osoite http://localhost:4567/opiskelijat avattuna. Sivulla näkyy teksti Hei maailma!
-
-							  Hei mualima!
-
-							  [tikape.Opiskelija@4f4a43a5, tikape.Opiskelija@41ce9964]"/>
-  <figcaption>Osoite http://localhost:4567/sivu avattuna. Opiskelijat näkyvät, mutta eivät toivotussa muodossa.</figcaption>
-</figure>
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Listan tulostaminen ja läpikäynti Thymeleafin avulla
-<% end %>
-
-<p>
-  Ohjelmointikursseilla listan läpikäymiseen käytetään muunmuassa <code>while</code> ja <code>for</code>-lausetta. Voisimme esimerkiksi tulostaa opiskelijoihin liittyvät tiedot seuraavasti Java-koodissa:
-</p>
-
-<% partial 'partials/code_highlight' do %>
-ArrayList&lt;Opiskelija&gt; opiskelijat = new ArrayList&lt;&gt;();
-opiskelijat.add(new Opiskelija(1, "Ada Lovelace"));
-opiskelijat.add(new Opiskelija(2, "Charles Babbage"));
-
-for (int i = 0; i &lt; opiskelijat.size(); i++) {
-    Opiskelija opiskelija = opiskelijat.get(i);
-    System.out.println("id: " + opiskelija.getId());
-    System.out.println("nimi: " + opiskelija.getNimi());
-    System.out.println();
-}
-<% end %>
-
-<% partial 'partials/sample_output' do %>
-id: 1
-nimi: Ada Lovelace
-
-id: 2
-nimi: Charles Babbage
-<% end %>
-
-<p>
-  Vastaavanlainen toiminnallisuus löytyy myös Thymeleafista. Voimme käydä listan elementit läpi attribuutilla <code>th:each</code>, jolle annetaan sekä läpikäytävän listan nimi -- taas aaltosulkujen sisällä siten, että aaltosulkuja ennen on dollarimerkki -- sekä yksittäisen listaelementin nimi, jota käytetään listaa läpikäydessä. Alla olevassa esimerkissä aloitetaan lista <code>ul</code>-elementin avulla. Jokaiselle opiskelijalle luodaan oma <code>li</code>-elementti (<code>&lt;li th:each="opiskelija: ${opiskelijat}"&gt;...&lt;/li&gt;</code>), jonka sisälle haetaan käsiteltävään opiskelijaan liittyvät tiedot.
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"&gt;
-
-    &lt;head&gt;
-        &lt;title&gt;Otsikko&lt;/title&gt;
-        &lt;meta charset="utf-8" /&gt;
-    &lt;/head&gt;
-
-    &lt;body&gt;
-        &lt;h1&gt;Hei maailma!&lt;/h1&gt;
-
-        &lt;h2 th:text="${teksti}"&gt;testi&lt;/h2&gt;
-
-        &lt;ul&gt;
-            &lt;li th:each="opiskelija: ${opiskelijat}"&gt;
-                &lt;span th:text="${opiskelija.id}"&gt;1&lt;/span&gt; &lt;span th:text="${opiskelija.nimi}"&gt;Essi esimerkki&lt;/span&gt;
-            &lt;/li&gt;
-        &lt;/ul&gt;
-
-    &lt;/body&gt;
-&lt;/html&gt;
-<% end %>
-  
-<p>
-  Kun sivua tarkastelee selaimesta, näyttää se seuraavalta:
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-index-opiskelijat-listana.png" alt="Osoite http://localhost:4567/opiskelijat avattuna. Sivulla näkyy teksti
-								  Hei maailma!
-
-								  Hei mualima!
-
-								  1 Ada Lovelace
-								  2 Charles Babbage"/>
-  <figcaption>Osoite http://localhost:4567/sivu avattuna. Opiskelijat näkyvät listattuna.</figcaption>
-</figure>
-
-<p>
-  Edelläolevassa esimerkissä käydään listalla olevat opiskelijat läpi, ja luodaan niiden perusteella sivulle dataa. Mielenkiintoista esimerkissä on se, että yksittäisen opiskelijan id-kenttään pääsee käsiksi sanomalla (esimerkiksi) <code>&lt;span th:text="${opiskelija.id}"&gt;1&lt;/span&gt;</code>. Tässä Thymeleaf päättelee <code>opiskelija.id</code>-kohdassa, että sen tulee etsiä opiskelija-oliolta <code>getId()</code>-metodia, kutsua sitä, ja asettaa tähän metodin palauttama arvo.
-</p>
-
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Tiedon lähettäminen palvelimelle
-<% end %>
-
-<p>
-  Tiedon lähettäminen (<code>POST</code>) palvelimelle tapahtuu HTML-sivuilla lomakkeen avulla.
-</p>
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Lomakkeen määrittely
-<% end %>
-
-<p>
-  Lomakkeelle (<code>form</code>) määritellään metodiksi (<code>method</code>) lähetys, eli POST, sekä osoite, johon lomakkeella oleva tieto tulee lähettää. Lomakkeen määrittely alkaa muodossa <code>&lt;form method="POST" action="/osoite"&gt;</code>, missä <code>/osoite</code> on palvelimelle määritelty osoite. Tätä seuraa erilaiset lomakkeen kentät, esimerkiksi tekstikenttä (<code>&lt;input type="text" name="nimi"/&gt;</code>), johon syötettävälle arvolle tulee <code>name</code>-kentässä määritelty nimi. Lomakkeeseen tulee lisätä myös nappi (<code>&lt;input type="submit" value="Lähetä!"/&gt;</code>), jota painamalla lomake lähetetään. Lomake voi olla kokonaisuudessaan esimerkiksi seuraava:
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;form method="POST" action="/opiskelijat"&gt;
-  Nimi:&lt;br/&gt;
-  &lt;input type="text" name="nimi"/&gt;&lt;br/&gt;
-  &lt;input type="submit" value="Lisää opiskelija"/&gt;
-&lt;/form&gt;
-<% end %>
-
-<p>
-  Yllä määritelty lomake näyttää selaimessa (esimerkiksi) seuraavalta:
-</p>
-
-<pre>
-  <div>
-    <form method="POST" action="/opiskelijat">
-      Nimi:<br/>
-      <input type="text" name="nimi"/><br/>
-      <input type="submit" value="Lisää opiskelija"/>
-    </form>
-  </div>
-</pre>
-
-<p>
-  Nappia painamalla lomakkeeseen kirjoitettu tieto yritetään tämän materiaalin osoitteessa olevaan polkuun <code>/opiskelijat</code>. Ei taida onnistua..
-</p>
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tiedon lähetyksen vastaanotto
-<% end %>
-
-<p>
-  Palvelimelle määritellään tietoa vastaanottava osoite metodilla <code>post</code>, jolle annetaan parametrina kuunneltava osoite, sekä koodi, joka suoritetaan kun osoitteeseen lähetetään tietoa. Pyynnön mukana lähetettävään tietoon -- esimerkiksi ylläolevalla lomakkeella voidaan lähettää nimi-niminen arvo palvelimelle -- pääsee käsiksi <code>req</code>-nimisen parametrin metodilla <code>queryParams</code>.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-Spark.post("/opiskelijat", (req, res) -&gt; {
-    String nimi = req.queryParams("nimi");
-    System.out.println("Vastaanotettiin " + nimi);
-
-    return "Kerrotaan siitä tiedon lähettäjälle: " + nimi;
-});
-<% end %>
-
-<p>
-  Samaa osoitetta voi käsitellä sekä <code>get</code>, että <code>post</code>-metodilla. Palvelin voi siis palauttaa selaimen tekemiin hakupyyntöihin tiettyä dataa -- esimerkiksi vaikkapa lomakkeen -- ja käsitellä lähetetyn tiedon erikseen. Alla on määritelty kaksi <code>/opiskelijat</code>-osoitetta kuuntelevaa toiminnallisuutta. Toinen palauttaa merkkijonona muotoillun lomakkeen (tämä kannattaisi tehdä erilliselle HTML-sivulle!), toinen taas palauttaa tekstin, jonka osana on lomakkeella lähetetty nimi.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import spark.Spark;
-
-public class Main {
-
-    public static void main(String[] args) {
-
-        Spark.get("/opiskelijat", (req, res) -&gt; {
-            return "&lt;form method=\"POST\" action=\"/opiskelijat\"&gt;\n"
-                    + "Nimi:&lt;br/&gt;\n"
-                    + "&lt;input type=\"text\" name=\"nimi\"/&gt;&lt;br/&gt;\n"
-                    + "&lt;input type=\"submit\" value=\"Lisää opiskelija\"/&gt;\n"
-                    + "&lt;/form&gt;";
-        });
-
-        Spark.post("/opiskelijat", (req, res) -&gt; {
-            String nimi = req.queryParams("nimi");
-            return "Kerrotaan siitä tiedon lähettäjälle: " + nimi;
-        });
-
-    }
-}
-<% end %>
-
-<p>
-  Kun palvelin käynnistetään ylläolevalla ohjelmalla, löytyy osoitteesta <code>http://localhost:4567/opiskelijat</code> seuraavanlainen sivu:
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-lomake.png" alt="Kun osoitteeseen http://localhost:4567/opiskelijat tehdään pyyntö, nähdään aiemmin määritelty lomake."/>
-  <figcaption>Kun osoitteeseen http://localhost:4567/opiskelijat tehdään pyyntö, nähdään aiemmin määritelty lomake.</figcaption>
-</figure>
-
-<p>
-  Täytetään lomake -- vaikkapa nimellä <a href="https://en.wikipedia.org/wiki/Edgar_F._Codd" target="_blank">Edgar F. Codd</a>.
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-lomake-taytetty.png" alt="Lomakkeen nimi-kenttään asetettu arvo 'Edgar F. Codd'."/>
-  <figcaption>Lomakkeen nimi-kenttään asetettu arvo 'Edgar F. Codd'.</figcaption>
-</figure>
-
-<p>
-  Kun painamme nyt nappia <code>Lisää opiskelija</code>, tekstikentän sisältö lähetetään palvelimelle lomakkeen <code>action</code>-kentän määrittelemään osoitteeseen. Jos lomakkeessa määritelty metodiksi (<code>method</code>) post, tehdään lähetyspyyntö. Jos action kenttä on <code>/opiskelijat</code> ja metodi <code>POST</code>, lähetettävä tieto vastaanotetaan ja suoritetaan rivillä <code>post("/opiskelijat", (req, res) -&gt; {</code> alkavalla ohjelmakoodilla. Aiemmin määritellyllä ohjelmalla käyttäjälle näytetään seuraavanlainen sivu:
-</p>
-
-<figure>
-  <img src="img/viikko6/spark-lomake-lahetetty.png" alt="Lomake on lähetetty ja palvelin palauttaa tekstin 'Kerrotaan siitä tiedon lähettäjälle: Edgar F. Codd'."/>
-  <figcaption>Lomake on lähetetty ja palvelin palauttaa tekstin 'Kerrotaan siitä tiedon lähettäjälle: Edgar F. Codd'.</figcaption>
-</figure>
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Tiedon säilöminen palvelimelle hetkellisesti
-<% end %>
-
-<p>
-  Voimme tallentaa vastaanotetun tiedon palvelimelle palvelimen käynnissäoloajaksi säilömällä sen esimerkiksi <code>ArrayList</code>-tyyppiseen listaan. Muokataan ylläolevaa aiempaa koodia siten, että hakupyyntö osoitteeseen <code>/opiskelijat</code> palauttaa sekä lomakkeen että tallennetut opiskelijat. Tämän lisäksi, lisätään osoitteeseen <code>/opiskelijat</code> tehtävän lähetyspyynnön käsittelyyn lomakkeelta saatavan nimi-kentän lisääminen ohjelmassa olevaan listaan.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.util.ArrayList;
-import spark.Spark;
-
-public class Main {
-
-    public static void main(String[] args) {
-        ArrayList&lt;String&gt; nimet = new ArrayList&lt;&gt;();
-
-        Spark.get("/opiskelijat", (req, res) -&gt; {
-            String opiskelijat = "";
-            for (String nimi : nimet) {
-                opiskelijat += nimi + "&lt;br/&gt;";
-            }
-
-            return opiskelijat
-                    + "&lt;form method=\"POST\" action=\"/opiskelijat\"&gt;\n"
-                    + "Nimi:&lt;br/&gt;\n"
-                    + "&lt;input type=\"text\" name=\"nimi\"/&gt;&lt;br/&gt;\n"
-                    + "&lt;input type=\"submit\" value=\"Lisää opiskelija\"/&gt;\n"
-                    + "&lt;/form&gt;";
-        });
-
-        Spark.post("/opiskelijat", (req, res) -&gt; {
-            String nimi = req.queryParams("nimi");
-            nimet.add(nimi);
-            return "Kerrotaan siitä tiedon lähettäjälle: " + nimi;
-        });
-
-    }
-}
-<% end %>
-
-<p>
-  Nyt kun osoitteessa <code>/opiskelijat</code> olevalla lomakkeella tehdään useampia pyyntöjä, tulee lomakesivulle lisää näytettäviä opiskelijoita.
-</p>
-
-<figure>
-  <img src="/img/viikko6/spark-lomake-lahetetty-monesti.png" alt="Lomakkeella lähetetty arvot 'Edgar F. Codd' ja 'Ada Lovelace' ja lomake-sivu avattu uudestaan."/>
-  <figcaption>Lomakkeella lähetetty arvot 'Edgar F. Codd' ja 'Ada Lovelace' ja lomake-sivu avattu uudestaan.</figcaption>
-</figure>
-
-
-<p>
-  Tiedon lisääminen edellisellä tavalla johtaa tilanteeseen, missä käyttäjä näkee lisäyksen yhteydessä vain listasivun. Hyvä käytäntö on lisätä lisäystoiminnallisuuden loppuun uudelleenohjauskutsu, jonka perusteella selain pyydetään tekemään uusi kutsu osoitteeseen, joka sisältää tietojen listaamisen. Tämä onnistuu esimerkiksi seuraavasti.
-</p>
-
-<% partial 'partials/code_highlight' do %>
-Spark.post("/opiskelijat", (req, res) -&gt; {
-    String nimi = req.queryParams("nimi");
-    nimet.add(nimi);
-    res.redirect("/opiskelijat");
-    return "";
-});
-<% end %>
-
-
-
-<% partial 'partials/material_sub_sub_heading' do %>
-  Useamman kentän lähettäminen
-<% end %>
-
-<p>
-  HTML-lomakkeelle voidaan määritellä useampia kenttiä. Jokaisella kentällä tulee olla eri nimi, jotta palvelimella voidaan ottaa lomakkeen tiedon vastaan. Esimerkiksi nimeä ja osoitetta voisi kerätä vaikkapa seuraavanlaisella lomakkeella.
-</p>
-
-<% partial 'partials/xml_highlight' do %>
-&lt;form method="POST" action="/opiskelijat"&gt;
-Nimi:&lt;br/&gt;
-&lt;input type="text" name="nimi"/&gt;&lt;br/&gt;
-Osoite:&lt;br/&gt;
-&lt;input type="text" name="osoite"/&gt;&lt;br/&gt;
-&lt;input type="submit" value="Lisää opiskelija"/&gt;
-&lt;/form&gt;
-<% end %>
-
-<p>
-  Lomake näyttää selaimessa (esimerkiksi) seuraavalta:
-</p>
-
-<pre>
-  <div>
-    <form method="POST" action="/opiskelijat">
-      Nimi:<br/>
-      <input type="text" name="nimi"/><br/>
-      Osoite:<br/>
-      <input type="text" name="osoite"/><br/>
-      <input type="submit" value="Lisää opiskelija"/>
-    </form>
-  </div>
-</pre>
-
-
-<% partial 'partials/exercise', locals: { name: 'Työlista' } do %>
-
-  <p>
-    Tehtäväpohjassa on valmiina web-sovellus, joka näyttää käyttäjälle tehtäviä.
-  </p>
-
-  <p>
-    Lisää sovellukseen toiminnallisuus, jonka avulla käyttäjälle voi lisätä tehtäviä. Toiminnallisuuden lisääminen kannattanee aloittaa seuraavilla askeleilla: (1) lisää sovellukseen lomake tehtävien lisäämistä varten, (2) lisää sovellukseen osoite, joka kuuntelee lomakkeen lähetystä -- lisää tallennustoiminnallisuuden loppuun myös uudelleenohjaus, ja (3) tallenna lähetetty tieto listalle.
-  </p>
-
-  <p>
-    Huomaa, että joudut sammuttamaan palvelimen aina muutosten yhteydessä. Toisin sanoen, ohjelmointiympäristö ei automaattisesti päivitä muutoksia palvelimelle. Muistathan myös sammuttaa palvelimen kun tehtävä on valmis -- näin palvelin ei jää estämään muiden palvelinten käynnistymistä.
-  </p>
-
-  <p>
-    Kun sovellus toimii, palauta se TMC:lle.
-  </p>
-  
-<% end %>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Tietokannan käyttöönotto
-<% end %>
-
-<p>
-  Tietokannan käyttöönotto onnistuu kuten Java-ohjelmissa yleensä. Tällä kertaa tosin hyödynnämme tietokantaa osana web-sovellusta. Opiskelijoiden noutaminen tietokannasta tapahtuisi esimerkiksi seuraavasti:
-</p>
-
-<% partial 'partials/code_highlight' do %>
-package tikape;
-
-import java.util.HashMap;
-import spark.ModelAndView;
-import spark.Spark;
-import spark.template.thymeleaf.ThymeleafTemplateEngine;
-import tikape.database.Database;
-import tikape.database.OpiskelijaDao;
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-        Database database = new Database("jdbc:sqlite:opiskelijat.db");
-        database.setDebugMode(true);
-
-        OpiskelijaDao opiskelijaDao = new OpiskelijaDao(database);
-
-        Spark.get("/opiskelijat", (req, res) -> {
-            HashMap map = new HashMap&lt;&gt;();
-            map.put("opiskelijat", opiskelijaDao.findAll());
-
-            return new ModelAndView(map, "index");
-        }, new ThymeleafTemplateEngine());
-    }
-}
-<% end %>
-
-
-<% partial 'partials/exercise', locals: { name: 'Työlista tietokannalla' } do %>
-
-  <p>
-    Tehtäväpohjassa on valmiina sama web-sovellus kuin edellisessä tehtävässä, eli sovellus joka näyttää käyttäjälle tehtäviä. Tässä tehtävässä toteutetaan sekä edellisen tehtävän toiminnallisuus -- jos teit edellisen tehtävän, voit kopioida edellisen osan toiminnallisuuden tänne -- ja lisätään mukaan tietokanta.
-  </p>
-
-  <p>
-    Edellisen osan tehtävänannosta: <em>Lisää sovellukseen toiminnallisuus, jonka avulla käyttäjälle voi lisätä tehtäviä. Toiminnallisuuden lisääminen kannattanee aloittaa seuraavilla askeleilla: (1) lisää sovellukseen lomake tehtävien lisäämistä varten, (2) lisää sovellukseen osoite, joka kuuntelee lomakkeen lähetystä -- lisää tallennustoiminnallisuuden loppuun myös uudelleenohjaus, ja (3) tallenna lähetetty tieto listalle.</em>
-  </p>
-
-  <p>
-    Muokkaa tätä sovellusta siten, että tehtävät haetaan tietokannasta. Tämän onnistumiseen tarvitset seuraavat askeleet: (1) määrittele tehtäville tietokantataulut, (2) luo tarvittavat luokat ja toiminnallisuudet tietokantakyselyiden tekemiseen, ja (3) vaihda tehtäväpohjan lista tietokannasta haettavaan listaukseen.
-  
-  <p>
-    Huomaa, että joudut sammuttamaan palvelimen aina muutosten yhteydessä. Toisin sanoen, ohjelmointiympäristö ei automaattisesti päivitä muutoksia palvelimelle. Muistathan myös sammuttaa palvelimen kun tehtävä on valmis -- näin palvelin ei jää estämään muiden palvelinten käynnistymistä.
-  </p>
-
-  <p>
-    Kun sovellus toimii, palauta se TMC:lle.
-  </p>
-  
-<% end %>
-
-
-<% partial 'partials/material_heading' do %>
-  Sekvenssikaaviot
 <% end %>
-
-<p>
-  Sekvenssikaaviot ovat järjestelmien (ja olioiden) vuorovaikutuksen visualisointiin käytettävä menetelmä. Sekvenssikaaviossa järjestelmät kuvataan pystysuorina viivoina ja järjestelmien väliset kutsut vaakasuorina viivoina. Aika kulkee ylhäältä alas. Järjestelmät kuvataan laatikoina sekvenssikaavion ylälaidassa, joista pystysuorat viivat lähtevät. Järjestelmien kutsuihin merkitään oleellinen kuvaustieto, esimerkiksi olioiden yhteydessä metodin nimi tai korkeammalla tasolla järjestelmän toimintaa kuvattavaessa haluttu toiminto. Kutsun palauttama tieto piirretään palaavana katkoviivana.
-</p>
-
-<p>
-  Alla on kuvattuna tilanne, missä käyttäjä haluaa hakea palvelimelta kaikki opiskelijat (vastaa edellisen luvun lopussa olevan sovellusken tarjoamaa toiminnallisuutta.
-</p>
 
-<figure>
-  <img src="/img/sekvenssikaavio.png" alt="Selaimen, palvelimen sekä tietokannan välistä kommunikaatiota kuvaava sekvenssikaavio."/>
-  <figcaption>Käyttäjä tekee selaimella pyynnön palvelimelle menemällä osoitteeseen "/opiskelijat". Palvelimella oleva koodi tekee ensin pyynnön tietokantaan, missä haetaan kaikki tietokannassa olevat opiskelijat. Tämän jälkeen palvelin antaa opiskelijalistan sekä html-sivun nimen Thymeleafille, joka luo sivusta HTML-sivun. Lopulta luotu HTML-sivu palautetaan käyttäjälle.</figcaption>
-</figure>
 
 
 
@@ -2675,8 +1873,4 @@ kayttaja@kone:~/kansio$ curl --data "userId=2" http://localhost:4567/tasks/1
   </p>
   
 <% end %>
-
-
-
-<%= partial 'partials/quiz', locals: { id: '59d65c9cdd63ba00049b6ade' } %>
 
