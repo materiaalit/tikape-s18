@@ -229,7 +229,7 @@ user@kone:~/kansio/huonekalut$ <strong>git status</strong>
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working directory clean
-user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+user@kone:~/kansio/huonekalut$ <strong>git push heroku master</strong>
 Counting objects: 13, done.
 Delta compression using up to 4 threads.
 Compressing objects: 100% (7/7), done.
@@ -298,7 +298,7 @@ user@kone:~/kansio/huonekalut$ <strong>git commit -m "Herokun käynnistykseen ta
 
 1 file changed, 1 insertion(+)
 create mode 100644 Procfile
-user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+user@kone:~/kansio/huonekalut$ <strong>git push heroku master</strong>
 Counting objects: 13, done.
 Delta compression using up to 4 threads.
 Compressing objects: 100% (7/7), done.
@@ -465,7 +465,7 @@ user@kone:~/kansio/huonekalut$ <strong>git commit -m "Projektin käännökseen t
 [master 124bla] Projektin käännökseen tarvitut liitännäiset
 ...
 1 file changed, 31 insertions(+), 1 deletion(-)
-user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+user@kone:~/kansio/huonekalut$ <strong>git push heroku master</strong>
 Counting objects: 3, done.
 Delta compression using up to 4 threads.
 Compressing objects: 100% (3/3), done.
@@ -546,7 +546,7 @@ user@kone:~/kansio/huonekalut$ <strong>git add src/main/java/tikape/huonekalut/M
 user@kone:~/kansio/huonekalut$ <strong>git commit -m "Käytetään Herokun tarjoamaa porttia."</strong>
 [master 125bla] Käytetään Herokun tarjoamaa porttia.
 ...
-user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+user@kone:~/kansio/huonekalut$ <strong>git push heroku master</strong>
 ...
 remote: -----> Discovering process types
 remote:        Procfile declares types -> web
@@ -642,7 +642,7 @@ Use heroku addons:docs heroku-postgresql to view documentation
 </p>
 
 <pre>
-user@kone:~/kansio/huonekalut$ heroku pg:psql
+user@kone:~/kansio/huonekalut$ <strong>heroku pg:psql</strong>
 --> Connecting to <em>tietokannan-nimi</em>
 psql (9.5.11, server 10.1)
 WARNING: psql major version 9.5, server major version 10.
@@ -739,7 +739,7 @@ Changes to be committed:
 user@kone:~/kansio/huonekalut$ <strong>git add pom.xml</strong>
 user@kone:~/kansio/huonekalut$ <strong>git add src/main/java/tikape/huonekalut/Main.java</strong>
 user@kone:~/kansio/huonekalut$ <strong>git commit -m "Herokun tarjoaman tietokannan käyttöönotto."</strong>
-user@kone:~/kansio/huonekalut$ <strong>git push heroku</strong>
+user@kone:~/kansio/huonekalut$ <strong>git push heroku master</strong>
 ...
 </pre>
 
