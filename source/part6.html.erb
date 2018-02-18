@@ -1,8 +1,8 @@
 ---
   title: Osa 6
   exercise_page: true
-  quiz_page: true
-  published: false
+  quiz_page: false
+  published: true
 ---
 
 
@@ -10,10 +10,622 @@
 
 
   <p>
-    Tuntee käsitteet indeksi, transaktio ja tietokannan eheys. Osaa luoda useampaa tietokantataulua käyttävän ja muokkaavan web-sovelluksen. Osaa siirtää web-sovelluksen verkkoon, missä se on kaikkien nähtävillä.
+    Osaa tehdä yhteenvetokyselyitä SQL-kielellä. Osaa selvittää miten tietokannanhallintajärjestelmä hakee annetun SQL-kyselyn tuloksen. Tietää mitä indeksit ovat ja tietää milloin tietokantatauluun tulee määritellä indeksejä. Tuntee käsitteet tietokannan eheys ja tietokantatransaktio, ja tietää tilanteita milloin transaktioita kannattaa käyttää. Tietää tietokannanhallintajärjestelmältä vaadittuja ominaisuuksia, joita tarvitaan tietokantatransaktioiden toimintaan. Tuntee CAP-teoreeman ja tietää GDPR-lainsäädännön olemassaolon sekä ainakin muutamia siihen liittyviä säännöksiä. 
   </p>
 
 <% end %>
+
+
+
+<% partial 'partials/material_heading' do %>
+  Yhteenvetokyselyt SQL-kielellä
+<% end %>
+
+<p>
+  Harjoittelemamme SQL-kyselyt ovat tähän mennessä tuottaneet listauksia tietokantataulujen sisällöistä. Listauksia tuottavat kyselyt ovat erittäin hyödyllisiä, kun halutaan vastata esimerkiksi kysymyksiin kuten "Listaa kaikki opiskelijat, jotka ovat osallistuneet kurssille tietokantojen perusteet" tai "Listaa kaikki kurssit, joille annettu opiskelija on ilmoittautunut". Kysymykset kuten "Kuinka moni opiskelija on osallistunut kurssille tietokantojen perusteet" ovat kuitenkin vaatineet manuaalista työtä, sillä kyselyn tulosrivit on pitänyt laskea käsin tai jonkun toisen ohjelman avulla.
+</p>
+
+<p>
+  SQL-kieli tarjoaa välineitä yhteenvetokyselyiden tekemiseen. Tällaisia kyselyitä ovat esimerkiksi juurikin yllä mainittu "kuinka moni" -- eli tulosrivien määrä -- sekä esimerkiksi erilaiset summa- ja keskiarvokyselyt. Käytännössä yhteenvetokyselyt tehdään SQL-kielen tarjoamien funktioiden avulla, jotka muuntavat tulosrivit toiseen muotoon. Alla on listattuna muutamia tyypillisimpiä funktioita, joita tietokantakyselyissä käytetään.
+</p>
+
+<table class="table">
+  
+  <tr>
+    <th>
+      Tavoite
+    </th>
+    <th>
+      Funktio
+    </th>
+    <th>
+      Esimerkki
+    </th>
+  </tr>
+
+  <tr>
+    <td>
+      Rivien lukumäärän selvittäminen
+    </td>
+    <td>
+      <code>COUNT</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT COUNT(*) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Numeerisen sarakkeen keskiarvon laskeminen
+    </td>
+    <td>
+      <code>AVG</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT AVG(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Numeerisen sarakkeen summan laskeminen
+    </td>
+    <td>
+      <code>SUM</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT SUM(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      Numeerisen sarakkeen minimiarvon selvittäminen
+    </td>
+    <td>
+      <code>MIN</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT MIN(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      Numeerisen sarakkeen maksimiarvon selvittäminen
+    </td>
+    <td>
+      <code>MAX</code>
+    </td>
+    <td>
+      <% partial 'partials/sql_highlight' do %>
+SELECT MAX(<em>sarake</em>) FROM <em>Taulu</em>
+      <% end %>
+    </td>
+  </tr>
+
+</table>
+
+
+<p>
+  Tarkastellaan näitä kyselyitä hieman tarkemmin. Oletetaan, että käytössämme on seuraava lentomatkoja kuvaava tietokantataulu.
+</p>
+
+
+<table class="table">
+  <tr>
+    <th colspan="4">
+      Lentomatka(yhtio, lahtopaikka, maaranpaa, pituus)
+    </th>
+  </tr>
+  <tr>
+    <th>
+      Lentoyhtiö
+    </th>
+    <th>
+      Lähtöpaikka
+    </th>
+    <th>
+      Määränpää
+    </th>
+    <th>
+      Lennon pituus (minuuttia)
+    </th>
+  </tr>
+  <tr>
+    <td>
+      Air Berlin
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Berliini
+    </td>
+    <td>
+      205
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Oulu
+    </td>
+    <td>
+      70
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Berliini
+    </td>
+    <td>
+      200
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Tukholma
+    </td>
+    <td>
+      50
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Finnair
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Mallorca
+    </td>
+    <td>
+      230
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Norwegian
+    </td>
+    <td>
+      Helsinki
+    </td>
+    <td>
+      Mallorca
+    </td>
+    <td>
+      240
+    </td>
+  </tr>
+</table>
+
+<p>
+  Yhteenvetokyselyiden avulla saamme selville erilaisia tilastoja. Alla muutamia esimerkkejä:
+</p>
+
+<ul>
+  <li>
+    Kuinka monta matkaa tietokantataulussa Lentomatka on yhteensä?
+    <% partial 'partials/sql_highlight' do %>
+      SELECT COUNT(*) FROM Lentomatka
+    <% end %>
+  </li>
+
+  <li>
+    Kuinka monta lentoyhtiötä on tietokantataulussa lentomatka? (Huomaa avainsanan DISTINCT käyttö)
+    <% partial 'partials/sql_highlight' do %>
+      SELECT COUNT(DISTINCT yhtio) FROM Lentomatka
+    <% end %>
+  </li>  
+  
+  <li>
+    Kuinka monta lentoa taulussa on Helsingistä Mallorcalle?
+    <% partial 'partials/sql_highlight' do %>
+      SELECT COUNT(*) FROM Lentomatka
+          WHERE lahtopaikka = 'Helsinki' AND maaranpaa = 'Mallorca'
+    <% end %>
+  </li>
+
+  <li>
+    Mikä on keskimääräinen Finnairin lennon pituus?
+    <% partial 'partials/sql_highlight' do %>
+      SELECT AVG(pituus) FROM Lentomatka
+          WHERE yhtio = 'Finnair'
+    <% end %>
+  </li>
+
+  <li>
+    Mikä on lyhin matkan kesto Helsingistä Berliiniin?
+    <% partial 'partials/sql_highlight' do %>
+      SELECT MIN(pituus) FROM Lentomatka
+          WHERE lahtopaikka = 'Helsinki' AND maaranpaa = 'Berliini'
+    <% end %>
+  </li>
+
+</ul>
+
+<p>
+  Yllä olevat esimerkit tuottavat tulokseksi aina yhden luvun. Entä jos haluaisimme saada selville yhtiökohtaisia tietoja kuten vaikkapa jokaisen yhtiön lyhimmän lennon? Tarkastellaan tätä seuraavaksi.
+</p>
+
+
+<% partial 'partials/exercise', locals: { name: 'Yhteenvetokyselyt, osa 1' } do %>
+
+  
+  <p>
+    Tehtäväpohjan kansiossa <code>db</code> tulee tiedosto nimeltä <code>Chinook_Sqlite.sqlite</code>. Käytimme samaa tiedostoa myös yhdessä osan 3 tehtävistä. Tietokannassa on seuraavat taulut:
+  </p>
+
+  <pre>
+  sqlite&gt; .tables
+  Album          	Employee       	InvoiceLine    	PlaylistTrack
+  Artist         	Genre          	MediaType      Track        
+  Customer       	Invoice        	Playlist     
+  </pre>
+
+  <p>
+    Tietokanta kuvaa digitaalisen musiikin myyntipalvelua. Tietokannan relaatiokaavio löytyy osoitteesta <a href="http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation" target="_blank" norel>http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation</a>. Kirjoita SQLiten avulla kyselyt, joilla saa selville seuraavat tiedot.
+  </p>
+
+  
+  <ul>
+    <li>Kysely 1: Kuinka monta albumia (Album) tietokannassa on yhteensä?</li>
+    <li>Kysely 2: Minkä on kaikkien tietokannassa olevien laskujen (Invoice) hinnan (total) keskiarvo?</li>
+    <li>Kysely 3: Kuinka monta 'Blues', 'Jazz' tai 'Metal'-genren kappaletta tietokannassa on yhteensä?</li>
+  </ul>
+
+  <p>
+    Kun olet saanut kyselyt toimimaan, kopioi ne tehtäväpohjassa olevan luokan Kyselyja metodeihin kysely1, kysely2 ja kysely3. Metodeihin tulee siis kopioida SQL-kieliset kyselyt, joilla em. kysymyksiin saa vastaukset, ei kyselyiden vastauksia. 
+  </p>
+
+
+<% end %>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tulosten ryhmittely
+<% end %>
+
+
+<p>
+  Tulosten ryhmittely tietyn sarakkeen perusteella tapahtuu komennon <code>GROUP BY</code> perustella. Komento <code>GROUP BY</code> lisätään taulujen listauksen ja mahdollisten kyselyn rajausehtojen jälkeen. Komentoa <code>GROUP BY</code> seuraa sarake, jonka perusteella tulokset ryhmitellään. Jotta ryhmittelystä tulee mielekäs, asetetaan ryhmittelyn peruste tyypillisesti myös SELECT-komentoa seuraavaan sarakelistaukseen.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT <em>ryhmittelysarake</em>, <em>FUNKTIO</em>(<em>sarake</em>) FROM <em>Taulu</em>
+      GROUP BY <em>ryhmittelysarake</em>
+<% end %>
+
+
+<p>
+  Alla muutamia esimerkkejä:
+</p>
+
+<ul>
+  
+  <li>
+    Kuinka monta matkaa kullakin lentoyhtiöllä on tarjolla?
+    <% partial 'partials/sql_highlight' do %>
+      SELECT yhtio, COUNT(*) FROM Lentomatka GROUP BY yhtio
+    <% end %>
+  </li>
+
+  <li>
+    Kuinka monta alle 100 minuutin pituista lentomatkaa eri kaupungeista lähtee?
+    <% partial 'partials/sql_highlight' do %>
+      SELECT lahtopaikka, COUNT(*) FROM Lentomatka
+          WHERE pituus &lt; 100 GROUP BY lahtopaikka
+    <% end %>
+  </li>
+
+  <li>
+    Kuinka pitkiä kunkin lentoyhtiön matkat ovat keskimäärin?
+    <% partial 'partials/sql_highlight' do %>
+      SELECT yhtio, AVG(pituus) FROM Lentomatka GROUP BY yhtio
+    <% end %>
+  </li>
+  
+</ul>
+
+
+<p>
+  Taulujen yhdistäminen toimii kuten ennen. Valittavat taulut kerrotaan joko FROM -avainsanan jälkeen tai JOIN -avainsanan jälkeen, riippuen tavasta, jolla yhdistäminen tehdään. Ryhmittelykomento tulee mahdollisten WHERE-ehtojen jälkeen.
+</p>
+
+<p>
+  Oletetaan seuraavat taulut Kurssi ja Kurssitehtävä.
+</p>
+
+
+<ul>
+  <li>
+    Kurssi((pk) id, nimi, opintopisteet)
+  </li>
+  <li>
+    Kurssitehtava((pk) id, (fk) kurssi_id -&gt; Kurssi, tehtava)
+  </li>
+</ul>
+
+<p>
+  Kurssikohtaisten tehtävien lukumäärän laskeminen onnistuu seuraavasti. Avainsana AS muuntaa tuloksena saatavassa taulussa olevan sarakkeen nimen.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, COUNT(*) AS tehtäviä FROM Kurssi, Kurssitehtävä
+      WHERE Kurssi.id = Kurssitehtava.kurssi_id
+      GROUP BY Kurssi.nimi
+<% end %>
+
+
+<p>
+  Edellä kuvatun kyselyn tuloksia tarkastellessa huomaamme, että tuloksissa ei ole yhtäkään tehtävätöntä kurssia. Tämä selittyy kyselyillämme -- olemme valinneet mukaan vain rivit, joilla hakuehdot täyttyvät. Kirjoitetaan edellinen kysely siten, että otamme huomioon kurssit vaikka niihin ei liittyisikään yhtäkään toisen taulun riviä -- käytämme siis <code>LEFT JOIN</code>-liitosoperaatiota.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, COUNT(Kurssitehtava.id) AS tehtäviä FROM Kurssi
+      LEFT JOIN Kurssitehtävä ON Kurssi.id = Kurssitehtava.kurssi_id
+      GROUP BY Kurssi.nimi
+<% end %>
+
+<p>
+  Edellä COUNT-funktiolle annetaan parametrina kurssitehtävän id. Jos funktiolle annetaan parametrina *, myös NULL-arvo -- eli tyhjä arvo -- lasketaan (ainakin joissain tietokannanhallintajärjestelmissä).
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Ryhmittely useamman sarakkeen perusteella
+<% end %>
+
+
+<p>
+  Komennolle <code>GROUP BY</code> voi antaa myös useampia sarakkeita, jolloin ryhmittely tapahtuu sarakeryhmittäin. Esimerkiksi ryhmittely <code>GROUP BY kurssi, arvosana</code> ryhmittelisi taulussa olevat rivit ensin kurssin perusteella, jonka jälkeen kurssikohtaiset ryhmät ryhmiteltäisiin vielä arvosanan perusteella. Tällöin jokaiselle kurssille tulisi erilliset arvosanaryhmät.
+</p>
+
+<p>
+  Oletetaan edellä kuvatun taulun lisäksi taulut Kurssisuoritus ja Opiskelija:
+</p>
+
+<ul>
+  <li>
+    Kurssisuoritus((pk) id, (fk) kurssi_id -&gt; Kurssi, opiskelija_id -&gt; Opiskelija, arvosana, paivamaara)
+  </li>
+  <li>
+    Opiskelija((pk) id, opiskelijanumero, nimi, syntymävuosi)
+  </li>
+</ul>
+
+<p>
+  Kurssikohtaiset arvosanaryhmät saa selville seuraavalla kyselyllä.
+</p>
+
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, Kurssisuoritus.arvosana AS arvosana, COUNT (*) AS lukumäärä
+      FROM Kurssi, Kurssisuoritus
+      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
+      GROUP BY Kurssi.nimi, Kurssisuoritus.arvosana
+<% end %>
+
+<% partial 'partials/material_sub_heading' do %>
+  Tulosten järjestäminen
+<% end %>
+
+<p>
+  Kyselyn tulokset voi järjestää komennolla <code>ORDER BY</code>, jota seuraa järjestettävät sarakkeet. Sarakkeelle voi antaa myös lisämääreen <code>ASC</code> (<em>ascending</em>), joka kertoo että tulokset tulee järjestää nousevaan järjestykseen, ja <code>DESC</code> (<em>descending</em>), joka kertoo että tulokset tulee järjestää laskevaan järjestykseen. Oletuksena järjestys on nouseva.
+</p>
+
+<p>
+  Komento <code>ORDER BY</code> tulee kyselyn loppuun. Edellisen kurssiarvosanatilaston tulokset saisi kurssin nimen perusteella järjestykseen seuraavasti.
+</p>
+
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, Kurssisuoritus.arvosana AS arvosana, COUNT (*) AS lukumäärä
+      FROM Kurssi, Kurssisuoritus
+      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
+      GROUP BY Kurssi.nimi, Kurssisuoritus.arvosana
+      ORDER BY Kurssi.nimi
+<% end %>
+
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Hakutulosten rajaaminen yhteenvetokyselyissä
+<% end %>
+
+<p>
+  Yhteenvetokyselyissä laskettavat tulokset kuten summa, rivien lukumäärä ja keskiarvo muodostetaan vasta, kun kaikki kyselyn rivit on selvillä. Kyselyiden tuloksen rajaamiseen käytetty WHERE toimii siten, että se tarkastelee tuloksia riveittäin -- se ei osaa odottaa summan laskemisen lopputulosta.
+</p>
+
+<p>
+  Jos yhteenvetokyselyn tuloksen perusteella halutaan rajata tuloksia, tulee käyttää <code>HAVING</code>-ehtoa. HAVING ehto tarkastetaan vasta, kun yhteenvetokyselyn tulokset ovat selvillä. Ehto HAVING lisätään ryhmittelykyselyn jälkeen esimerkiksi seuraavalla tavalla.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT Kurssi.nimi AS kurssi, AVG(Kurssisuoritus.arvosana) keskiarvo
+      FROM Kurssi, Kurssisuoritus
+      WHERE Kurssi.id = Kurssisuoritus.kurssi_id
+      GROUP BY Kurssi.nimi
+      HAVING keskiarvo &lt; 2
+      ORDER BY Kurssi.nimi
+<% end %>
+
+<p>
+  Yllä olevalla kyselyllä saadaan selville ne kurssit, joihin liittyvien kurssisuoritusten keskiarvo on alle 2. 
+</p>
+
+<p>
+  Kuten esimerkissä näkyy, samassa kyselyssä voi olla sekä <code>WHERE</code>-ehto että <code>HAVING</code>-ehto.
+</p>
+
+
+<% partial 'partials/exercise', locals: { name: 'Yhteenvetokyselyt, osa 2' } do %>
+
+  <p>
+    Jatketaan edellisestä tehtävästä tutun tietokannan parissa..
+  </p>
+  
+  <p>
+    Tehtäväpohjan kansiossa <code>db</code> tulee tiedosto nimeltä <code>Chinook_Sqlite.sqlite</code>. Tietokannassa on seuraavat taulut:
+  </p>
+
+  <pre>
+  sqlite&gt; .tables
+  Album          	Employee       	InvoiceLine    	PlaylistTrack
+  Artist         	Genre          	MediaType      Track        
+  Customer       	Invoice        	Playlist     
+  </pre>
+
+  <p>
+    Tietokanta kuvaa digitaalisen musiikin myyntipalvelua. Tietokannan relaatiokaavio löytyy osoitteesta <a href="http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation" target="_blank" norel>http://chinookdatabase.codeplex.com/wikipage?title=Chinook_Schema&referringTitle=Documentation</a>. Kirjoita SQLiten avulla kyselyt, joilla saa selville seuraavat tiedot.
+  </p>
+
+  
+  <ul>
+    <li>Kysely 1: Kuinka monta kappaletta kuhunkin genreen liittyy? Tuloksessa tulee olla kaksi saraketta, joista toisen nimi on <code>genre</code> ja toisen nimi on <code>kappaleita</code>.</li>
+    <li>Kysely 2: Kuinka monta kappaletta kustakin genrestä on ostettu? Voit olettaa, että kappale on ostettu jos lasku on olemassa. Tuloksessa tulee olla kaksi saraketta, joista toisen nimi on <code>genre</code> ja toisen nimi on <code>ostettuja</code>.</li>
+    <li>Kysely 3: Kuinka monella levyllä kukin artisti esiintyy? Tuloksessa tulee olla kaksi saraketta, joista toisen nimi on <code>artisti</code> ja toisen nimi on <code>levyt</code>.</li>
+  </ul>
+
+  <p>
+    Kun olet saanut kyselyt toimimaan, kopioi ne tehtäväpohjassa olevan luokan Kyselyja metodeihin kysely1, kysely2 ja kysely3. Metodeihin tulee kopioida SQL-kieliset kyselyt, joilla em. kysymyksiin saa vastaukset, ei siis vastauksia.
+  </p>
+
+  <p>
+    <em>
+      Huom! Tehtävässä on tilanteita, missä yhteenvetokyselyn tuloksessa esiintyvä lukumäärä (esim. kappaleet, ostetut, levyt) voi olla 0.
+    </em>
+  </p>
+
+<% end %>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Alikyselyt
+<% end %>
+
+<p>
+  Alikyselyt ovat nimensä mukaan kyselyn osana suoritettavia alikyselyitä, joiden tuloksia käytetään osana pääkyselyä. Pohditaan kysymystä <em>Miten haen opiskelijat, jotka eivät ole vielä osallistuneet yhdellekään kurssille?</em>, ja käytetään siihen ensin aiemmin tutuksi tullutta tapaa, eli LEFT JOIN -kyselyä. Yhdistetään opiskelijaa ja kurssisuoritusta kuvaavat taulut LEFT JOIN-kyselyllä siten, että myös opiskelijat, joilla ei ole suorituksia tulevat mukaan vastaukseen. Tämän jälkeen, jätetään vastaukseen vain ne rivit, joilla kurssisuoritukseen liittyvät tiedot ovat tyhjiä -- tämä onnistuu katsomalla mitä tahansa kurssisuoritus-taulun saraketta, ja tarkistamalla onko se tyhjä, eli <em>null</em>. Tämä onnistuu seuraavasti:
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT opiskelijanumero FROM Opiskelija
+      LEFT JOIN Kurssisuoritus
+      ON Opiskelija.id = Kurssisuoritus.opiskelija_id
+      WHERE Kurssisuoritus.kurssi_id IS null
+<% end %>
+
+<p>
+  Toinen vaihtoehto edellisen kyselyn toteuttamiseen on luoda kysely, joka hakee kaikki ne opiskelijat, jotka eivät ole kurssisuorituksia saaneiden opiskelijoiden joukossa. Tässä on oleellisesti kaksi kyselyä: (1) hae niiden opiskelijoiden tunnus, joilla on kurssisuoritus, ja (2) hae opiskelijat, jotka eivät ole edellisen kyselyn palauttamassa joukossa.
+</p>
+
+<p>
+  Ensimmäinen kysely on suoraviivainen.
+</p>
+
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT opiskelija_id FROM Kurssisuoritus
+<% end %>
+
+<p>
+  Toinenkin kysely on melko suoraviivainen -- avainsanalla NOT IN voidaan rajata joukkoa.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT * FROM Opiskelija
+      WHERE id NOT IN (<em>ensimmainen kysely</em>)
+<% end %>
+
+<p>
+  Yhdessä kyselyt ovat siis muotoa:
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT * FROM Opiskelija
+      WHERE id NOT IN (
+          SELECT opiskelija_id FROM Kurssisuoritus
+      )
+<% end %>
+
+<p>
+  Käytännössä alikyselyt tuottavat kyselyn tuloksena taulun, josta pääkyselyssä tehtävä kysely tehdään. Ylläolevassa esimerkissä alikyselyn tuottamassa taulussa on vain yksi sarake, jossa on kurssisuorituksen saaneiden opiskelijoiden opiskelijanumerot.
+</p>
+
+<p>
+  Määreen <code>NOT IN</code>, joka tarkastaa että valitut arvot eivät ole alikyselyn tuottamassa taulussa, lisäksi käytössä on määre <code>IN</code>. Määreen <code>IN</code> avulla voidaan luoda ehto, jolla tarkastetaan, että valitut arvot ovat annetussa joukossa tai taulussa. Esimerkiksi alla haetaan kaikki kurssisuoritukset, joissa arvosana on kolme tai viisi.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT * FROM Kurssisuoritus WHERE arvosana IN (3, 5)
+<% end %>
+
+<p>
+  Määreiden IN ja NOT IN lisäksi alikyselyissä voidaan käyttää määreitä EXISTS ja NOT EXISTS, joiden avulla voidaan rajata hakujoukkoa alikyselyssä olevan ehdon perusteella. Voimme esimerkiksi kirjoittaa aiemmin kirjoitetun kursseja suorittamattomia opiskelijoita etsivän kyselyn siten, että jokaisen Opiskelija-taulussa olevan opiskelijanumeron kohdalla tarkistetaan, että sitä ei löydy taulusta Kurssisuoritus.
+</p>
+
+<% partial 'partials/sql_highlight' do %>
+  SELECT opiskelijanumero FROM Opiskelija
+      WHERE NOT EXISTS (
+          SELECT opiskelija_id FROM Kurssisuoritus
+          WHERE Kurssisuoritus.opiskelija_id = Opiskelija.id
+      )
+<% end %>
+
+<p>
+  Edellä oleva kysely tarkistaa jokaisen Opiskelija-taulussa olevan opiskelijanumeron kohdalla ettei sitä löydy Kurssisuoritus-taulun opiskelija-sarakkeesta. Käytännössä -- jos tietokantamoottori ei optimoi kyselyä -- jokainen opiskelija-taulun rivi aiheuttaa uuden kyselyn kurssisuoritus-tauluun, mikä tekee kyselystä tehottoman.
+</p>
+
+<% partial 'partials/hint', locals: { name: 'Kyselyn tulos on taulu' } do %>
+
+  <p>
+    Jokainen SQL-kysely tuottaa tuloksena taulun. Taulussa voi olla tasan yksi sarake ja rivi, tai vaikkapa tuhansia rivejä ja kymmeniä sarakkeita. Silloinkin, kun suoritamme yksinkertaisen haun, kuten vaikkapa "Hae kaikki kurssilla 'Tietokantojen perusteet' olevat opiskelijat", on haun tuloksena taulu.
+  </p>
+
+  <p>
+    Kaikki tekemämme SQL-kyselyt ovat liittyneet tauluihin. Emmekö siis voisi tehdä kyselyjä myös vastauksiin? Vastaus on kyllä.
+  </p>
+
+  <p>
+    Esimerkiksi vanhimman (tai vanhimmat, jos tämä ei ole yksikäsitteistä) opiskelijan löytää -- muunmuassa -- etsimällä kaikista pienimmän mahdollisimman syntymävuoden (kyselyn tulos on taulu), jonka jälkeen vastaustaulussa olevaa tulosta verrataan kaikkien opiskelijoiden syntymävuosiin.
+  </p>
+
+  <% partial 'partials/sql_highlight' do %>
+    SELECT * FROM Opiskelija
+        WHERE syntymävuosi
+        IN (SELECT MIN(syntymavuosi) FROM Opiskelija)
+  <% end %>
+
+<% end %>
+
+
 
 
 <% partial 'partials/material_heading' do %>
@@ -410,6 +1022,24 @@ CREATE TABLE Kirjanpitotapahtuma
   Nyt yhden transaktion sisällä voi tehdä useamman kirjanpitotapahtuman, kunhan transaktion suorituksen yhteydessä kirjanpitotapahtumien debit- ja credit-sarakkeiden summa täsmää. Yllä tietokantataulun luomiskomentoon on lisätty rajoite (<code>CONSTRAINT</code>), jonka avulla tietokantatauluun voidaan lisätä sääntöjä, joiden tulee olla aina transaktion jälkeen voimassa.
 </p>
 
+<% partial 'partials/exercise', locals: { name: 'Tietokantatransaktio' } do %>
+
+  <p>
+    Netti on täynnä hyviä oppaita. Osoitteessa <a href="http://www.sqlitetutorial.net/sqlite-java/transaction/" target="_blank">http://www.sqlitetutorial.net/sqlite-java/transaction/</a> on eräs tällainen. Tutustu oppaaseen.
+  </p>
+
+  <p>
+    Luo tehtäväpohjaan oppaan kuvaama tiedosto <code>test.db</code> sekä ohjelma, jossa lisäät tietokantaan useamman rivin saman transaktion sisällä.
+  </p>
+
+  <p>
+    <em>
+      Tässä tehtävässä ei ole testejä. Palauta tehtävä se toimii toivotulla tavalla.
+    </em>
+  </p>  
+
+<% end %>
+
 
 <% partial 'partials/material_sub_heading' do %>
   Tietokannanhallintajärjestelmän ominaisuuksia
@@ -437,161 +1067,91 @@ CREATE TABLE Kirjanpitotapahtuma
 </p>
 
 
+
 <% partial 'partials/material_heading' do %>
-  Web-sovelluksen siirtäminen verkkoon
+  CAP-teoreema
 <% end %>
 
 <p>
-  Web-sovelluksemme on tähän mennessä toiminut vain paikallisella koneella, missä kehitystyötä on tehty. Tutustutaan tässä Heroku-nimisen pilvipalvelun käyttöön ja siirretään Web-sovellus verkkoon kaikkien nähtäväksi.
+  Merkittävä osa sovellusten toiminnallisuuden skaalaamisesta suuremmille käyttäjäjoukoille perustuu sovellusten toiminnallisuuden kopiointiin useammalle tietokoneelle eli palvelimelle. Kun sovellusta pyörittävä palvelin ei pysty enää vastaamaan kaikkiin sille tehtyihin pyyntöihin, hankitaan uusi palvelin, johon sovellus kopioidaan. Osa pyynnöistä ohjataan jatkossa tälle palvelimelle, jolloin palvelimet pystyvät yhdessä käsittelemään pyynnöt.
 </p>
 
 <p>
-  Herokulla on aiheeseen liittyen myös oma opas, johon kannattaa tutustua <a href="https://devcenter.heroku.com/articles/getting-started-with-java" target="_blank">täällä</a>.
+  Sovelluksen kopiointi useammalle palvelimelle aiheuttaa haasteita tiedon hallintaan ja oikeellisuuteen liittyen. Jos sovelluksen toteuttaja haluaa, että jokaisella sovelluksella oleva tieto on aina ajankohtaista ja että pyyntöön annettava vastaus on aina ajankohtainen palvelimesta riippumatta, tulee palvelinten kommunikoida ja päivittää tietoa keskenään. Pankit eivät esimerkiksi voi hyväksyä tilannetta, missä yhdellä palvelimella tilillä olisi rahaa ja yhdellä ei. 
 </p>
+
+<p>
+  Tarkastellaan seuraavaksi lyhyesti CAP-teoreemaa. Sana CAP tulee termeistä Consistency, Availability, ja Partition tolerance.
+</p>
+
+<ul>
+  <li>
+    Consistency. Consistency viittaa järjestelmän ymmärrettävyyteen lineaarisesti toimivana prosessina. Mikäli järjestelmä toimii lineaarisesti (tai "Consistency" on olemassa), järjestelmän tulee aina palauttaa uusin mahdollinen tieto. Käytännössä jos järjestelmässä oleva prosessi B käynnistyy sen jälkeen kun prosessi A on suoritettu loppuun, ei prosessin B pitäisi koskaan nähdä tilaa, missä järjestelmä on ollut ennen prosessin A loppuun suorittamista. <em>Huom! CAP-teoreeman Consistency ei ole sama kuin ACID-termin Consistency (eristäytyneisyys). </em>
+  </li>
+  <li>
+    Availability. Availability viittaa järjestelmän saatavuuteen. Jos järjestelmä on saatava (tai "Availability" on olemassa), jokaisen palvelimelle ohjautuvan pyynnön tulee palauttaa toivottu vastaus järkevän ajan puitteissa. Järjestelmässä ei siis saa olla tilannetta, missä palvelin on vastaamatta, vaikka sillä olisi siihen mahdollisuus.
+  </li>
+  <li>
+    Partition tolerance. Partition tolerance viittaa siihen, että järjestelmän tulee toimia vaikka esimerkiksi palvelinkoneiden välinen yhteys olisi poissa käytöstä.
+  </li>
+</ul>
+
+<p>
+  CAP on <a href="https://en.wikipedia.org/wiki/Eric_Brewer_(scientist)" target="_blank">Eric Brewerin</a> ehdottama teoreema, jonka mukaan (useammalle tietokoneelle) hajautettu ohjelmisto voi saavuttaa samaan aikaan vain kaksi yllä olevasta kolmesta ominaisuudesta. 
+</p>
+
+<p>
+  Todellisuudessa tilanne on kuitenkin se, että palvelut toimivat verkossa, joka ei ole koskaan täysin luotettava. Tämä tarkoittaa sitä, että skaalautuvaa järjestelmää suunnitteleva joutuu käytännössä tekemään kompromissin Consistencyn ja Availabilityn välillä. 
+</p>
+
+<p>
+  Jos järjestelmä vaatii lineaarisen toiminnan (kuten esimerkiksi pankki), mutta järjestelmän toiminta tulee hajauttaa useammalle koneelle, tulee järjestelmän olla vastaamatta pyyntöihin virhetilanteissa -- järjestelmä ei voi olla aina saatavilla. Vastaavasti, jos järjestelmän tulee olla aina saatavilla (esimerkiksi sosiaalisen median palvelu) ja järjestelmän toiminta tulee hajauttaa useammalle koneelle, tulee järjestelmälle antaa mahdollisuus lähettää palvelun käyttäjille myös vanhentunutta tietoa.
+</p>
+
+<% partial 'partials/hint', locals: { name: 'BASE' } do %>
+
+  <p>
+    Tutustu myös Wikipedian artikkeliin <a href="https://en.wikipedia.org/wiki/Eventual_consistency" target="_blank">Eventual consistency</a>, mikä käsittelyy myös termiä BASE.
+  </p>
   
-<p>
-  Tarvitset sovelluksen siirtoon (1) <a href="https://signup.heroku.com/dc" target="_blank">tunnuksen Heroku-palveluun</a> sekä (2) <a href="https://toolbelt.heroku.com/" target="_blank">Heroku Toolbeltin</a>.
-</p>
+<% end %>
 
-<% partial 'partials/material_sub_heading' do %>
-  Alkutoimet
+
+<% partial 'partials/material_heading' do %>
+  GDPR-lainsäädäntö
 <% end %>
 
 <p>
-  Herokuun siirrettävät sovellukset tarvitsevat muutamia muutoksia:
+  Viimeistään toukokuussa 2018 kaikki Euroopan Unionissa toimivat organisaatiot joutuvat noudattamaan uutta GDPR-lakia, joka ohjeistaa henkilökohtaisten tietojen käsittelyyn liittyvää toimintaa. Alla säädöksen ydinkohdat:
 </p>
 
-<ol>
+<ul>
 
   <li>
-    <p><strong>Procfile-tiedoston lisääminen</strong>. Sovelluksen juuripolkuun tulee lisätä tiedosto <code>Procfile</code>, jonka sisällä on sovelluksen käynnistämisessä käytettävä komento.</p>
-
-    <pre>
-web:    java -cp target/classes:target/dependency/* tikape.Main
-    </pre>
-
-    <p>Komennon osa <code>tikape.Main</code> kuvaa pääohjelmaluokkaa, jonka kautta sovellus tulee käynnistää. Jos pääohjelmaluokkasi on toisessa pakkauksessa (ei tikape) tai pääohjelmaluokan nimi on jotain muuta (ei Main), tulee tätä muokata. Heroku käyttää tätä komentoa sovelluksen käynnistykseen.</p>
+    Henkilötietojen keräämiseen tulee kysyä lupa. Jotta henkilökohtaisia tietoja saa kerätä, henkilön tulee eksplisiittisesti ja tietoisesti sallia tietojen kerääminen. Suostumuksen tietojen keruun sallimiseen tulee olla aito, eli tietojen keruusta pitää pystyä kieltäytymään ilman negatiivisia seuraamuksia.
   </li>
 
   <li>
-    <p><strong>Maven-liitännäiset ohjelman kääntöprosessin automatisointiin</strong>. Sovelluksen <code>pom.xml</code>-tiedostoon tulee lisätä seuraavat rivit. Rivit lisätään esimerkiksi <code>&lt;/properties&gt;</code>-rivin jälkeen.</p>
-
-    <pre class="sh_xml">
-    &lt;build&gt;
-        &lt;plugins&gt;
-            &lt;plugin&gt;
-                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
-                &lt;version&gt;2.5.1&lt;/version&gt;
-                &lt;configuration&gt;
-                    &lt;source&gt;1.8&lt;/source&gt;
-                    &lt;target&gt;1.8&lt;/target&gt;
-                    &lt;optimize&gt;true&lt;/optimize&gt;
-                    &lt;debug&gt;true&lt;/debug&gt;
-                &lt;/configuration&gt;
-            &lt;/plugin&gt;
-            &lt;plugin&gt;
-                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-                &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
-                &lt;version&gt;2.4&lt;/version&gt;
-                &lt;executions&gt;
-                    &lt;execution&gt;
-                        &lt;id&gt;copy-dependencies&lt;/id&gt;
-                        &lt;phase&gt;package&lt;/phase&gt;
-                        &lt;goals&gt;
-                            &lt;goal&gt;copy-dependencies&lt;/goal&gt;
-                        &lt;/goals&gt;
-                    &lt;/execution&gt;
-                &lt;/executions&gt;
-            &lt;/plugin&gt;
-        &lt;/plugins&gt;
-    &lt;/build&gt;
-    </pre>
+    Mitä tahansa ei saa kerätä. Kerättävien tietojen tulee olla perusteltavissa ja kerättävien tietojen tulee olla rajattu vain niihin, mitä organisaatio tarvitsee toimintaansa.
   </li>
 
   <li>
-    <p><strong>Sovelluksen käynnistäminen Herokun määräämässä portissa</strong>. Jokainen web-sovellus käynnistettään tiettyyn porttiin, jonka se varaa käyttöönsä. Heroku pyörittää useampia sovelluksia samalla palvelinkoneella, joten sille pitää antaa mahdollisuus portin asetukseen.</p>
-
-    <p>Portin asetus tapahtuu <em>ympäristömuuttujan</em> avulla, jonka Heroku antaa sovellukselle sovellusta käynnistettäessä. Käytännössä pääohjelmaluokkaan, joka käynnistää web-palvelimen, tulee lisätä seuraavat rivit -- lisää ne main-metodin alkuun.</p>
-
-    <pre class="sh_java">
-        // asetetaan portti jos heroku antaa PORT-ympäristömuuttujan
-        if (System.getenv("PORT") != null) {
-            port(Integer.valueOf(System.getenv("PORT")));
-        }
-    </pre>
-  </li>
-</ol>
-
-<p>
-  Ylläolevien muutosten avulla sovelluksen siirtäminen verkkoon onnistuu.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Heroku toolbeltin asennus
-<% end %>
-
-<p>
-  Asenna <a href="https://toolbelt.heroku.com/" target="_blank">heroku toolbelt</a>. Ohjeita löytyy esimerkiksi osoitteessa <a href="https://devcenter.heroku.com/articles/heroku-command" target="_blank">https://devcenter.heroku.com/articles/heroku-command</a>.
-</p>
-
-<p>
-  Jos sinulla ei ole koneeseen pääkäyttäjän oikeuksia (root), asennuksen pitäisi silti olla mahdollista jos koneelle on ennestään asennettu muutama Herokun vaatima ohjelmapaketti. Joudut kuitenkin tekemään <a href="http://geek.co.il/2015/06/19/fix-another-curlsh-bogus-installation-heroku">asennuksen hieman toisin</a>.
-</p>
-
-<% partial 'partials/material_sub_heading' do %>
-  Sovelluksen luominen Herokuun
-<% end %>
-
-<p>
-  Sovelluksen luomiseen Herokuun tarvitaan kaksi askelta. Ensimmäisessä askeleessa luodaan projektista git-repositorio (tätä ei tarvitse tehdä jos sovellus on jo git-versionhallinnassa), jonka jälkeen luodaan herokuun sijainti johon sovellus kopioidaan.
-</p>
-
-<ol>
-  <li><p><strong>Projekti git-repositorioksi</strong> -- projektin luominen git-repositorioksi tapahtuu ajamalla komento <code>git init</code> projektin juurikansiossa (kansio, jossa löytyy tiedosto <code>pom.xml</code>). Jos sovellus on jo esimerkiksi githubissa, ei tätä tarvitse tehdä.</p></li>
-
-  <li><p><strong>Heroku-projektin luominen</strong> -- suorita juurikansiossa komento <code>heroku create</code>. Tämä luo sovellukselle sijainnin herokuun, johon sovelluksen voi lähettää.</p></li>
-
-</ol>
-
-<p>
-  Mahdollisissa ongelmatilanteissa kannattaa ensimmäiseksi katsoa mitä viestejä Herokun <a href="https://devcenter.heroku.com/articles/logging">lokitiedostoon</a> on päätynyt.
-</p>
-
-
-<% partial 'partials/material_sub_heading' do %>
-  Sovelluksen lähetys Herokuun
-<% end %>
-
-<p>
-  Sovelluksen lähetys herokuun sisältää tyypillisesti neljä askelta. Ensin poistamme turhat käännetyt lähdekooditiedostot, jotta ne eivät häiritse herokun toimintaa. Tämän jälkeen lisäämme tiedostot versionhallintaan, sitoudumme niiden lähettämiseen, ja siirrämme ne herokuun.
-</p>
-
-<ol>
-
-  <li>
-    <strong>Turhien lähdekooditiedostojen poistaminen</strong> -- suorita projektin juurikansiossa komento <code>mvn clean</code>, joka poistaa projektista käännetyt lähdekooditiedostot (kansio target).
+    Henkilötietojen poistaminen pitää olla mahdollista. Henkilön tulee pystyä pyytämään tietojen poistamista järjestelmästä, ja tiedot tulee poistaa jos organisaatiolla ei ole mitään laillista syytä tiedon säilyttämiseen. Organisaation tulee myös informoida kolmannen osapuolen organisaatioita, joille henkilökohtaisia tietoja on annettu.
   </li>
 
   <li>
-    <strong>Tiedostojen lisääminen versionhallintaan</strong> -- suorita projektin juurikansiossa komento <code>git add .</code>, joka lisää kaikki projektin tiedostot versionhallintaan. Huom! Varmista, että target-kansio ei pääse lipsahtamaan versionhallintaan tai Herokuun.
+    Tietoa ei saa "vuotaa". Lainsäädäntö mahdollistaa sakkojen antamisen kerätyn tiedon huonosta käsittelystä. Organisaatio voi saada jopa sakot, jonka koko on 4% organisaation vuotuisesta liikevaihdosta.
   </li>
 
   <li>
-    <strong>Tiedostojen lähettämiseen sitoutuminen</strong> -- suorita projektin juurikansiossa komento <code>git commit -m "viesti"</code>, joka sitouttaa lähetykseen juuri lisätyt tiedostot.
-  </li>
-
-  <li>
-    <strong>Tiedostojen siirtäminen herokuun</strong> -- suorita projektin juurikansiossa komento <code>git push heroku master</code>, joka lähettää tiedostot herokuun.
+    Ei vain Euroopan Unionissa. Myös Euroopan Unionin ulkopuoliset organisaatiot, joiden kohdeyleisönä on Euroopan Unionin jäsenet, ovat lain piirissä.
   </li>
   
-</ol>
+</ul>
 
 <p>
-  Nyt sovelluksesi on verkossa kaikkien nähtävillä. 
+  Tietojen käsittelyyn liittyviin oikeuksiin vaikuttaa myös käsittelijän tehtävä. Esimerkiksi Suomen koulutusjärjestelmällä on laillinen vastuu koulutuksen järjestämisestä -- omien koulutustietojen poistaminen ei todennäköisesti onnistu yliopiston rekisteristä, eikä yliopiston erikseen tule pyytää lupaa koulutustietojen tallentamiseen. Vastaavia poikkeuksia löytyy myös esimerkiksi tutkimukseen liittyen -- katso Anna Hännisen (OTM) video tietosuoja-asetuksesta sekä tieteellisestä tutkimuksesta.
 </p>
 
-
-<%= partial 'partials/quiz', locals: { id: '59e1b97acb6e1200045bf6c3' } %>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/lDS_kp116vM?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
