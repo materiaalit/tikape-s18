@@ -1,8 +1,8 @@
 ---
   title: Osa 7
   exercise_page: true
-  quiz_page: true
-  published: false
+  quiz_page: false
+  published: true
 ---
 
 
@@ -10,7 +10,304 @@
 
 
   <p>
-    Tuntee pinnallisesti muutamia NoSQL- ja NewSQL-tietokantoja. Tuntee skaalautuvuuteen liittyvän CAP-teoreeman. Tuntee uuden GDPR-lainsäädännön oleellisimmat vaikutukset tietokantojen suunnitteluun ja henkilötietojen tallennukseen.
+    Tietää joitakin kirjastoja yksinkertaisten SQL-kyselyiden automatisointiin ja osaa käyttää yhteenvetokyselyjä osana web-sovellusta. Tuntee pinnallisesti muutamia NoSQL- ja NewSQL-tietokantoja. 
+  </p>
+
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Yhteenvetokyselyt osana tietokantaa käyttäviä sovelluksia
+<% end %>
+
+<p>
+  Yhteenvetokyselyiden käyttäminen osana tietokantaa hyödyntäviä sovelluksia ei juurikaan poikkea muiden tietokantakyselyiden käytöstä. Tässä tutustut yhteenvetokyselyiden käyttöön ohjelmallisesti. 
+</p>
+
+<% partial 'partials/exercise', locals: { name: 'MusicApplication' } do %>
+
+  <p>
+    Tehtäväpohjassa tulee mukana sovellus kurssin aikana tutuksi tulleen Chinook-tietokannan albumien, artistien ja kappaleiden läpikäyntiin. Tehtävänäsi on lisätä sovellukseen toiminnallisuus, joka listaa artistit sekä artistien kappaleiden lukumäärän. Listauksessa näkyvien artistien nimiä klikkaamalla tulee päästä artistin tietoihin käsiksi.
+  </p>
+  
+  <p>
+    Tehtäväpohjassa on valmiina luokka <code>ArtistData</code> sekä html-tiedosto <code>stats-artists.html</code>, jotka auttanevat toiminnallisuuden rakentamisessa. Toiminnallisuuteen tulee päästä käsiksi tekemällä GET-tyyppinen pyyntö sovelluksen polkuun <code>/stats/artists</code>.
+  </p>
+
+  <p>
+    Listauksen tulee näyttää lopulta (kutakuinkin) seuraavalta.
+  </p>
+
+  <strong>
+    Artists
+  </strong>
+  
+  <table>
+    <thead>
+      <tr>
+	<th>Artist</th>
+	<th>Albums</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+	<td>AC/DC</td>
+	<td>2</td>
+      </tr>
+      <tr>
+	<td>Accept</td>
+	<td>2</td>
+      </tr>
+      <tr>
+	<td>Aerosmith</td>
+	<td>1</td>
+      </tr>
+      <tr>
+	<td colspan="2">...</td>
+      </tr>
+    </tbody>
+    
+  </table> 
+  
+<% end %>
+
+
+<% partial 'partials/exercise', locals: { name: 'MusicApplication, osa 2' } do %>
+
+  <p>
+    Tehtäväpohjassa tulee edellisessä osassa käytetty Chinook-tietokantaa hyödyntävä sovellus. Tässä tehtävänäsi on lisätä sovellukseen toiminnallisuus, joka listaa asiakkaiden nimet, asiakkaiden tekemien tilausten lukumäärän sekä asiakkaiden tekemien tilausten yhteissumman.
+  </p>
+  
+  <p>
+    Listauksen tulee näyttää lopulta (kutakuinkin) seuraavalta. Tehtäväpohjassa on tiedosto <code>stats-invoices.html</code>, joka auttaa näkymän oikeassa muotoilussa. Listaukseen tulee päästä käsiksi kun käyttäjä tekee GET-tyyppisen pyynnön osoitteeseen <code>/stats/invoices</code>.
+  </p>
+
+  <strong>Customer</strong>
+
+  <table>
+
+    <thead>
+
+      <tr>
+        <th>
+          Customer
+        </th>
+        <th>
+          Total invoices
+        </th>
+        <th>
+          Sum
+        </th>
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr>
+        <td>Luís Gonçalves</td>
+        <td>7</td>
+        <td>39.62</td>
+      </tr>
+
+      <tr>
+        <td>Leonie Köhler</td>
+        <td>7</td>
+        <td>37.620000000000005</td>
+      </tr>
+
+      <tr>
+        <td>François Tremblay</td>
+        <td>7</td>
+        <td>39.62</td>
+      </tr>
+
+      <tr>
+        <td>Bjørn Hansen</td>
+        <td>7</td>
+        <td>39.62</td>
+      </tr>
+
+      <tr>
+	<td colspan="3">...</td>
+      </tr>
+
+    </tbody>
+
+  </table>
+    
+<% end %>
+
+
+<% partial 'partials/material_heading' do %>
+  Valmiit Dao-kirjastot
+<% end %>
+
+<p>
+  Nykyään löytyy huomattava määrä valmiita kirjastoja, jotka tarjoavat Dao-toiminnallisuuksia valmiina siten, että käyttäjän ei tarvitse kirjoittaa yksinkertaisimpia SQL-kyselyitä itse.
+</p>
+
+
+
+<p>
+  Eräs tällainen kirjasto on <a href="http://ormlite.com/" target="_blank">ORMLite</a>, joka abstrahoi ja toteuttaa osan tietokantakyselyistä ohjelmoijan puolesta. ORMLite-kirjaston saa projektiin lisäämällä siihen liittyvän riippuvuuden Mavenin <code>pom.xml</code>-tiedostoon.
+</p>
+
+<% partial 'partials/xml_highlight' do %>
+&lt;dependency&gt;
+    &lt;groupId&gt;com.j256.ormlite&lt;/groupId&gt;
+    &lt;artifactId&gt;ormlite-jdbc&lt;/artifactId&gt;
+    &lt;version&gt;5.1&lt;/version&gt;
+&lt;/dependency&gt;
+<% end %>
+
+<p>
+  ORMLiteä käytettäessä tietokantatauluja kuvaaville luokille lisätään annotaatiot <code>@DatabaseTable(tableName = "<em>taulun nimi</em>")</code>, jonka lisäksi oliomuuttujille lisätään <code>@DatabaseField</code>-annotaatiot, joissa määritellään sarakkeen nimi, johon oliomuuttuja liittyy. Jos oliomuuttuja on taulun pääavain, lisätään sille erillinen määrittely (id=true) annotaatioon @DatabaseField: <code>@DatabaseField(id = true, columnName = "<em>sarakkeen nimi</em>")</code>.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Tiedon hakeminen yhdestä taulusta
+<% end %>
+
+<p>
+  Käytännössä ORMLite osaa luoda olioita tietokannasta haettavista riveistä annotaatioiden perusteella. Jokaisessa tietokantataulua kuvaavassa luokassa tulee olla myös tyhjä konstruktori.
+</p>
+
+<p>
+  Esimerkiksi luokka <code>Pyora</code> ORMLite-annotaatioilla olisi seuraavanlainen (tässä pyörään liittyviä varauksia ei ole otettu huomioon):
+</p>
+
+<% partial 'partials/code_highlight' do %>
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable(tableName = "Pyora")
+public class Pyora {
+
+    @DatabaseField(id = true, columnName = "rekisterinumero")
+    private String rekisterinumero;
+    @DatabaseField(columnName = "merkki")
+    private String merkki;
+
+    // jokaisella tallennettavalla oliolle tulee olla parametriton konstruktori
+    public Pyora() {
+    }
+
+    public Pyora(String rekisterinumero, String merkki) {
+        this.rekisterinumero = rekisterinumero;
+        this.merkki = merkki;
+    }
+
+// getterit ja setterit
+}
+<% end %>
+
+
+<% partial 'partials/hint', locals: { name: 'ORMLite ja annotaatio @DatabaseField' } do %>
+
+  <p>
+    Jos tietokannassa olevan sarakkeen nimi on sama kuin oliomuuttujan nimi, voidaan annotaatiosta <code>@DatabaseField</code> jättää <code>columnName</code>-määrittely pois. Tietokantataulun sarakkeet, jotka ovat muotoa <code>sarakkeen_nimi</code> tulee olla määriteltynä <em>camelCase</em>-muodossa oliomuuttujina. Sarake <code>sarakkeen_nimi</code> olisi siis oliomuuttujana muotoa <code>sarakkeenNimi</code>.
+  </p>
+
+<% end %>
+
+<p>
+  Nyt kaikkien pyörien hakeminen tietokannasta onnistuu seuraavasti. Käytössä on useampia ORMLiten tarjoamia luokkia ja rajapintoja kuten <code>ConnectionSource</code>, <code>JdbcConnectionSource</code>, <code>DaoManager</code> ja <code>Dao</code>. ORMLiteä käyttäessä emme kirjoita erikseen ohjelmakoodia (suoraviivaisten) kyselyiden tulosten muuttamiseksi olioiksi.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+ConnectionSource connectionSource
+        = new JdbcConnectionSource("jdbc:sqlite:vuokraamo.db");
+
+Dao&lt;Pyora, String&gt; pyoraDao
+        = DaoManager.createDao(connectionSource, Pyora.class);
+
+List&lt;Pyora&gt; pyorat = pyoraDao.queryForAll();
+for (Pyora pyora : pyorat) {
+    System.out.println(pyora.getMerkki() + " " + pyora.getRekisterinumero());
+}
+<% end %>
+
+<p>
+  Käytännössä ORMLite lukee luokkaan määritellyt annotaatiot, ja tekee niiden perusteella käytettävät tietokantakyselyt, joita ohjelmoija käyttää ORMLiten toteuttaman Dao-rajapinnan kautta.
+</p>
+
+
+<% partial 'partials/material_sub_heading' do %>
+  Viitteiden käsittely
+<% end %>
+
+<p>
+  Lisätään seuraavaksi toiminnallisuus pyörien hakemiseen Varaus-luokan kautta.
+</p>
+
+<p>
+  Osoitteessa <a href="http://ormlite.com/javadoc/ormlite-core/doc-files/ormlite_2.html" target="_blank">http://ormlite.com/javadoc/ormlite-core/doc-files/ormlite_2.html</a> oleva ORMLiten "How to Use"-dokumentaatio sisältää neuvoja ORMLiten käyttöön.
+</p>
+
+<p>
+  Viitteiden hakemisessa tarvittavien annotaatioiden määrittely tapahtuu kuten Pyora-luokalle. Viittausta pyörään määriteltäessä annotaatiolle <code>@DatabaseField</code> tulee kertoa, että sarake viittaa toiseen tauluun, ja että viitatusta taulusta tulee hakea oliolle arvo.
+</p>
+
+<p>
+  Tämä tapahtuu lisäämällä annotaatioon parametrit <code>foreign = true</code> ja <code>foreignAutoRefresh = true</code>. Tämän lisäksi, myös viitattuun tauluun tulee lisätä annotaatiot.
+</p>
+
+<% partial 'partials/code_highlight' do %>
+@DatabaseTable(tableName = "Varaus")
+public class Varaus {
+
+    @DatabaseField(id = true)
+    private Integer varaustunnus;
+    @DatabaseField(columnName = "pyora", canBeNull = false, foreign = true, foreignAutoRefresh = true)
+    private Pyora pyora;
+    private Varaaja varaaja;
+    @DatabaseField(columnName = "varaus_alkaa")
+    private Timestamp varausAlkaa;
+    @DatabaseField(columnName = "varaus_loppuu")
+    private Timestamp varausLoppuu;
+
+    public Varaus() {
+    }
+
+// konstruktorit, getterit, setterit
+}
+<% end %>
+
+<p>
+  Ylläolevassa esimerkissä Varaus-luokka on määritelty siten, että se liittyy tietokantatauluun Varaus. Sillä on lisäksi kenttä pyora, joka viittaa tauluun, johon Pyora-luokka liittyy. Luokalle Varaaja ei ole määritelty toiminnallisuutta.
+</p>
+
+<p>
+  Varauksiin liittyvien pyörien tulostaminen onnistuu nyt seuraavasti:
+</p>
+
+<% partial 'partials/code_highlight' do %>
+ConnectionSource connectionSource
+        = new JdbcConnectionSource("jdbc:sqlite:vuokraamo.db");
+
+Dao&lt;Varaus, String&gt; varausDao
+        = DaoManager.createDao(connectionSource, Varaus.class);
+
+List&lt;Varaus&gt; varaukset = varausDao.queryForAll();
+for (Varaus varaus : varaukset) {
+    System.out.println(varaus.getPyora().getRekisterinumero() + ", alkaa " + varaus.getVarausAlkaa());
+}
+<% end %>
+
+<% partial 'partials/hint', locals: { name: 'Java Persistence API ja Hibernate' } do %>
+
+  <p>
+    Vastaavanlaista toiminnallisuutta tarjoavia kirjastoja on huomattava määrä. Esimerkiksi Ruby on Railsille löytyy <a href="http://guides.rubyonrails.org/active_record_basics.html" target="_blank">ActiveRecord</a> ja NodeJS:lle löytyy <a href="http://docs.sequelizejs.com/" target="_blank">Sequelize</a>. Java-maailmassa vastaavia kirjastoja on niin monia, että niille on ehditty määrittelemään standardikin, mikä (saattaa) helpottaa kirjastojen käyttöä ja vaihtamista.
+  </p>
+
+  <p>
+    Javalle määritellyn standardin nimi on <a href="https://en.wikipedia.org/wiki/Java_Persistence_API" target="_blank">Java Persistence API</a>, ja se määrittelee notaation luokkien annotoinnille ja kyselyiden kirjoittamiselle.
+  </p>
+
+  <p>
+    Edellisissä esimerkeissä käyttämämme ORMLite-kirjasto tarjoaa vain pienen määrän toiminnallisuutta, mutta samalla oleelliset osat on toteutettu melko hyvin. Jos toiminnallisuutta kaipaa enemmän, voi käyttöön valita esimerkiksi <a href="http://hibernate.org/" target="_blank">Hibernaten</a>, joka on ehkäpä eniten käytetty vastaavaa toiminnallisuutta tarjoava Java-kirjasto.
   </p>
 
 <% end %>
@@ -770,7 +1067,7 @@ RETURN p
 <% partial 'partials/exercise', locals: { name: 'Minifoorumi' } do %>
 
   <p>
-    Kurssin viimeisen osan tehtävä käsittelee koko kurssin aihepiiriä ja on hieman laajempi, kertaava tehtävä. Tehtävä on yhden viikon ohjelmointitehtävien arvoinen -- viimeisen viikon ohjelmointitehtävällä voi paikata yhden aiemman viikon ohjelmointitehtävät tai kotona tehtävät "ei ohjelmointitehtävät".
+    Viimeinen tehtävä käsittelee koko kurssin aihepiiriä ja on laajempi, kertaava tehtävä.
   </p>
 
   <p>
@@ -827,21 +1124,159 @@ RETURN p
   Koeasiaa
 <% end %>
 
+
 <p>
-  Kurssikokeessa on neljä tehtävää, joissa jokaisessa saattaa olla yksi tai useampi alitehtävä. Kokeeseen ei tule kurssin seitsemännen osan asioita, Java-ohjelmointia tai Web-sovellusten ohjelmointia. Tästä huolimatta näistä on tärkeää ymmärtää se, että tietokannanhallintajärjestelmät ovat tyypillisesti erillisiä niitä käyttävistä sovelluksista.
+  Kurssikokeen aikataulu löytyy <a href="../">kurssin etusivulta</a>.
 </p>
 
 <p>
-  Aiemmissa tietokantojen perusteiden kurssikokeissa ovat esiintyneet ainakin kurssilla esiintyneiden käsitteiden (ml. harjoitukset) selitystehtävät, erilaiset käsiteanalyysi- ja tietokantataulujen suunnitteluun liittyvät tehtävät, sekä sql-tehtävät.
+  <strong>Kokeeseen saa ottaa mukaan "lunttilapun"</strong>. Lunttilappu on kaksipuolinen, A4-kokoinen, itse käsin täytetty paperi. Lunttilappuun tulee merkitä nimi ja opiskelijanumero, ja se tulee jättää kokeen palautuksen yhteydessä tenttivalvojille.
 </p>
 
 <p>
-  Osoitteessa <a href="https://docs.google.com/document/d/1lkdEBSg9nhdFUhgnVXl6jtsZuI0ODy-Kye_cag3qmu4/edit?usp=sharing" target="_blank">https://docs.google.com/document/d/1lkdEBSg9nhdFUhgnVXl6jtsZuI0ODy-Kye_cag3qmu4/edit?usp=sharing</a> löytyy vanha kurssikoe, jota voi käyttää osana tenttiin kertausta.
+  Aiemmissa tietokantojen perusteiden kurssikokeissa ovat esiintyneet ainakin kurssilla esiintyneiden käsitteiden (ml. harjoitukset) selitystehtävät, erilaiset käsiteanalyysi- ja tietokantataulujen suunnitteluun liittyvät tehtävät, sekä sql-tehtävät. Myös tietokannan ohjelmalliseen käyttöön liittyviä kysymyksiä on esiintynyt, mutta kokeessa ei tarvitse osata esim. Javan tai HTML:n syntaksia, eikä kokeessa myöskään tentata esimerkiksi Dao-suunnittelumallin yksityiskohdista (yleisiä kysymyksiä näistä saattaa toki olla).
 </p>
 
 <p>
-  <strong>Kokeeseen saa ottaa mukaan "lunttilapun".</strong> Lunttilappu on kaksipuolinen, A4-kokoinen, itse käsin täytetty paperi. Lunttilappuun tulee merkitä nimi ja opiskelijanumero, ja se tulee jättää kokeen palautuksen yhteydessä tenttivalvojille.
-</p> 
+  Alla on eräs vanha kurssikoe, jota voi käyttää osana tenttiin kertausta. Alla oleva kurssikoe ei luonnollisesti sisällä kaikkea kokeessa kysyttävää.. 
+</p>
 
-<%= partial 'partials/quiz', locals: { id: '59ea34be421d660004e5416e' } %>
+<% partial 'partials/material_sub_heading' do %>
+  Vanha koe
+<% end %>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tehtävä 1
+<% end %>
+
+<p>
+  Kaverisi aikoo osallistua tietokantojen perusteet-kurssin seuraavaan kokeeseen. Hänellä on kuitenkin vielä vaikeuksia muutamaan kurssiin liittyvän termin kanssa. Kerro kaverillesi mitä kukin alla oleva termi tarkoittaa.
+</p>
+
+<ul>
+  <li>xml</li>
+  <li>normalisointi</li>
+  <li>tietokannanhallintajärjestelmä</li>
+  <li>tietokanta</li>
+  <li>tietokantataulun avain</li>
+  <li>viiteavain</li>
+</ul>
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tehtävä 2
+<% end %>
+
+<p>
+  Puhelinmyyntiyrityksen "Luuri ja Pojat" toimitusjohtaja Matti Luuri kertoo seuraavaa:
+</p>
+
+<p>
+  Puhelinmyyntiyhtiö "Luuri ja Pojat" tarjoaa päivälehdille palvelua, jossa yhtiön puhelinmyyjät myyvät lehtiä kotitalouksiin. Palvelun hinnoittelu päivälehdille on joko provisioperustaista tai resurssiperustaista. Provisioperustaisessa hinnoittelussa päivälehti maksaa jokaisesta tilauksesta ennalta määritellyn summan, kun taas resurssiperustaisessa hinnoittelussa taas maksetaan soitteluun käytetystä työajasta. Palvelut myydään päivälehdille kampanjoina, joissa myyntiä varten sovitaan aina kattosumma.
+</p>
+
+<p>
+  Suurin osa "Luuri ja Pojat"-yrityksen työntekijöistä on osa-aikaisia työntekijöitä vaihtelevalla taustalla. Palkkaus on lähes poikkeuksetta provisioperustaista. Työntekijöiden vaihtuvuus on hyvin suurta, joten hyvistä "myyvät vaikka jääkaappeja eskimoille" ja ei niin hyvistä "käytä resurssiperustaiseen myyntiin" työntekijöistä on hyvin vaikeaa pitää kirjaa.
+</p>
+
+<p>
+  Asiakaskunta eli kohdeyleisö, jonne "Luuri ja Pojat"-yrityksen työntekijät soittelevat, haalitaan Fonectan ja Eniron puhelinluetteloista. Tulikokeena uusille työntekijöille on kahden puhelinluetteloaukeaman läpisoittaminen, asiakaspalautteen kuuntelu ja toiminta siten, että ei-ostaviin asiakkaisiin käytetään mahdollisimman vähän aikaa. Jokaisen uuden työntekijän tulisi pystyä solmimaan vähintään muutama tilaus ensimmäisenä päivänä.
+</p>
+
+<p>
+  "Luuri ja Pojat"-yritys tarvitsee järjestelmän, joka mahdollistaa paremman kirjanpidon työntekijöiden tekemistä myynneistä. Jokaisesta myyntitapahtumasta tulee tulla selville ostava asiakas ja kampanja johon myynti liittyi. Järjestelmän tulee mahdollistaa myöhemmin erilaiset yhteenvetokyselyt, esimerkiksi "mitkä ovat suosituimpia päivälehtiä?", "Mitkä työntekijät saavat vähiten myyntitapahtumia aikaan?", "Mihin aikaan mitkäkin lehdet myyvät parhaiten?", "Mihin kaupunkeihin myydään minkälaisia lehtiä", ja "Millä kampanjoilla on vielä rahaa jäljellä?".
+</p>
+
+<p>
+  Tee ylläolevasta kuvauksesta tietosisältöanalyysi, eli etsi järjestelmään liittyvät käsitteet. Luo käsitteiden pohjalta UML-luokkakaavio. Yhteyksien ja osallistumisrajoitteiden merkintä on oleellista, attribuuteista tarvitsee merkitä vain tärkeimmät.
+</p>
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tehtävä 3
+<% end %>
+
+<p>
+  Ohjelmistojen mallintamiseen ja suunnitteluun erikoistunut yritys "Softa ja Mallit" on luonut eräälle kiinteistöjen hallintaan erikoistuneelle yritykselle seuraavanlaisen UML-luokkakaavion. Koska yrityksen "Softa ja Mallit" erikoisosaaminen on mallinnuspuolella, sinun tehtävänäsi on suunnitella järjestelmää tukeva tietokanta. Muuta alla oleva luokkakaavio tietokantakaavioksi. Voit käyttää joko harjoituksissa tutuksi tullutta kaaviotyyppiä tai tehtävän 4 merkintätapaa. Merkitse kaikki attribuutit, avaimet ja viiteavaimet.
+</p>
+
+
+<figure>
+  <img src="/img/kiinteistot-kaavio.png" alt="[Talo|osoite,postinumero,postitoimipaikka]
+[Huoneisto|numero]
+[Vikailmoitus|aika,vikakuvaus,ilmoittaja]
+[Huoltotapahtuma|aika,toimenpidekuvaus]
+[Huoltomies|nimi]
+[Talo]1-sisältaa-1..*[Huoneisto]
+[Huoneisto]1-*[Vikailmoitus]
+[Huoltotapahtuma]*-1[Huoneisto]
+[Huoltotapahtuma]*-1..*[Vikailmoitus]
+[Huoltomies]1-*[Huoltotapahtuma]"/>
+</figure>
+
+
+
+<% partial 'partials/material_sub_sub_heading' do %>
+  Tehtävä 4
+<% end %>
+
+<p>
+  Juhlien organisointiin erikoistunut saksalainen yritys "Schöne Feste und Feuerkumpeln mit ganz gut Platzorganizierung" on rakentanut tietokantaekspertti Prof. Dr. auf der Relationin avulla plaseerauksissa eli vieraiden pöytiin asettelussa auttavan järjestelmän prototyypin. Järjestelmä mahdollistaa vieraan kirjautumisen ja itselle sopivan pöydän valitsemisen. Järjestelmän tietokanta on seuraavanlainen:
+</p>
+
+<pre>
+Poyta(id, nimi, tilavuus)
+Plaseeraus(vieras_id -&gt; Vieras, poyta_id -&gt; Poyta)
+Vieras(id, nimi, kayttajatunnus, salasana)
+</pre>
+
+<p>
+  Prof. Dr. auf der Relation on vihjannut saksalaiselle yritykselle että olet tuleva tietokantaekspertti ja he haluavat antaa sinulle näyttöpaikan. Luo seuraavat SQL-kyselyt. Osassa kyselyissä on annettu esimerkki siitä, miltä tulostaulun tulisi näyttää.
+</p>
+
+<ul>
+
+  <li>
+    Listaa pöydät ja niiden tilavuudet
+  </li>
+  
+  <li>
+    Listaa vieraiden nimet aakkosjärjestyksessä
+  </li>
+  
+  <li>
+    Listaa vieraat joita ei ole vielä asetettu mihinkään pöytään
+  </li>
+  
+  <li>
+    Listaa vieraat jotka on asetettu johonkin pöytään. Listauksessa tulee olla pöydän nimi jokaisen vieraan nimen vieressä. Esimerkkitulostus:
+
+    <pre>
+VIERAS    POYTA
+arto      punainen
+matti     keltainen
+leena     punainen
+    </pre>
+  </li>
+  
+  <li>
+    Listaa vieraiden määrä pöytää kohti. Esimerkkitulostus:
+
+    <pre>
+POYTA      VIERAITA
+punainen   6
+keltainen  4
+vihreä     5
+    </pre>
+
+  </li>
+  <li>
+    Listaa kaikki pöydät joihin mahtuu vielä vieraita
+  </li>
+</ul>
+
+<p>
+  Bonus: Voiko sama vieras olla plaseerattu useampaan pöytään? Miksi tai miksi ei?
+</p>
 
