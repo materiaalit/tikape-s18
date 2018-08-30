@@ -26,8 +26,4 @@ after_success:
 - git checkout HEAD CNAME
 - git add --all
 - git commit -m "$COMMIT_MESSAGE"
-- git push "https://hnbot:$GITHUB_API_KEY@github.com/materiaalit/tikape-s18.git" gh-pages:gh-pages
-  2>&1 | sed "s/$GITHUB_API_KEY/<confidential>/g"
-env:
-  global:
-    secure: zcg70+pxqF2Gv1g9qx+2hq7w4u2DTEtagiOJElphCLPLdnYfSku7pp+/pdkNOyxzN7dVBLoYhop+e8gtq1DqdfJfTeFnlmyNk1MF5Td/uOYMDoEKRZZLYf6YHtPcXruwFnQr6KIg9PnJCD3G4kHIrxufz0n1CskgDnRa+3h09kPmxDZtBBD+W9wIqNfhLf+gzn8Ddfnq+TUcj5L8obZEZN10JspS6RT5zskrffigvMT4jUaqSvV7j/ngZy/ZZiicdxsNcOX7uP01TqZlF4svP2TdqfWMm7bvD25A8/3KbcKCq6MtbopPubWjY+kWYNr6zpybu/RMpzBaMR6SCQcq5/uFYpb1YoQbTWsQZ0v9aBbJzhho61TQzrE9S5MsfTrzX7q/GYRoNW1h0WtUWjLvuXxAZv4Hs34OEYY0+3Sp2TqNiRVtTpjTjjChz/8mvenI02YFkGrbn/ppmI0cFeL15YX+agoARD02OCQQVJYQ0xEZQwp1j65iVnfKLvgErspjv5k2YcgYFrtMPqEWU/qw4n8vnwkfDzkI3XVdBBmJ/54nMqzqaXvyYb7vsUaLdOuQnL6RFARf2coIrbDQQnZmV8diW/WMRc6ifHArsCsv6I8R0updGc1NKhD+FZKtx9lhz6H9Qoum5FPR3mdd5lopF63OZ893Gpg+mWam9ry2sLQ=
+- git push "https://hnbot:$GITHUB_API_KEY@github.com/materiaalit/tikape-s18.git" gh-pages:gh-pages 2>&1 | sed "s/$GITHUB_API_KEY/<confidential>/g"
