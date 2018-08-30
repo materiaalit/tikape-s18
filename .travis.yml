@@ -22,7 +22,8 @@ script:
 - bundle exec middleman build
 after_success:
 - cd build
-- git checkout HEAD README.md .github
+- git checkout HEAD README.md
+- git checkout HEAD CNAME
 - git add --all
 - git commit -m "$COMMIT_MESSAGE"
 - git push "https://hnbot:$GITHUB_API_KEY@github.com/materiaalit/tikape-s18.git" gh-pages:gh-pages
