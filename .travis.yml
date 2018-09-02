@@ -16,17 +16,14 @@ before_script:
 - git config --global user.name "hnbot"
 - git config --global user.email "nygrenh+hnbot@gmail.com"
 - export COMMIT_MESSAGE=Update:\ $(git log -1 --pretty=%s)
-- git clone -b gh-pages --single-branch https://github.com/materiaalit/tikape-k18.git
+- git clone -b gh-pages --single-branch https://github.com/materiaalit/tikape-s18.git
   build
 script:
 - bundle exec middleman build
 after_success:
 - cd build
-- git checkout HEAD README.md .github
+- git checkout HEAD README.md
+- git checkout HEAD CNAME
 - git add --all
 - git commit -m "$COMMIT_MESSAGE"
-- git push "https://hnbot:$GITHUB_API_KEY@github.com/materiaalit/tikape-k18.git" gh-pages:gh-pages
-  2>&1 | sed "s/$GITHUB_API_KEY/<confidential>/g"
-env:
-  global:
-    secure: enUlVHlZKuMYZzvQnBKvJrRghHHNCIExWrX9YVxmGqWDhfdzo1IQwc2aiAssOWUsb3XrfTU5DTbKBNCp2MBENfZzr4ddyzIN+mNKFFcWu3c0MZcABzOZvIJHp0OgctF974tzz9aFW8e4PUsi5bfTICG3F/w21NQe/1fdaF76Px3opwynPAApy+9xYe1EtiwT6zBFnC5nVT4Rjr1Me3OcYXlX97ObRJFKZCvkHqI2O9SrW//fPMZQBDMJl0+NTsJQJERanOLJinQ2i/hEqvEO8MI7HaTUtJdHm9smMPzmJypbYbWmQHk57Jg9YH24Om29UcyPBqhRTKmWNzaARLOlknGsCxdWlgUlceSD0ikLyJK9EXGIUkRyIOe4aa4jijV26kNEnFw+2Bl4UrAyVx2GQW30q4OX3LfGpqrkfEtiJXlb+MYBE9imlrUmjy1VzCN0lsqoaXP3hjvSZr3iAgsuInZi3Khfu7LDPXJq/XbFwGniRBIBYzPFwLz+1W08X7/jstCT3bTip8SlzNIDNI3UkpMRp65qOY68tE2rLs/ezo66RVB7ESJa/E/d1YKolFtVyGr/MMb9CzcVffTSSRK4ToGhyCxi4lK0ZdBuZ4zAk341lkR8F/A4NdrB25phLclnPWGr+pHbPGvUo+kMFz6++tPiL95yMg5wBEh2g33K5Ew=
+- git push "https://hnbot:$GITHUB_API_KEY@github.com/materiaalit/tikape-s18.git" gh-pages:gh-pages 2>&1 | sed "s/$GITHUB_API_KEY/<confidential>/g"
